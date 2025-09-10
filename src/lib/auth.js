@@ -27,7 +27,7 @@ export const authOptions = {
           const savedUser = await saveNewUser({
             name: user.name,
             email: user.email,
-            emailVerified: profile?.email_verified,
+            emailVerified: profile?.email_verified || false,
             image: user.image
           })
           
