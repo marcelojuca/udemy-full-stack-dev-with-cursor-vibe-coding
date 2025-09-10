@@ -1,28 +1,6 @@
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-
-// Debug environment variables
-console.log("=== ENVIRONMENT VARIABLES DEBUG ===");
-console.log("NEXTAUTH_SECRET:", process.env.NEXTAUTH_SECRET ? "SET" : "UNDEFINED");
-console.log("GOOGLE_CLIENT_ID:", process.env.GOOGLE_CLIENT_ID ? "SET" : "UNDEFINED");
-console.log("GOOGLE_CLIENT_SECRET:", process.env.GOOGLE_CLIENT_SECRET ? "SET" : "UNDEFINED");
-console.log("NEXT_PUBLIC_SUPABASE_URL:", process.env.NEXT_PUBLIC_SUPABASE_URL ? "SET" : "UNDEFINED");
-console.log("NEXT_PUBLIC_SUPABASE_ANON_KEY:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? "SET" : "UNDEFINED"); 
-console.log("SUPABASE_SERVICE_ROLE_KEY:", process.env.SUPABASE_SERVICE_ROLE_KEY ? "SET" : "UNDEFINED");
-console.log("OPENAI_API_KEY:", process.env.OPENAI_API_KEY ? "SET" : "UNDEFINED");
-console.log("NEXTAUTH_URL:", process.env.NEXTAUTH_URL ? "SET" : "UNDEFINED");
-console.log("=== END DEBUG ===");
-
-// Additional check for Google OAuth
-if (!process.env.GOOGLE_CLIENT_ID) {
-  console.error("❌ GOOGLE_CLIENT_ID is missing!");
-}
-if (!process.env.GOOGLE_CLIENT_SECRET) {
-  console.error("❌ GOOGLE_CLIENT_SECRET is missing!");
-}
-if (!process.env.NEXTAUTH_SECRET) {
-  console.error("❌ NEXTAUTH_SECRET is missing!");
-}
+import { checkUserExists, saveNewUser, getUserByEmail } from './userManagement'
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,
@@ -30,14 +8,56 @@ export const authOptions = {
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      authorization: {
+        params: {
+          prompt: "select_account"
+        }
+      }
     })
   ],
-  // Use JWT strategy for now - we'll add Supabase later
+  // NextAuth callbacks with Supabase integration
   callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        // Check if user exists in our database
+        const userExists = await checkUserExists(user.email)
+        
+        if (!userExists) {
+          // Save new user to database
+          const savedUser = await saveNewUser({
+            name: user.name,
+            email: user.email,
+            emailVerified: profile?.email_verified,
+            image: user.image
+          })
+          
+          if (!savedUser) {
+            console.error('Failed to save new user to database')
+            return false // Prevent sign in if we can't save user
+          }
+        }
+        
+        return true
+      } catch (error) {
+        console.error('Error in signIn callback:', error)
+        return false // Prevent sign in on error
+      }
+    },
     async session({ session, token }) {
       // Send properties to the client
       if (session?.user) {
         session.user.id = token?.sub
+        
+        // Get user data from database to ensure we have the latest info
+        try {
+          const dbUser = await getUserByEmail(session.user.email)
+          if (dbUser) {
+            session.user.dbId = dbUser.id
+            session.user.createdAt = dbUser.created_at
+          }
+        } catch (error) {
+          console.error('Error fetching user data for session:', error)
+        }
       }
       return session
     },
@@ -59,7 +79,7 @@ export const authOptions = {
   session: {
     strategy: 'jwt',
   },
-  debug: process.env.NODE_ENV === 'development',
+  debug: false, // Disable debug logs
 }
 
 export default NextAuth(authOptions)
