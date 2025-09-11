@@ -38,7 +38,7 @@ export async function saveNewUser(userData) {
         {
           name: userData.name,
           email: userData.email,
-          email_verified: userData.emailVerified ? new Date(userData.emailVerified) : null,
+          email_verified: userData.emailVerified ? new Date() : null,
           image: userData.image,
         }
       ])
