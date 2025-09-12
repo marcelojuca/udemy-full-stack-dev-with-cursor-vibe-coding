@@ -4,7 +4,7 @@ import { Github, Twitter, Linkedin } from "lucide-react"
 function Footer() {
   return (
     <footer className="bg-card border-t border-border">
-      <div className="container py-12 sm:py-16 px-4">
+      <div className="container mx-auto py-12 sm:py-16 px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-6">
           <div className="space-y-4 sm:col-span-2 lg:col-span-1">
             <div className="flex items-center space-x-2">
