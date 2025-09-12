@@ -10,6 +10,12 @@ const nextConfig = {
       },
     ],
   },
+  // Reduce logging in development
+  logging: {
+    fetches: {
+      fullUrl: false,
+    },
+  },
 };
 
 export default nextConfig;
