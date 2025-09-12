@@ -41,28 +41,30 @@ const features = [
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-20 px-4 bg-muted/30">
+    <section id="features" className="py-12 sm:py-16 md:py-20 px-4 bg-muted/30">
       <div className="container">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-balance mb-4">
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance mb-4 leading-tight">
             Powerful Features for Repository Analysis
           </h2>
-          <p className="text-xl text-muted-foreground text-balance max-w-2xl mx-auto">
+          <p className="text-lg sm:text-xl text-muted-foreground text-balance max-w-2xl mx-auto leading-relaxed">
             Everything you need to understand and track GitHub repositories, from basic insights to advanced analytics.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {features.map((feature, index) => (
-            <Card key={index} className="bg-card border-border hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <div className="p-3 bg-primary/10 rounded-lg w-fit mb-4">
-                  <feature.icon className="h-6 w-6 text-primary" />
+            <Card key={index} className="bg-card border-border hover:shadow-lg transition-shadow h-full">
+              <CardHeader className="pb-4">
+                <div className="p-2 sm:p-3 bg-primary/10 rounded-lg w-fit mb-3 sm:mb-4">
+                  <feature.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 </div>
-                <CardTitle className="text-card-foreground">{feature.title}</CardTitle>
+                <CardTitle className="text-card-foreground text-base sm:text-lg">{feature.title}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <CardDescription className="text-muted-foreground">{feature.description}</CardDescription>
+              <CardContent className="pt-0">
+                <CardDescription className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+                  {feature.description}
+                </CardDescription>
               </CardContent>
             </Card>
           ))}
