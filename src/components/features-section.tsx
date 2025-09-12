@@ -9,41 +9,18 @@ const features = [
       "Get AI-powered summaries of any GitHub repository, understanding its purpose, tech stack, and key features at a glance.",
   },
   {
-    icon: Star,
-    title: "Star Analytics",
-    description:
-      "Track star growth over time, analyze popularity trends, and compare repositories to understand community engagement.",
-  },
-  {
     icon: Zap,
     title: "Cool Facts Discovery",
     description:
       "Uncover interesting statistics, contributor insights, and unique patterns that make each repository special.",
   },
-  {
-    icon: GitBranch,
-    title: "Pull Request Insights",
-    description:
-      "Monitor the latest important pull requests, track development activity, and stay updated on project evolution.",
-  },
-  {
-    icon: BarChart3,
-    title: "Version Tracking",
-    description:
-      "Keep track of version releases, changelog analysis, and understand the development lifecycle of projects.",
-  },
-  {
-    icon: Shield,
-    title: "Security Analysis",
-    description: "Get insights into repository security practices, dependency health, and code quality metrics.",
-  },
 ]
 
 export function FeaturesSection() {
   return (
-    <section id="features" className="py-12 sm:py-16 md:py-20 px-4 bg-muted/30">
-      <div className="container">
-        <div className="text-center mb-12 sm:mb-16">
+    <section id="features" className="py-8 sm:py-12 md:py-16 px-4 bg-muted/30">
+      <div className="container mx-auto">
+        <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-balance mb-4 leading-tight">
             Powerful Features for Repository Analysis
           </h2>
@@ -52,7 +29,7 @@ export function FeaturesSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl mx-auto justify-items-center">
           {features.map((feature, index) => (
             <Card key={index} className="bg-card border-border hover:shadow-lg transition-shadow h-full">
               <CardHeader className="pb-4">

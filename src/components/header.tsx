@@ -17,7 +17,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between px-4 sm:px-6">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
         <div className="flex items-center space-x-2">
           <Github className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           <span className="text-lg sm:text-xl font-bold text-foreground">Dandi GitHub Analyzer</span>
@@ -89,7 +89,7 @@ export function Header() {
       {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
-          <nav className="container px-4 py-4 space-y-4">
+          <nav className="container mx-auto px-4 py-4 space-y-4">
             <a
               href="#features"
               className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
