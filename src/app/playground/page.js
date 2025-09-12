@@ -1,17 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Sidebar from '../../components/Sidebar';
 import Notification from '../../components/Notification';
 import { useSidebar } from '../../hooks/useSidebar';
+import { useAuth } from '../../contexts/AuthContext';
+import { getApiKeys, validateApiKey } from '../../lib/apiKeysService';
 
 export default function Playground() {
   const [apiKey, setApiKey] = useState('');
+  const [userApiKeys, setUserApiKeys] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [showUserKeys, setShowUserKeys] = useState(false);
   const router = useRouter();
   const { sidebarVisible, toggleSidebar } = useSidebar();
+  const { isAuthenticated, loading: authLoading } = useAuth();
+
+  // Load user's API keys if authenticated
+  useEffect(() => {
+    if (isAuthenticated) {
+      loadUserApiKeys();
+    }
+  }, [isAuthenticated]);
+
+  const loadUserApiKeys = async () => {
+    try {
+      const keys = await getApiKeys();
+      setUserApiKeys(keys);
+    } catch (error) {
+      console.error('Error loading user API keys:', error);
+      // Don't show error notification for this as it's not critical
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,17 +46,9 @@ export default function Playground() {
     setLoading(true);
     
     try {
-      const response = await fetch('/api/validate-key', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ apiKey: apiKey.trim() }),
-      });
+      const data = await validateApiKey(apiKey.trim());
 
-      const data = await response.json();
-
-      if (response.ok && data.valid) {
+      if (data.valid) {
         window.showToastNotification('Valid API key', 'success');
         // Store the API key data in sessionStorage for the protected page
         sessionStorage.setItem('validatedApiKey', JSON.stringify(data.apiKeyData));
@@ -51,6 +65,11 @@ export default function Playground() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSelectUserKey = (key) => {
+    setApiKey(key.key);
+    setShowUserKeys(false);
   };
 
   return (
@@ -112,9 +131,48 @@ export default function Playground() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="apiKey" className="block text-sm font-medium text-black mb-2">
-                    API Key
-                  </label>
+                  <div className="flex justify-between items-center mb-2">
+                    <label htmlFor="apiKey" className="block text-sm font-medium text-black">
+                      API Key
+                    </label>
+                    {isAuthenticated && userApiKeys.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => setShowUserKeys(!showUserKeys)}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                      >
+                        {showUserKeys ? 'Hide' : 'Use My Keys'} ({userApiKeys.length})
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* User API Keys Dropdown */}
+                  {showUserKeys && userApiKeys.length > 0 && (
+                    <div className="mb-4 border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
+                      {userApiKeys.map((key) => (
+                        <div
+                          key={key.id}
+                          className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                          onClick={() => handleSelectUserKey(key)}
+                        >
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900">{key.name}</h4>
+                              <p className="text-xs text-gray-500">{key.description || 'No description'}</p>
+                            </div>
+                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                              key.key_type === 'production' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-blue-100 text-blue-800'
+                            }`}>
+                              {key.key_type}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  
                   <input
                     type="text"
                     id="apiKey"
@@ -164,6 +222,17 @@ export default function Playground() {
                     </div>
                   </div>
                 </div>
+                
+                {isAuthenticated && (
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      onClick={() => router.push('/dashboards')}
+                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                    >
+                      Manage Your API Keys →
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

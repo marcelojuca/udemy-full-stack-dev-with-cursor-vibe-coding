@@ -6,14 +6,25 @@ import Link from 'next/link';
 import Sidebar from '../../components/Sidebar';
 import Notification from '../../components/Notification';
 import { useSidebar } from '../../hooks/useSidebar';
+import { useAuth } from '../../contexts/AuthContext';
+import { getApiKeys, validateApiKey } from '../../lib/apiKeysService';
 
 export default function Protected() {
   const [apiKeyData, setApiKeyData] = useState(null);
+  const [userApiKeys, setUserApiKeys] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedKeyId, setSelectedKeyId] = useState(null);
   const router = useRouter();
   const { sidebarVisible, toggleSidebar } = useSidebar();
+  const { isAuthenticated, loading: authLoading } = useAuth();
 
   useEffect(() => {
+    // Redirect if not authenticated
+    if (!authLoading && !isAuthenticated) {
+      router.push('/auth/signin');
+      return;
+    }
+
     // Get the validated API key data from sessionStorage
     const storedData = sessionStorage.getItem('validatedApiKey');
     if (storedData) {
@@ -25,18 +36,58 @@ export default function Protected() {
         router.push('/playground');
       }
     } else {
-      window.showToastNotification('No valid session found', 'error');
-      router.push('/playground');
+      // If no stored data, try to load user's API keys
+      if (isAuthenticated) {
+        loadUserApiKeys();
+      } else {
+        window.showToastNotification('No valid session found', 'error');
+        router.push('/playground');
+      }
     }
     setLoading(false);
-  }, [router]);
+  }, [router, isAuthenticated, authLoading]);
+
+  const loadUserApiKeys = async () => {
+    try {
+      const keys = await getApiKeys();
+      setUserApiKeys(keys);
+      if (keys.length > 0) {
+        setSelectedKeyId(keys[0].id);
+        setApiKeyData(keys[0]);
+      }
+    } catch (error) {
+      console.error('Error loading user API keys:', error);
+      window.showToastNotification('Failed to load API keys', 'error');
+    }
+  };
 
   const handleBackToPlayground = () => {
     sessionStorage.removeItem('validatedApiKey');
     router.push('/playground');
   };
 
-  if (loading) {
+  const handleKeySelection = (keyId) => {
+    setSelectedKeyId(keyId);
+    const selectedKey = userApiKeys.find(key => key.id === keyId);
+    setApiKeyData(selectedKey);
+  };
+
+  const handleValidateKey = async (key) => {
+    try {
+      const result = await validateApiKey(key);
+      if (result.valid) {
+        window.showToastNotification('API key is valid', 'success');
+        setApiKeyData(result.apiKeyData);
+      } else {
+        window.showToastNotification('Invalid API key', 'error');
+      }
+    } catch (error) {
+      console.error('Error validating API key:', error);
+      window.showToastNotification('Error validating API key', 'error');
+    }
+  };
+
+  if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
@@ -47,8 +98,90 @@ export default function Protected() {
     );
   }
 
-  if (!apiKeyData) {
+  if (!isAuthenticated) {
     return null; // Will redirect in useEffect
+  }
+
+  if (!apiKeyData && userApiKeys.length === 0) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex">
+        {/* Mobile Backdrop */}
+        {sidebarVisible && (
+          <div 
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+            onClick={() => toggleSidebar()}
+          />
+        )}
+        
+        {/* Sidebar */}
+        {sidebarVisible && (
+          <div className="fixed md:relative z-50 md:z-auto">
+            <Sidebar />
+          </div>
+        )}
+
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col">
+          {/* Top Bar */}
+          <div className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleSidebar}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+              >
+                {sidebarVisible ? (
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-gray-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                )}
+              </button>
+              <h1 className="text-2xl font-bold text-gray-900">Protected Area</h1>
+            </div>
+            <div className="flex space-x-3">
+              <button
+                onClick={() => router.push('/dashboards')}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Manage API Keys
+              </button>
+              <button
+                onClick={handleBackToPlayground}
+                className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+              >
+                Back to Playground
+              </button>
+            </div>
+          </div>
+
+          {/* Main Content Area */}
+          <div className="flex-1 p-6">
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center">
+                <svg className="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                <h2 className="text-2xl font-bold text-gray-900 mb-4">No API Keys Found</h2>
+                <p className="text-gray-600 mb-6">You need to create an API key to access the protected area.</p>
+                <button
+                  onClick={() => router.push('/dashboards')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Create API Key
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Notification Component */}
+        <Notification />
+      </div>
+    );
   }
 
   return (
@@ -113,6 +246,59 @@ export default function Protected() {
                 </div>
               </div>
             </div>
+
+            {/* API Key Selection */}
+            {userApiKeys.length > 0 && (
+              <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+                <div className="p-6 border-b border-gray-200">
+                  <h2 className="text-xl font-bold text-gray-900">Select API Key</h2>
+                  <p className="text-gray-600 mt-1">Choose an API key to view its details.</p>
+                </div>
+                
+                <div className="p-6">
+                  <div className="grid gap-3">
+                    {userApiKeys.map((key) => (
+                      <div 
+                        key={key.id} 
+                        className={`border rounded-lg p-4 cursor-pointer transition-colors ${
+                          selectedKeyId === key.id 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => handleKeySelection(key.id)}
+                      >
+                        <div className="flex justify-between items-center">
+                          <div className="flex-1">
+                            <div className="flex items-center space-x-3 mb-1">
+                              <h3 className="text-lg font-medium text-gray-900">{key.name}</h3>
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                key.key_type === 'production' 
+                                  ? 'bg-green-100 text-green-800' 
+                                  : 'bg-blue-100 text-blue-800'
+                              }`}>
+                                {key.key_type}
+                              </span>
+                            </div>
+                            <p className="text-gray-600 text-sm">{key.description || 'No description'}</p>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleValidateKey(key.key);
+                              }}
+                              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                            >
+                              Validate
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* API Key Details */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200">
