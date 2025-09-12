@@ -1,12 +1,29 @@
 
 import { NextResponse } from 'next/server';
-import { getApiKeys, addApiKey } from '../../../lib/apiKeysStoreSupabase';
+import { requireAuth } from '../../../lib/auth-helpers';
+import { supabaseAdmin } from '../../../lib/supabase';
 
-// GET /api/api-keys - Fetch all API keys
-export async function GET() {
+// GET /api/api-keys - Fetch all API keys for authenticated user
+export async function GET(request) {
   try {
-    const apiKeys = await getApiKeys();
-    return NextResponse.json(apiKeys);
+    const { userId, error } = await requireAuth(request);
+    if (error) return error;
+
+    const { data, error: dbError } = await supabaseAdmin
+      .from('api_keys')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+
+    if (dbError) {
+      console.error('Error fetching API keys:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to fetch API keys' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data || []);
   } catch (error) {
     console.error('GET /api/api-keys error:', error);
     return NextResponse.json(
@@ -16,9 +33,12 @@ export async function GET() {
   }
 }
 
-// POST /api/api-keys - Create a new API key
+// POST /api/api-keys - Create a new API key for authenticated user
 export async function POST(request) {
   try {
+    const { userId, error } = await requireAuth(request);
+    if (error) return error;
+
     const body = await request.json();
     const { name, description, permissions, keyType, limitUsage, monthlyLimit } = body;
 
@@ -39,6 +59,7 @@ export async function POST(request) {
     };
 
     const newApiKey = {
+      user_id: userId,
       name,
       description: description || '',
       key: generateApiKey(),
@@ -48,9 +69,21 @@ export async function POST(request) {
       monthly_limit: monthlyLimit || 1000
     };
 
-    const createdKey = await addApiKey(newApiKey);
+    const { data, error: dbError } = await supabaseAdmin
+      .from('api_keys')
+      .insert([newApiKey])
+      .select()
+      .single();
 
-    return NextResponse.json(createdKey, { status: 201 });
+    if (dbError) {
+      console.error('Error creating API key:', dbError);
+      return NextResponse.json(
+        { error: 'Failed to create API key' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(data, { status: 201 });
   } catch (error) {
     console.error('POST /api/api-keys error:', error);
     return NextResponse.json(

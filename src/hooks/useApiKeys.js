@@ -6,7 +6,9 @@ export const useApiKeys = () => {
 
   const fetchApiKeys = async () => {
     try {
-      const response = await fetch('/api/api-keys');
+      const response = await fetch('/api/api-keys', {
+        credentials: 'include', // Include session cookies for authentication
+      });
       if (response.ok) {
         const data = await response.json();
         setApiKeys(data);
@@ -25,6 +27,7 @@ export const useApiKeys = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include session cookies for authentication
         body: JSON.stringify(formData),
       });
 
@@ -48,6 +51,7 @@ export const useApiKeys = () => {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include', // Include session cookies for authentication
         body: JSON.stringify(formData),
       });
 
@@ -68,6 +72,7 @@ export const useApiKeys = () => {
     try {
       const response = await fetch(`/api/api-keys/${id}`, {
         method: 'DELETE',
+        credentials: 'include', // Include session cookies for authentication
       });
 
       if (response.ok) {

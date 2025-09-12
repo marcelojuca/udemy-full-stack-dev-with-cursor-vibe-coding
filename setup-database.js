@@ -104,6 +104,31 @@ async function setupDatabase() {
       console.log('✅ Verification tokens table created')
     }
 
+    // Create api_keys table
+    const { error: apiKeysError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS api_keys (
+          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          name VARCHAR(255) NOT NULL,
+          description TEXT,
+          key VARCHAR(255) UNIQUE NOT NULL,
+          permissions JSONB DEFAULT '[]',
+          key_type VARCHAR(50) DEFAULT 'development',
+          limit_usage BOOLEAN DEFAULT false,
+          monthly_limit INTEGER DEFAULT 1000,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `
+    })
+    
+    if (apiKeysError) {
+      console.log('API keys table already exists or error:', apiKeysError.message)
+    } else {
+      console.log('✅ API keys table created')
+    }
+
     // Create indexes
     const { error: indexesError } = await supabase.rpc('exec_sql', {
       sql: `
@@ -111,6 +136,8 @@ async function setupDatabase() {
         CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
         CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(session_token);
         CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON verification_tokens(token);
+        CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
+        CREATE INDEX IF NOT EXISTS idx_api_keys_key ON api_keys(key);
       `
     })
     
