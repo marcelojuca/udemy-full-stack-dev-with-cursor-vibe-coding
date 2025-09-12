@@ -1,3 +1,5 @@
+import type React from "react"
+import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
@@ -12,13 +14,17 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Dandi GitHub Analyzer - Unlock Insights from Your GitHub Repositories",
   description: "Get comprehensive insights, summaries, stars tracking, cool facts, and latest pull requests from any GitHub repository with Dandi GitHub Analyzer.",
   generator: "v0.app",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
     <html lang="en">
       <body

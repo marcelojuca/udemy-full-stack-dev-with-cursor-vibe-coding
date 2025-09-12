@@ -16,6 +16,13 @@ const nextConfig = {
       fullUrl: false,
     },
   },
+  // TypeScript and ESLint checking enabled
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    ignoreDuringBuilds: false,
+  },
 };
 
 export default nextConfig;
