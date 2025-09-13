@@ -1,18 +1,31 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import { useSession, signIn, signOut } from 'next-auth/react'
 
-const AuthContext = createContext({
+interface AuthContextType {
+  user: any;
+  session: any;
+  loading: boolean;
+  login: (provider?: string) => Promise<void>;
+  logout: () => Promise<void>;
+  isAuthenticated: boolean;
+}
+
+const AuthContext = createContext<AuthContextType>({
   user: null,
   session: null,
   loading: true,
-  login: () => {},
-  logout: () => {},
+  login: async () => {},
+  logout: async () => {},
   isAuthenticated: false,
 })
 
-export function AuthProvider({ children }) {
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
   const { data: session, status } = useSession()
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)

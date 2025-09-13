@@ -3,7 +3,12 @@
 import { useAuth } from '../contexts/AuthContext'
 import { useState } from 'react'
 
-export default function GoogleLoginButton({ className = '', children }) {
+interface GoogleLoginButtonProps {
+  className?: string;
+  children?: React.ReactNode;
+}
+
+export default function GoogleLoginButton({ className = '', children }: GoogleLoginButtonProps) {
   const { login, loading } = useAuth()
   const [isLoading, setIsLoading] = useState(false)
 
