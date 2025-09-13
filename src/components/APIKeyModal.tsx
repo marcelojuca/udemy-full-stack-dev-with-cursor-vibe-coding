@@ -1,5 +1,17 @@
 import Link from 'next/link';
 
+interface APIKeyModalProps {
+  isOpen: boolean;
+  showCreateForm: boolean;
+  editingKey: any;
+  viewingKey: any;
+  formData: any;
+  onClose: () => void;
+  onSubmit: (e: React.FormEvent) => void;
+  onFormDataChange: (data: any) => void;
+  onTogglePermission: (permission: string) => void;
+}
+
 export default function APIKeyModal({
   isOpen,
   showCreateForm,
@@ -10,7 +22,7 @@ export default function APIKeyModal({
   onSubmit,
   onFormDataChange,
   onTogglePermission
-}) {
+}: APIKeyModalProps) {
   const availablePermissions = ['create', 'read', 'edit', 'delete', 'admin'];
 
   if (!isOpen) return null;

@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { copyToClipboard } from '../utils/clipboard';
 
+interface APIKeyTableProps {
+  apiKeys: any[];
+  onView: (key: any) => void;
+  onEdit: (key: any) => void;
+  onDelete: (id: string) => void;
+}
+
 export default function APIKeyTable({ 
   apiKeys, 
   onView, 
   onEdit, 
   onDelete 
-}) {
+}: APIKeyTableProps) {
   const [copiedKeyId, setCopiedKeyId] = useState(null);
 
   const handleCopy = async (key, keyId) => {
