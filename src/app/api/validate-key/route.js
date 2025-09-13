@@ -1,14 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
+import { validateApiKey } from '../../../lib/rateLimiting';
 
 export async function POST(request) {
   try {
@@ -21,39 +12,25 @@ export async function POST(request) {
       );
     }
 
-    // Query the database to find the API key
-    const { data, error } = await supabase
-      .from('api_keys')
-      .select('*')
-      .eq('key', apiKey);
+    // Use the reusable validation function
+    const validation = await validateApiKey(apiKey);
 
-    if (error) {
-      console.error('Database error:', error);
+    if (!validation.valid) {
+      const statusCode = validation.error === 'Invalid API key' ? 401 : 500;
       return NextResponse.json(
-        { valid: false, error: 'Database error' },
-        { status: 500 }
+        { valid: false, error: validation.error },
+        { status: statusCode }
       );
     }
-
-    // Check if no API key was found
-    if (!data || data.length === 0) {
-      return NextResponse.json(
-        { valid: false, error: 'Invalid API key' },
-        { status: 401 }
-      );
-    }
-
-    // Get the first (and should be only) API key
-    const apiKeyData = data[0];
 
     // API key is valid, return the key data (excluding the actual key for security)
-    const { key, ...keyData } = apiKeyData;
+    const { key, ...keyData } = validation.data;
     
     return NextResponse.json({
       valid: true,
       apiKeyData: {
         ...keyData,
-        key: apiKeyData.key // Include the key for the protected page
+        key: validation.data.key // Include the key for the protected page
       }
     });
 
