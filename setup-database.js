@@ -117,6 +117,8 @@ async function setupDatabase() {
           key_type VARCHAR(50) DEFAULT 'development',
           limit_usage BOOLEAN DEFAULT false,
           monthly_limit INTEGER DEFAULT 1000,
+          current_usage INTEGER DEFAULT 0,
+          last_reset_month VARCHAR(7),
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
@@ -127,6 +129,21 @@ async function setupDatabase() {
       console.log('API keys table already exists or error:', apiKeysError.message)
     } else {
       console.log('✅ API keys table created')
+    }
+
+    // Add usage tracking columns to existing api_keys table if they don't exist
+    const { error: addUsageColumnsError } = await supabase.rpc('exec_sql', {
+      sql: `
+        ALTER TABLE api_keys 
+        ADD COLUMN IF NOT EXISTS current_usage INTEGER DEFAULT 0,
+        ADD COLUMN IF NOT EXISTS last_reset_month VARCHAR(7);
+      `
+    })
+    
+    if (addUsageColumnsError) {
+      console.log('Usage tracking columns already exist or error:', addUsageColumnsError.message)
+    } else {
+      console.log('✅ Usage tracking columns added to api_keys table')
     }
 
     // Create indexes

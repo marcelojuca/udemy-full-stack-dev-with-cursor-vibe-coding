@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { analyzeReadme } from '../../../lib/chain';
+import { checkAndIncrementUsage } from '../../../lib/rateLimiting';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -23,25 +24,19 @@ export async function POST(request) {
       );
     }
 
-    // Query the database to find the API key
-    const { data, error } = await supabase
-      .from('api_keys')
-      .select('*')
-      .eq('key', apiKey);
-
-    if (error) {
-      console.error('Database error:', error);
+    // Check rate limiting and increment usage
+    const rateLimitResult = await checkAndIncrementUsage(apiKey);
+    
+    if (!rateLimitResult.allowed) {
+      const statusCode = rateLimitResult.error === 'Invalid API key' ? 401 : 429;
       return NextResponse.json(
-        { valid: false, error: 'Database error' },
-        { status: 500 }
-      );
-    }
-
-    // Check if no API key was found
-    if (!data || data.length === 0) {
-      return NextResponse.json(
-        { valid: false, error: 'Invalid API key' },
-        { status: 401 }
+        { 
+          valid: false, 
+          error: rateLimitResult.error,
+          usage: rateLimitResult.usage,
+          limit: rateLimitResult.limit
+        },
+        { status: statusCode }
       );
     }
 
@@ -71,7 +66,9 @@ export async function POST(request) {
       return NextResponse.json({
         success: true,
         analysis,
-        githubUrl
+        githubUrl,
+        usage: rateLimitResult.usage,
+        limit: rateLimitResult.limit
       });
     } catch (readmeError) {
       console.error('Error processing GitHub repository:', readmeError);

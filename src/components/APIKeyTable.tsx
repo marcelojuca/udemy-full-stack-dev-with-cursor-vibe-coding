@@ -37,6 +37,11 @@ export default function APIKeyTable({
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">NAME</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TYPE</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">USAGE</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">LIMIT</th>
+            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <span className="hidden sm:inline">LAST LIMIT RESET</span>
+              <span className="sm:hidden">RESET</span>
+            </th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">KEY</th>
             <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">OPTIONS</th>
           </tr>
@@ -54,7 +59,30 @@ export default function APIKeyTable({
                   {key.key_type === 'production' ? 'prod' : 'dev'}
                 </span>
               </td>
-              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">0</td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {key.current_usage || 0}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {key.limit_usage ? (key.monthly_limit || 0).toLocaleString() : 'Unlimited'}
+              </td>
+              <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                {key.last_reset_month ? (
+                  <div>
+                    <span className="hidden sm:inline">
+                      {new Date(key.last_reset_month + '-01').toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short' 
+                      })}
+                    </span>
+                    <span className="sm:hidden">
+                      {new Date(key.last_reset_month + '-01').toLocaleDateString('en-US', { 
+                        year: '2-digit', 
+                        month: 'short' 
+                      })}
+                    </span>
+                  </div>
+                ) : 'Never'}
+              </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 font-mono">
                 {key.key.substring(0, 8)}************************
               </td>
