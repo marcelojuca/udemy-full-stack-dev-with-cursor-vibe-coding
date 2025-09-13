@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { analyzeReadme } from '../../../lib/chain';
 import { checkAndIncrementUsage } from '../../../lib/rateLimiting';
+import { getBasicRepoInfo } from '../../../lib/getRepoInfo';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -57,8 +58,11 @@ export async function POST(request) {
     }
 
     try {
-      // Fetch README content
-      const readmeContent = await getReadmeContent(githubUrl);
+      // Fetch README content and repository information in parallel
+      const [readmeContent, repoInfo] = await Promise.all([
+        getReadmeContent(githubUrl),
+        getBasicRepoInfo(githubUrl)
+      ]);
       
       // Analyze the README using LangChain
       const analysis = await analyzeReadme(readmeContent);
@@ -67,6 +71,12 @@ export async function POST(request) {
         success: true,
         analysis,
         githubUrl,
+        repositoryInfo: {
+          stars: repoInfo.stars,
+          version: repoInfo.version,
+          website: repoInfo.website,
+          license: repoInfo.license
+        },
         usage: rateLimitResult.usage,
         limit: rateLimitResult.limit
       });
