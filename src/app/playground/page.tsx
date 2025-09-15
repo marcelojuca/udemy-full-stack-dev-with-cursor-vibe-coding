@@ -7,69 +7,61 @@ import Sidebar from '../../components/Sidebar';
 import Notification from '../../components/Notification';
 import { useSidebar } from '../../hooks/useSidebar';
 import { useAuth } from '../../contexts/AuthContext';
-import { getApiKeys, validateApiKey } from '../../lib/apiKeysService';
+// Removed API key validation imports; not needed for GitHub summarizer flow
 
 export default function Playground() {
   const [apiKey, setApiKey] = useState('');
-  const [userApiKeys, setUserApiKeys] = useState([]);
+  const [githubUrl, setGithubUrl] = useState('');
+  const [responseData, setResponseData] = useState<any | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showUserKeys, setShowUserKeys] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
   const { sidebarVisible, toggleSidebar } = useSidebar();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
-  // Load user's API keys if authenticated
-  useEffect(() => {
-    if (isAuthenticated) {
-      loadUserApiKeys();
-    }
-  }, [isAuthenticated]);
-
-  const loadUserApiKeys = async () => {
-    try {
-      const keys = await getApiKeys();
-      setUserApiKeys(keys);
-    } catch (error) {
-      console.error('Error loading user API keys:', error);
-      // Don't show error notification for this as it's not critical
-    }
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError(null);
+    setResponseData(null);
+
+    if (!githubUrl.trim()) {
+      window.showToastNotification('Please enter a GitHub URL', 'error');
+      return;
+    }
     if (!apiKey.trim()) {
       window.showToastNotification('Please enter an API key', 'error');
       return;
     }
 
     setLoading(true);
-    
-    try {
-      const data = await validateApiKey(apiKey.trim());
 
-      if (data.valid) {
-        window.showToastNotification('Valid API key', 'success');
-        // Store the API key data in sessionStorage for the protected page
-        sessionStorage.setItem('validatedApiKey', JSON.stringify(data.apiKeyData));
-        // Navigate to protected page after a short delay
-        setTimeout(() => {
-          router.push('/protected');
-        }, 1000);
-      } else {
-        window.showToastNotification('Invalid API key', 'error');
+    try {
+      const res = await fetch('/api/github-summarizer', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': apiKey.trim(),
+        },
+        body: JSON.stringify({ githubUrl: githubUrl.trim() }),
+      });
+
+      const data = await res.json();
+      setResponseData(data);
+
+      if (!res.ok) {
+        setError(data?.error || 'Request failed');
+        window.showToastNotification(data?.error || 'Request failed', 'error');
+        return;
       }
-    } catch (error) {
-      console.error('Error validating API key:', error);
-      window.showToastNotification('Error validating API key', 'error');
+
+      window.showToastNotification('Repository analyzed successfully', 'success');
+    } catch (err: any) {
+      console.error('Error calling GitHub summarizer:', err);
+      setError('Unexpected error calling GitHub summarizer');
+      window.showToastNotification('Unexpected error', 'error');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleSelectUserKey = (key) => {
-    setApiKey(key.key);
-    setShowUserKeys(false);
   };
 
   return (
@@ -109,7 +101,7 @@ export default function Playground() {
                 </svg>
               )}
             </button>
-            <h1 className="text-2xl font-bold text-gray-900">API Playground</h1>
+            <h1 className="text-2xl font-bold text-gray-900">GitHub Summarizer</h1>
           </div>
         </div>
 
@@ -123,56 +115,32 @@ export default function Playground() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-2">API Key Validator</h2>
+                <h2 className="text-2xl font-bold text-gray-900 mb-2">Analyze a GitHub Repository</h2>
                 <p className="text-gray-600">
-                  Enter your API key below to validate it and access the protected area.
+                  Enter a GitHub repository URL and your API key to get a JSON summary.
                 </p>
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <div className="flex justify-between items-center mb-2">
-                    <label htmlFor="apiKey" className="block text-sm font-medium text-black">
-                      API Key
-                    </label>
-                    {isAuthenticated && userApiKeys.length > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setShowUserKeys(!showUserKeys)}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        {showUserKeys ? 'Hide' : 'Use My Keys'} ({userApiKeys.length})
-                      </button>
-                    )}
-                  </div>
-                  
-                  {/* User API Keys Dropdown */}
-                  {showUserKeys && userApiKeys.length > 0 && (
-                    <div className="mb-4 border border-gray-200 rounded-lg max-h-48 overflow-y-auto">
-                      {userApiKeys.map((key) => (
-                        <div
-                          key={key.id}
-                          className="p-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
-                          onClick={() => handleSelectUserKey(key)}
-                        >
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h4 className="text-sm font-medium text-gray-900">{key.name}</h4>
-                              <p className="text-xs text-gray-500">{key.description || 'No description'}</p>
-                            </div>
-                            <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                              key.key_type === 'production' 
-                                ? 'bg-green-100 text-green-800' 
-                                : 'bg-blue-100 text-blue-800'
-                            }`}>
-                              {key.key_type}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  
+                  <label htmlFor="githubUrl" className="block text-sm font-medium text-black mb-2">
+                    GitHub Repository URL
+                  </label>
+                  <input
+                    type="url"
+                    id="githubUrl"
+                    value={githubUrl}
+                    onChange={(e) => setGithubUrl(e.target.value)}
+                    placeholder="https://github.com/owner/repo"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-600"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label htmlFor="apiKey" className="block text-sm font-medium text-black mb-2">
+                    API Key
+                  </label>
                   <input
                     type="text"
                     id="apiKey"
@@ -182,9 +150,6 @@ export default function Playground() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder-gray-600"
                     required
                   />
-                  <p className="text-xs text-gray-500 mt-2">
-                    Your API key will be validated against our database.
-                  </p>
                 </div>
 
                 <button
@@ -195,14 +160,14 @@ export default function Playground() {
                   {loading ? (
                     <>
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span>Validating...</span>
+                      <span>Analyzing...</span>
                     </>
                   ) : (
                     <>
                       <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                       </svg>
-                      <span>Validate API Key</span>
+                      <span>Summarize Repository</span>
                     </>
                   )}
                 </button>
@@ -217,20 +182,24 @@ export default function Playground() {
                     <div>
                       <h3 className="text-sm font-medium text-blue-900 mb-1">How it works</h3>
                       <p className="text-sm text-blue-800">
-                        Enter your API key to validate it against our database. If valid, you&apos;ll be redirected to a protected area where you can view your API key details.
+                        Provide a GitHub URL like <code>https://github.com/owner/repo</code> and your API key. We&apos;ll fetch the README and return a JSON analysis.
                       </p>
                     </div>
                   </div>
                 </div>
-                
-                {isAuthenticated && (
-                  <div className="mt-4 flex justify-center">
-                    <button
-                      onClick={() => router.push('/dashboards')}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      Manage Your API Keys →
-                    </button>
+
+                {error && (
+                  <div className="mt-4 bg-red-50 text-red-800 border border-red-200 rounded p-3 text-sm">
+                    {error}
+                  </div>
+                )}
+
+                {responseData && (
+                  <div className="mt-6">
+                    <h4 className="text-sm font-semibold text-gray-900 mb-2">Response</h4>
+                    <pre className="w-full text-left text-xs md:text-sm bg-gray-900 text-green-200 p-4 rounded-lg overflow-auto">
+{JSON.stringify(responseData, null, 2)}
+                    </pre>
                   </div>
                 )}
               </div>
