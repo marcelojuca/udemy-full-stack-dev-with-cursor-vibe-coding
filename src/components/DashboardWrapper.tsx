@@ -106,13 +106,13 @@ export default function DashboardWrapper() {
   // Show login page if not authenticated
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
-            <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            <h2 className="mt-6 text-center text-3xl font-extrabold text-foreground">
               Welcome to API Key Manager
             </h2>
-            <p className="mt-2 text-center text-sm text-gray-600">
+            <p className="mt-2 text-center text-sm text-muted-foreground">
               Sign in with your Google account to access the dashboard
             </p>
           </div>
@@ -121,7 +121,7 @@ export default function DashboardWrapper() {
             <GoogleLoginButton className="w-full" />
             
             <div className="text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-muted-foreground">
                 By signing in, you agree to our terms of service and privacy policy.
               </p>
             </div>
@@ -132,7 +132,7 @@ export default function DashboardWrapper() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-background flex">
       {/* Mobile Backdrop */}
       {sidebarVisible && (
         <div 
@@ -157,20 +157,20 @@ export default function DashboardWrapper() {
           <PlanCard />
 
           {/* API Keys Section */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-            <div className="p-6 border-b border-gray-200">
+          <div className="bg-card rounded-xl shadow-sm border border-border">
+            <div className="p-6 border-b border-border">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">API Keys</h3>
+                <h3 className="text-lg font-semibold text-foreground">API Keys</h3>
                 <button
                   onClick={openCreateModal}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg text-sm font-medium transition-colors"
                 >
                   +
                 </button>
               </div>
-              <p className="text-gray-600 mt-2">
+              <p className="text-muted-foreground mt-2">
                 The key is used to authenticate your requests to the Research API. To learn more, see the{' '}
-                <Link href="/docs" className="text-blue-600 hover:underline">documentation page</Link>.
+                <Link href="/docs" className="text-primary hover:underline">documentation page</Link>.
               </p>
             </div>
             <APIKeyTable 
