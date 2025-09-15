@@ -1,7 +1,7 @@
 'use client'
 
 import { Providers } from './providers'
-import { Header } from '../components/header'
+import { Header } from '../components/Header'
 import { HeroSection } from '../components/HeroSection'
 import { FeaturesSection } from '../components/FeaturesSection'
 import { ApiDemoSection } from '../components/ApiDemoSection'
