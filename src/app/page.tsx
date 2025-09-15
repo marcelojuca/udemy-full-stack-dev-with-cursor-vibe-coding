@@ -7,6 +7,7 @@ import { FeaturesSection } from '../components/features-section'
 import { ApiDemoSection } from '../components/api-demo-section'
 import { PricingSection } from '../components/pricing-section'
 import { TestimonialsSection } from '../components/testimonials-section'
+
 import { Footer } from '../components/Footer'
 import { useAuth } from '../contexts/AuthContext'
 import { useRouter } from 'next/navigation'
