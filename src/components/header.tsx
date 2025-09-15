@@ -43,12 +43,12 @@ export function Header() {
           >
             About
           </a>
-          <a
+          {/* <a
             href="#support"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             Support
-          </a>
+          </a> */}
         </nav>
 
         {/* Desktop Auth */}
