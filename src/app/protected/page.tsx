@@ -136,14 +136,34 @@ export default function Protected() {
             {/* Repository Analysis Result */}
             {analysis && (
               <div className="mb-6 bg-card rounded-xl shadow-sm border border-border">
-                <div className="p-6 border-b border-border">
-                  <h2 className="text-xl font-bold text-foreground">Repository Analysis</h2>
-                  {repoUrl && (
-                    <p className="text-sm text-muted-foreground mt-1">{repoUrl}</p>
-                  )}
+                <div className="p-6 border-b border-border flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">Repository Analysis</h2>
+                    {repoUrl && (
+                      <p className="text-sm text-muted-foreground mt-1 break-all">{repoUrl}</p>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => {
+                      const text = JSON.stringify(analysis, null, 2);
+                      navigator.clipboard.writeText(text).then(() => {
+                        window?.showToastNotification?.('Copied analysis to clipboard', 'success');
+                      }).catch(() => {
+                        window?.showToastNotification?.('Failed to copy', 'error');
+                      });
+                    }}
+                    className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-medium"
+                    aria-label="Copy analysis"
+                    title="Copy analysis"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2v-4m-6 10H8a2 2 0 01-2-2v-4a2 2 0 012-2h6a2 2 0 012 2v4a2 2 0 01-2 2z" />
+                    </svg>
+                    Copy
+                  </button>
                 </div>
                 <div className="p-6">
-                  <pre className="w-full text-left text-xs md:text-sm bg-muted text-foreground p-4 rounded-lg overflow-auto">
+                  <pre className="w-full text-left text-xs md:text-sm bg-muted text-foreground p-4 rounded-lg overflow-auto whitespace-pre-wrap break-words">
 {JSON.stringify(analysis, null, 2)}
                   </pre>
                 </div>
