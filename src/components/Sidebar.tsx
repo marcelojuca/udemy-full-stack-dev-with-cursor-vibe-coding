@@ -17,7 +17,7 @@ export default function Sidebar() {
         </div>
 
         {/* User Profile */}
-        <div className="bg-blue-50 rounded-lg p-3 mb-6">
+        {/* <div className="bg-blue-50 rounded-lg p-3 mb-6">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-medium">U</span>
@@ -30,7 +30,7 @@ export default function Sidebar() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
             </svg>
           </div>
-        </div>
+        </div> */}
 
         {/* Navigation */}
         <nav className="space-y-1 sm:space-y-2">
