@@ -47,7 +47,6 @@ export default function Playground() {
       });
 
       const data = await res.json();
-      setResponseData(data);
 
       if (!res.ok) {
         setError(data?.error || 'Request failed');
@@ -55,7 +54,12 @@ export default function Playground() {
         return;
       }
 
+      try {
+        sessionStorage.setItem('repoAnalysisResponse', JSON.stringify(data));
+        sessionStorage.setItem('repoGithubUrl', githubUrl.trim());
+      } catch {}
       window.showToastNotification('Repository analyzed successfully', 'success');
+      router.push('/protected');
     } catch (err: any) {
       console.error('Error calling GitHub summarizer:', err);
       setError('Unexpected error calling GitHub summarizer');
