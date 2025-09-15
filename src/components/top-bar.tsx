@@ -1,6 +1,6 @@
 'use client'
 
-import UserProfile from './UserProfile';
+import UserProfile from './user-profile';
 
 export default function TopBar({ sidebarVisible, toggleSidebar }) {
   return (

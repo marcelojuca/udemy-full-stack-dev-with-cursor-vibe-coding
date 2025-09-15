@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { analyzeReadme } from '../../../lib/chain';
-import { checkAndIncrementUsage } from '../../../lib/rateLimiting';
-import { getBasicRepoInfo } from '../../../lib/getRepoInfo';
+import { checkAndIncrementUsage } from '../../../lib/rate-limiting';
+import { getBasicRepoInfo } from '../../../lib/get-repo-info';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;

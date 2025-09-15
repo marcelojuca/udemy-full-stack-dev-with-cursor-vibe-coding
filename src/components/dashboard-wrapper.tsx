@@ -1,22 +1,22 @@
 'use client'
 
 import Link from 'next/link';
-import Sidebar from './Sidebar';
-import Notification from './Notification';
-import PlanCard from './PlanCard';
-import TopBar from './TopBar';
-import APIKeyTable from './APIKeyTable';
-import APIKeyModal from './APIKeyModal';
-import ContactSection from './ContactSection';
-import Footer from './Footer';
-import LoadingSpinner from './LoadingSpinner';
-import GoogleLoginButton from './GoogleLoginButton';
-import UserProfile from './UserProfile';
-import { useApiKeys } from '../hooks/useApiKeys';
-import { useFormData } from '../hooks/useFormData';
-import { useModalState } from '../hooks/useModalState';
-import { useSidebar } from '../hooks/useSidebar';
-import { useAuth } from '../contexts/AuthContext';
+import Sidebar from './sidebar';
+import Notification from './notification';
+import PlanCard from './plan-card';
+import TopBar from './top-bar';
+import APIKeyTable from './api-key-table';
+import APIKeyModal from './api-key-modal';
+import ContactSection from './contact-section';
+import Footer from './footer';
+import LoadingSpinner from './loading-spinner';
+import GoogleLoginButton from './google-login-button';
+import UserProfile from './user-profile';
+import { useApiKeys } from '../hooks/use-api-keys';
+import { useFormData } from '../hooks/use-form-data';
+import { useModalState } from '../hooks/use-modal-state';
+import { useSidebar } from '../hooks/use-sidebar';
+import { useAuth } from '../contexts/auth-context';
 import { validateApiKeyForm } from '../utils/validation';
 
 export default function DashboardWrapper() {

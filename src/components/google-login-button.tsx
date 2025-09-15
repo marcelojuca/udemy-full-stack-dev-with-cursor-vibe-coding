@@ -1,6 +1,6 @@
 'use client'
 
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../contexts/auth-context'
 import { useState } from 'react'
 
 interface GoogleLoginButtonProps {
