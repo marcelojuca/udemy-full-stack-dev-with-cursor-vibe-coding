@@ -111,13 +111,13 @@ export function Header() {
             >
               About
             </a>
-            <a
+            {/* <a
               href="#support"
               className="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
               onClick={() => setMobileMenuOpen(false)}
             >
               Support
-            </a>
+            </a> */}
           </nav>
         </div>
       )}

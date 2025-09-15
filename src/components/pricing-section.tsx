@@ -7,7 +7,10 @@ const plans = [
     name: "Free",
     price: "$0",
     description: "Perfect for getting started with repository analysis",
-    features: ["5 repository analyses per month", "Basic insights and summaries", "Star tracking", "Community support"],
+    features: [
+        "Limited to 200 requests",
+        "Basic insights and summaries",
+    ],
     cta: "Get Started Free",
     popular: false,
   },
@@ -16,12 +19,12 @@ const plans = [
     price: "$19",
     description: "For developers and teams who need more insights",
     features: [
-      "100 repository analyses per month",
-      "Advanced analytics and cool facts",
-      "PR and version tracking",
-      "Export reports",
-      "Priority support",
-      "API access",
+      "Limited to 500 requests",
+      "Advanced analytics",
+
+
+
+
     ],
     cta: "Start Pro Trial",
     popular: true,
@@ -29,15 +32,15 @@ const plans = [
   {
     name: "Enterprise",
     price: "$99",
-    description: "For organizations with extensive analysis needs",
+    description: "contact for pricing",
     features: [
-      "Unlimited repository analyses",
+
       "Custom integrations",
-      "Team collaboration features",
-      "Advanced security insights",
+
+
       "Dedicated support",
-      "Custom reporting",
-      "SLA guarantee",
+      ,
+
     ],
     cta: "Contact Sales",
     popular: false,
