@@ -13,16 +13,23 @@ const defaultPayload = {
 }
 
 const mockResponse = {
-  success: true,
-  analysis: {
-    summary:
-      "The LangChain repository is a Python framework designed for building applications powered by large language models (LLMs). It offers tools for chaining components, integrating third-party services, and future-proofing AI application development. The ecosystem includes complementary tools like LangSmith for evaluation, LangGraph for agent orchestration, and deployment platforms, all aimed at simplifying and enhancing LLM-based application creation.",
-    cool_facts: [
+  "success": true,
+  "analysis": {
+    "summary": "The LangChain repository is a Python framework designed for building applications powered by large language models (LLMs). It offers tools for chaining components, integrating third-party services, and future-proofing AI application development. The ecosystem includes complementary tools like LangSmith for evaluation, LangGraph for agent orchestration, and deployment platforms, all aimed at simplifying and enhancing LLM-based application creation.",
+    "cool_facts": [
       "LangChain supports real-time data augmentation by connecting LLMs to diverse data sources and external systems through a vast library of integrations.",
-      "The framework is part of a broader ecosystem that includes tools like LangSmith for observability and LangGraph for complex agent orchestration, with adoption by major companies like LinkedIn, Uber, and GitLab.",
-    ],
-    githubUrl: "https://github.com/langchain-ai/langchain",
+      "The framework is part of a broader ecosystem that includes LangSmith for observability and evaluation, and LangGraph for building complex, controllable agent workflows, with adoption by major companies like LinkedIn, Uber, and GitLab."
+    ]
   },
+  "githubUrl": "https://github.com/langchain-ai/langchain",
+  "repositoryInfo": {
+    "stars": 115483,
+    "version": "langchain-core==0.3.76",
+    "website": "https://python.langchain.com",
+    "license": "MIT License"
+  },
+  "usage": 0,
+  "limit": 0
 }
 
 export function ApiDemoSection() {
@@ -168,7 +175,7 @@ export function ApiDemoSection() {
                       </pre>
                     </div>
 
-                    {/* Formatted Response Preview */}
+                    {/* Formatted Response Preview
                     <div className="space-y-3 pt-4 border-t">
                       <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
                         Formatted Results
@@ -190,7 +197,7 @@ export function ApiDemoSection() {
                           ))}
                         </ul>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 ) : (
                   <div className="flex items-center justify-center h-48 text-muted-foreground">
@@ -204,13 +211,13 @@ export function ApiDemoSection() {
             </Card>
           </div>
 
-          {/* Documentation Button */}
+          {/* Documentation Button
           <div className="text-center mt-12">
             <Button variant="outline" size="lg" className="gap-2 bg-transparent">
               <BookOpen className="h-5 w-5" />
               View Full Documentation
             </Button>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>
