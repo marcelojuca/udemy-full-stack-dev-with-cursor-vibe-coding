@@ -8,7 +8,7 @@ import UserProfile from "./user-profile"
 import { useState } from "react"
 
 export function Header() {
-  const { isAuthenticated, user, logout } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const toggleMobileMenu = () => {
@@ -23,70 +23,32 @@ export function Header() {
           <span className="text-lg sm:text-xl font-bold text-foreground">Dandi GitHub Analyzer</span>
         </div>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          <a
-            href="#features"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Features
-          </a>
-          <a
-            href="#pricing"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Pricing
-          </a>
-          <a
-            href="#about"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            About
-          </a>
-          <a
-            href="#support"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Support
-          </a>
+          <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
+          <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
+          <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</a>
         </nav>
 
-        {/* Desktop Auth */}
         <div className="hidden md:flex items-center space-x-3">
           {isAuthenticated ? (
             <UserProfile />
           ) : (
-            <GoogleLoginButton className="px-4 py-2 text-sm">
-              Sign In
-            </GoogleLoginButton>
+            <GoogleLoginButton className="px-4 py-2 text-sm">Sign In</GoogleLoginButton>
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <div className="md:hidden flex items-center space-x-2">
           {isAuthenticated ? (
             <UserProfile />
           ) : (
-            <GoogleLoginButton className="px-3 py-2 text-xs">
-              Sign In
-            </GoogleLoginButton>
+            <GoogleLoginButton className="px-3 py-2 text-xs">Sign In</GoogleLoginButton>
           )}
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleMobileMenu}
-            className="p-2"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
+          <Button variant="ghost" size="sm" onClick={toggleMobileMenu} className="p-2">
+            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </div>
       </div>
 
-      {/* Mobile Navigation Menu */}
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-border bg-background/95 backdrop-blur">
           <nav className="container mx-auto px-4 py-4 space-y-4">
@@ -124,3 +86,7 @@ export function Header() {
     </header>
   )
 }
+
+export default Header
+
+ 
