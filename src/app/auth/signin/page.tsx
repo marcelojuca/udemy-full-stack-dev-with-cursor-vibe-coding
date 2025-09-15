@@ -3,7 +3,7 @@
 import { signIn, getSession } from 'next-auth/react'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import LoadingSpinner from '../../../components/LoadingSpinner'
+import LoadingSpinner from '../../../components/loading-spinner'
 
 export default function SignIn() {
   const [loading, setLoading] = useState(false)

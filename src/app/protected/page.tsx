@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Sidebar from '../../components/Sidebar';
-import Notification from '../../components/Notification';
-import TopBar from '../../components/TopBar';
-import { useSidebar } from '../../hooks/useSidebar';
-import { useAuth } from '../../contexts/AuthContext';
+import Sidebar from '../../components/sidebar';
+import Notification from '../../components/notification';
+import TopBar from '../../components/top-bar';
+import { useSidebar } from '../../hooks/use-sidebar';
+import { useAuth } from '../../contexts/auth-context';
 // removed api key management imports
 
 export default function Protected() {

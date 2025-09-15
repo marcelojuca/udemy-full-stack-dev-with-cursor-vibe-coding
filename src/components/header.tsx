@@ -2,9 +2,9 @@
 
 import { Button } from "@/components/ui/button"
 import { Github, Menu, X } from "lucide-react"
-import { useAuth } from "../contexts/AuthContext"
-import GoogleLoginButton from "./GoogleLoginButton"
-import UserProfile from "./UserProfile"
+import { useAuth } from "../contexts/auth-context"
+import GoogleLoginButton from "./google-login-button"
+import UserProfile from "./user-profile"
 import { useState } from "react"
 
 export function Header() {

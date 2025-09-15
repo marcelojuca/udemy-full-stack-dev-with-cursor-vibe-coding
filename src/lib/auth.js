@@ -1,6 +1,6 @@
 import NextAuth from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
-import { checkUserExists, saveNewUser, getUserByEmail } from './userManagement'
+import { checkUserExists, saveNewUser, getUserByEmail } from './user-management'
 
 export const authOptions = {
   secret: process.env.NEXTAUTH_SECRET,

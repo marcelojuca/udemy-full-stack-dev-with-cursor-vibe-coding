@@ -1,6 +1,6 @@
 import { getServerSession } from 'next-auth/next';
 import { authOptions } from './auth';
-import { getUserByEmail } from './userManagement';
+import { getUserByEmail } from './user-management';
 
 /**
  * Get the authenticated user's ID from the session

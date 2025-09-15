@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { validateApiKey } from '../../../lib/rateLimiting';
+import { validateApiKey } from '../../../lib/rate-limiting';
 
 export async function POST(request) {
   try {
