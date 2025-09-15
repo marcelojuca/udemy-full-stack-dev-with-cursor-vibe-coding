@@ -84,20 +84,6 @@ export default function Sidebar() {
         </nav>
       </div>
 
-      {/* User Footer */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 border-t border-border">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
-            <span className="text-muted-foreground text-sm font-medium">MJ</span>
-          </div>
-          <div className="flex-1">
-            <p className="text-sm font-medium text-foreground">Marcelo Juca</p>
-          </div>
-          <svg className="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-          </svg>
-        </div>
-      </div>
     </div>
   );
 }
