@@ -21,10 +21,6 @@ const plans = [
     features: [
       "Limited to 500 requests",
       "Advanced analytics",
-
-
-
-
     ],
     cta: "Start Pro Trial",
     popular: true,
@@ -32,15 +28,10 @@ const plans = [
   {
     name: "Enterprise",
     price: "$99",
-    description: "contact for pricing",
+    description: "For enterprise with developers and teams who need more requests than usual for their projects",
     features: [
-
+      "Limited to 1,000 requests",
       "Custom integrations",
-
-
-      "Dedicated support",
-      ,
-
     ],
     cta: "Contact Sales",
     popular: false,
