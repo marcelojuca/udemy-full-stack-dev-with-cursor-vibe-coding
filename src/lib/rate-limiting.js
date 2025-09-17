@@ -90,7 +90,7 @@ export async function checkAndIncrementUsage(apiKey) {
 
     const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
     const currentUsage = apiKeyData.current_usage || 0;
-    const monthlyLimit = apiKeyData.monthly_limit || 1000;
+    const monthlyLimit = Math.max(1, Math.min(10, apiKeyData.monthly_limit || 10));
     const lastResetMonth = apiKeyData.last_reset_month;
 
     // Check if we need to reset usage for a new month
@@ -162,7 +162,7 @@ export async function getUsageInfo(apiKey) {
 
     const apiKeyData = validation.data;
     const currentUsage = apiKeyData.current_usage || 0;
-    const monthlyLimit = apiKeyData.monthly_limit || 1000;
+    const monthlyLimit = Math.max(1, Math.min(10, apiKeyData.monthly_limit || 10));
 
     return {
       usage: currentUsage,

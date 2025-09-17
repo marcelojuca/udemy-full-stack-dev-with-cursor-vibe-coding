@@ -116,7 +116,7 @@ async function setupDatabase() {
           permissions JSONB DEFAULT '[]',
           key_type VARCHAR(50) DEFAULT 'development',
           limit_usage BOOLEAN DEFAULT false,
-          monthly_limit INTEGER DEFAULT 1000,
+          monthly_limit INTEGER DEFAULT 5,
           current_usage INTEGER DEFAULT 0,
           last_reset_month VARCHAR(7),
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

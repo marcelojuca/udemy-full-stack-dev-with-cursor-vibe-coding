@@ -8,7 +8,7 @@ const plans = [
     price: "$0",
     description: "Perfect for getting started with repository analysis",
     features: [
-        "Limited to 200 requests",
+        "Limited to 10 requests",
         "Basic insights and summaries",
     ],
     cta: "Get Started Free",
