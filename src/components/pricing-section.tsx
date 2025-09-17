@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Check } from "lucide-react"
+import { useAuth } from '../contexts/auth-context'
+import { useState } from 'react'
 
 const plans = [
   {
@@ -12,7 +14,9 @@ const plans = [
         "Basic insights and summaries",
     ],
     cta: "Get Started Free",
-    popular: false,
+    popular: true,
+    comingSoon: false,
+    disabled: false,
   },
   {
     name: "Pro",
@@ -23,7 +27,9 @@ const plans = [
       "Advanced analytics",
     ],
     cta: "Start Pro Trial",
-    popular: true,
+    popular: false,
+    comingSoon: true,
+    disabled: true,
   },
   {
     name: "Enterprise",
@@ -35,10 +41,33 @@ const plans = [
     ],
     cta: "Contact Sales",
     popular: false,
+    comingSoon: true,
+    disabled: false,
   },
 ]
 
 export function PricingSection() {
+  const { login, loading } = useAuth()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleLogin = async () => {
+    try {
+      setIsLoading(true)
+      await login('google')
+    } catch (error) {
+      console.error('Login failed:', error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleButtonClick = (plan: any) => {
+    if (plan.name === 'Free') {
+      handleLogin()
+    }
+    // Other plans are disabled or coming soon
+  }
+
   return (
     <section id="pricing" className="py-8 sm:py-12 md:py-16 px-4">
       <div className="container mx-auto">
@@ -67,6 +96,14 @@ export function PricingSection() {
                 </div>
               )}
 
+              {plan.comingSoon && (
+                <div className="absolute -top-3 right-4">
+                  <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
+                    Coming Soon
+                  </span>
+                </div>
+              )}
+
               <CardHeader className="text-center pb-4">
                 <CardTitle className="text-card-foreground text-lg sm:text-xl">{plan.name}</CardTitle>
                 <div className="mt-4">
@@ -91,13 +128,19 @@ export function PricingSection() {
                 </ul>
 
                 <Button
+                  onClick={() => handleButtonClick(plan)}
+                  disabled={plan.disabled || loading || isLoading}
                   className={`w-full mt-6 ${
-                    plan.popular
+                    plan.disabled
+                      ? "bg-secondary text-secondary-foreground cursor-not-allowed opacity-50"
+                      : plan.name === 'Free'
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : plan.popular
                       ? "bg-primary text-primary-foreground hover:bg-primary/90"
                       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                   }`}
                 >
-                  {plan.cta}
+                  {loading || isLoading ? "Loading..." : plan.cta}
                 </Button>
               </CardContent>
             </Card>
