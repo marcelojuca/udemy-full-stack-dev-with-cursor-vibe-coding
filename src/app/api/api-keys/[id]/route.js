@@ -48,7 +48,19 @@ export async function PUT(request, { params }) {
 
     const { id } = params;
     const body = await request.json();
-    const { name, description, permissions, keyType, limitUsage, monthlyLimit } = body;
+    const { name, description, permissions, keyType } = body;
+
+    // Enforce usage limiting caps on update
+    const requestedLimitUsage = body.limitUsage;
+    const requestedMonthlyLimit = typeof body.monthlyLimit === 'number' ? body.monthlyLimit : undefined;
+    const maxMonthlyLimit = 10;
+    const minMonthlyLimit = 1;
+    const defaultMonthlyLimit = 5;
+    const effectiveLimitUsage = requestedLimitUsage === undefined ? true : !!requestedLimitUsage;
+    const effectiveMonthlyLimit = Math.max(
+      minMonthlyLimit,
+      Math.min(maxMonthlyLimit, requestedMonthlyLimit ?? defaultMonthlyLimit)
+    );
 
     // Validate required fields
     if (!name) {
@@ -64,8 +76,8 @@ export async function PUT(request, { params }) {
       description: description || '',
       permissions: permissions || [],
       key_type: keyType || 'development',
-      limit_usage: limitUsage || false,
-      monthly_limit: monthlyLimit || 1000
+      limit_usage: effectiveLimitUsage,
+      monthly_limit: effectiveMonthlyLimit
     };
 
     const { data, error: dbError } = await supabaseAdmin

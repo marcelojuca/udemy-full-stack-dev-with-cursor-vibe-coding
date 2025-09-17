@@ -5,8 +5,8 @@ const initialFormData = {
   description: '',
   permissions: [],
   keyType: 'development',
-  limitUsage: false,
-  monthlyLimit: 1000
+  limitUsage: true,
+  monthlyLimit: 5
 };
 
 export const useFormData = () => {
@@ -26,8 +26,8 @@ export const useFormData = () => {
       description: key.description,
       permissions: key.permissions || [],
       keyType: key.key_type || 'development',
-      limitUsage: key.limit_usage || false,
-      monthlyLimit: key.monthly_limit || 1000
+      limitUsage: key.limit_usage ?? true,
+      monthlyLimit: (typeof key.monthly_limit === 'number' ? key.monthly_limit : 5)
     });
   };
 

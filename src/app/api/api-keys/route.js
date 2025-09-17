@@ -40,7 +40,19 @@ export async function POST(request) {
     if (error) return error;
 
     const body = await request.json();
-    const { name, description, permissions, keyType, limitUsage, monthlyLimit } = body;
+    const { name, description, permissions, keyType } = body;
+
+    // Enforce usage limiting defaults and caps
+    const parsedLimitUsage = true; // always limit usage for created keys
+    // Default to 5, clamp to [1, 10]
+    const requestedMonthlyLimit = typeof body.monthlyLimit === 'number' ? body.monthlyLimit : undefined;
+    const defaultMonthlyLimit = 5;
+    const maxMonthlyLimit = 10;
+    const minMonthlyLimit = 1;
+    const effectiveMonthlyLimit = Math.max(
+      minMonthlyLimit,
+      Math.min(maxMonthlyLimit, requestedMonthlyLimit ?? defaultMonthlyLimit)
+    );
 
     // Validate required fields
     if (!name) {
@@ -65,8 +77,8 @@ export async function POST(request) {
       key: generateApiKey(),
       permissions: permissions || [],
       key_type: keyType || 'development',
-      limit_usage: limitUsage || false,
-      monthly_limit: monthlyLimit || 1000
+      limit_usage: parsedLimitUsage,
+      monthly_limit: effectiveMonthlyLimit
     };
 
     const { data, error: dbError } = await supabaseAdmin
