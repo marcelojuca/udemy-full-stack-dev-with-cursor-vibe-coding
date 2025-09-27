@@ -1,6 +1,8 @@
 ## Introduction
 
-This is a course/training material created by me to follow this course: [Cursor Course: FullStack development with Cursor Vibe Coding](https://www.udemy.com/course/cursor-ai-ide/learn/lecture/45609807), [Course certificate](https://udemy-certificate.s3.amazonaws.com/pdf/UC-cde6bb4b-5392-46d8-a770-5a1ba4cea6c4.pdf).
+This is a course/training material used by me to follow the course:
+- [Cursor Course: FullStack development with Cursor Vibe Coding](https://www.udemy.com/course/cursor-ai-ide/learn/lecture/45609807)
+- [Course certificate](https://udemy-certificate.s3.amazonaws.com/pdf/UC-cde6bb4b-5392-46d8-a770-5a1ba4cea6c4.pdf).
 
 ## Getting Started
 
