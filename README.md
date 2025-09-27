@@ -1,6 +1,10 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+## Introduction
+
+This is a course/training material created by me to follow this course: [Cursor Course: FullStack development with Cursor Vibe Coding](https://www.udemy.com/course/cursor-ai-ide/learn/lecture/45609807), [Course certificate](https://udemy-certificate.s3.amazonaws.com/pdf/UC-cde6bb4b-5392-46d8-a770-5a1ba4cea6c4.pdf).
 
 ## Getting Started
+
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 First, run the development server:
 
