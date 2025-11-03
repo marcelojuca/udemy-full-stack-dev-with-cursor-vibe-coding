@@ -8,6 +8,16 @@ This is a course/training material used by me to follow the course:
 
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
+### Install
+
+Ensure you have a recent LTS version of Node.js installed (e.g., 18.x or 20.x). Then install dependencies:
+
+```bash
+npm install
+# If you encounter a peer dependency conflict (e.g., zod v3 vs v4), use:
+npm install --legacy-peer-deps
+```
+
 First, run the development server:
 
 ```bash
@@ -25,6 +35,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+### Troubleshooting
+
+- If `npm install` fails with a peer dependency error related to `zod`, it is due to a package (such as `@browserbasehq/stagehand`) requiring `zod@^3` while the project uses `zod@4`. Install using `--legacy-peer-deps` as shown above, then run `npm run dev`.
 
 ## Learn More
 
