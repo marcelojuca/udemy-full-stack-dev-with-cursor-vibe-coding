@@ -8,7 +8,7 @@ export async function GET(request, { params }) {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;
     const { data, error: dbError } = await supabaseAdmin
       .from('api_keys')
       .select('*')
@@ -46,7 +46,7 @@ export async function PUT(request, { params }) {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { name, description, permissions, keyType } = body;
 
@@ -118,7 +118,7 @@ export async function DELETE(request, { params }) {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
 
-    const { id } = params;
+    const { id } = await params;
     const { data, error: dbError } = await supabaseAdmin
       .from('api_keys')
       .delete()
