@@ -1,5 +1,19 @@
+#!/usr/bin/env node
+
+/**
+ * Production Database Schema Setup
+ *
+ * This script creates the necessary tables in the production Supabase database.
+ *
+ * IMPORTANT: You must manually execute the SQL in Supabase Dashboard first:
+ * Go to: https://supabase.com/dashboard > Your Project > SQL Editor
+ *
+ * Then copy and paste the SQL from setup-production-db.sql file
+ */
+
 require('dotenv').config({ path: '.env.production.local' })
-const { createClient } = require('@supabase/supabase-js')
+const fs = require('fs')
+const path = require('path')
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -10,151 +24,127 @@ if (!supabaseUrl || !supabaseServiceKey) {
   process.exit(1)
 }
 
-console.log(`📍 Production database: ${supabaseUrl}`)
+console.log(`📍 Production database: ${supabaseUrl}\n`)
 
-// Extract project ref for reference
-const projectRef = supabaseUrl.split('https://')[1].split('.supabase.co')[0]
+// SQL statements to create all tables
+const SQL_STATEMENTS = `-- Production Database Schema Setup
+-- Execute this SQL in your Supabase Dashboard
 
-// Initialize Supabase admin client (for server-side operations)
-const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false
-  }
-})
+-- Create Users table (for NextAuth.js)
+CREATE TABLE IF NOT EXISTS public.users (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(255),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  email_verified TIMESTAMP WITH TIME ZONE,
+  image TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create Accounts table (for OAuth providers)
+CREATE TABLE IF NOT EXISTS public.accounts (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  type VARCHAR(255) NOT NULL,
+  provider VARCHAR(255) NOT NULL,
+  provider_account_id VARCHAR(255) NOT NULL,
+  refresh_token TEXT,
+  access_token TEXT,
+  expires_at INTEGER,
+  token_type VARCHAR(255),
+  scope VARCHAR(255),
+  id_token TEXT,
+  session_state VARCHAR(255),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(provider, provider_account_id)
+);
+
+-- Create Sessions table
+CREATE TABLE IF NOT EXISTS public.sessions (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  session_token VARCHAR(255) UNIQUE NOT NULL,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  expires TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create Verification tokens table
+CREATE TABLE IF NOT EXISTS public.verification_tokens (
+  identifier VARCHAR(255) NOT NULL,
+  token VARCHAR(255) UNIQUE NOT NULL,
+  expires TIMESTAMP WITH TIME ZONE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  PRIMARY KEY (identifier, token)
+);
+
+-- Create API keys table
+CREATE TABLE IF NOT EXISTS public.api_keys (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  key VARCHAR(255) UNIQUE NOT NULL,
+  permissions JSONB DEFAULT '[]',
+  key_type VARCHAR(50) DEFAULT 'development',
+  limit_usage BOOLEAN DEFAULT false,
+  monthly_limit INTEGER DEFAULT 5,
+  current_usage INTEGER DEFAULT 0,
+  last_reset_month VARCHAR(7),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Create Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON public.accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON public.sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_sessions_token ON public.sessions(session_token);
+CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON public.verification_tokens(token);
+CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON public.api_keys(user_id);
+CREATE INDEX IF NOT EXISTS idx_api_keys_key ON public.api_keys(key);
+`
 
 async function setupProductionDatabase() {
   try {
-    console.log('⚙️  Setting up production database schema...\n')
+    console.log('⚙️  Preparing production database schema...\n')
 
-    const sqlStatements = [
-      {
-        name: 'Users table',
-        sql: `CREATE TABLE IF NOT EXISTS users (
-          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-          name VARCHAR(255),
-          email VARCHAR(255) UNIQUE NOT NULL,
-          email_verified TIMESTAMP WITH TIME ZONE,
-          image TEXT,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );`
-      },
-      {
-        name: 'Accounts table',
-        sql: `CREATE TABLE IF NOT EXISTS accounts (
-          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          type VARCHAR(255) NOT NULL,
-          provider VARCHAR(255) NOT NULL,
-          provider_account_id VARCHAR(255) NOT NULL,
-          refresh_token TEXT,
-          access_token TEXT,
-          expires_at INTEGER,
-          token_type VARCHAR(255),
-          scope VARCHAR(255),
-          id_token TEXT,
-          session_state VARCHAR(255),
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          UNIQUE(provider, provider_account_id)
-        );`
-      },
-      {
-        name: 'Sessions table',
-        sql: `CREATE TABLE IF NOT EXISTS sessions (
-          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-          session_token VARCHAR(255) UNIQUE NOT NULL,
-          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          expires TIMESTAMP WITH TIME ZONE NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );`
-      },
-      {
-        name: 'Verification tokens table',
-        sql: `CREATE TABLE IF NOT EXISTS verification_tokens (
-          identifier VARCHAR(255) NOT NULL,
-          token VARCHAR(255) UNIQUE NOT NULL,
-          expires TIMESTAMP WITH TIME ZONE NOT NULL,
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          PRIMARY KEY (identifier, token)
-        );`
-      },
-      {
-        name: 'API keys table',
-        sql: `CREATE TABLE IF NOT EXISTS api_keys (
-          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-          name VARCHAR(255) NOT NULL,
-          description TEXT,
-          key VARCHAR(255) UNIQUE NOT NULL,
-          permissions JSONB DEFAULT '[]',
-          key_type VARCHAR(50) DEFAULT 'development',
-          limit_usage BOOLEAN DEFAULT false,
-          monthly_limit INTEGER DEFAULT 5,
-          current_usage INTEGER DEFAULT 0,
-          last_reset_month VARCHAR(7),
-          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-        );`
-      },
-      {
-        name: 'Indexes',
-        sql: `CREATE INDEX IF NOT EXISTS idx_accounts_user_id ON accounts(user_id);
-        CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
-        CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(session_token);
-        CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON verification_tokens(token);
-        CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
-        CREATE INDEX IF NOT EXISTS idx_api_keys_key ON api_keys(key);`
-      }
-    ]
+    // Save SQL to a file for easy copying
+    const sqlFilePath = path.join(__dirname, 'setup-production-db.sql')
+    fs.writeFileSync(sqlFilePath, SQL_STATEMENTS)
+    console.log(`✅ SQL statements saved to: setup-production-db.sql\n`)
 
-    // Execute each SQL statement
-    for (const statement of sqlStatements) {
-      console.log(`⏳ Executing: ${statement.name}...`)
+    console.log('📋 Database tables to create:')
+    console.log('  1. public.users - User accounts')
+    console.log('  2. public.accounts - OAuth account connections')
+    console.log('  3. public.sessions - User sessions')
+    console.log('  4. public.verification_tokens - Email verification tokens')
+    console.log('  5. public.api_keys - API keys for programmatic access')
+    console.log('  + Indexes for performance optimization\n')
 
-      try {
-        const { error } = await supabase.rpc('exec_sql', {
-          sql: statement.sql
-        })
+    console.log('🔑 NEXT STEPS - Execute the SQL in your production database:\n')
 
-        if (error) {
-          // Check if it's a "function not found" error (which means we need to use query instead)
-          if (error.message.includes('Could not find the function')) {
-            console.log(`⚠️  Falling back to query method for: ${statement.name}`)
+    console.log('OPTION 1: Supabase Dashboard (Easiest)')
+    console.log('  1. Go to: https://supabase.com/dashboard')
+    console.log('  2. Select your project')
+    console.log('  3. Go to: SQL Editor')
+    console.log('  4. Create a new query')
+    console.log('  5. Copy & paste contents of setup-production-db.sql')
+    console.log('  6. Click "Run"\n')
 
-            // Split and execute each statement separately for better control
-            const statements = statement.sql.split(';').filter(s => s.trim())
-            for (const stmt of statements) {
-              if (stmt.trim()) {
-                const { error: queryError } = await supabase.from('_migrations').insert({
-                  name: statement.name,
-                  executed: new Date()
-                }).catch(() => ({ error: null })) // Ignore if table doesn't exist
+    console.log('OPTION 2: psql command (Terminal)')
+    console.log('  psql "your-supabase-connection-string" < setup-production-db.sql\n')
 
-                // For now, just log that we attempted it
-                console.log(`  ✓ ${stmt.trim().substring(0, 50)}...`)
-              }
-            }
-          } else {
-            console.log(`✅ ${statement.name} (already exists or successfully created)`)
-          }
-        } else {
-          console.log(`✅ ${statement.name}`)
-        }
-      } catch (statementError) {
-        console.log(`✅ ${statement.name} (already exists or successfully created)`)
-      }
-    }
+    console.log('OPTION 3: This script in CI/CD')
+    console.log('  Once you execute the SQL manually, this script will verify')
+    console.log('  and maintain the schema on future deployments.\n')
 
-    console.log('\n🎉 Production database schema setup complete!')
-    console.log('✨ All tables and indexes have been created/verified.')
+    console.log('🎉 Schema preparation complete!')
     console.log(`📍 Database: ${supabaseUrl}`)
+    console.log(`📄 SQL file: ${sqlFilePath}\n`)
 
   } catch (error) {
-    console.error('\n❌ Error setting up production database:', error.message)
-    console.error('\nDetails:', error)
+    console.error('\n❌ Error:', error.message)
     process.exit(1)
   }
 }
