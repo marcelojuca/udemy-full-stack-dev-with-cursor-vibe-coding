@@ -23,7 +23,7 @@ export default function TermsOfService() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">1. Agreement to Terms</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  By accessing and using Dandi ("the Service"), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service. These terms constitute a legally binding agreement between you and Wild Rose IT Consulting Inc., the company operating the Dandi service.
+                  By accessing and using Dandi (&quot;the Service&quot;), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service. These terms constitute a legally binding agreement between you and Wild Rose IT Consulting Inc., the company operating the Dandi service.
                 </p>
               </section>
 
@@ -46,7 +46,7 @@ export default function TermsOfService() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">3. Disclaimer</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  The materials on Dandi are provided on an 'as is' basis. Wild Rose IT Consulting Inc. makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+                  The materials on Dandi are provided on an &apos;as is&apos; basis. Wild Rose IT Consulting Inc. makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
                 </p>
               </section>
 
@@ -120,7 +120,7 @@ export default function TermsOfService() {
                     <ul className="list-disc list-inside space-y-1 pl-2">
                       <li>Refunds issued to original payment method used</li>
                       <li><strong>Takes 5-10 business days</strong> to appear in customer account</li>
-                      <li>Appears as a credit on customer's credit card or bank statement</li>
+                      <li>Appears as a credit on customer&apos;s credit card or bank statement</li>
                       <li>Contact support to check refund status</li>
                     </ul>
                   </div>
