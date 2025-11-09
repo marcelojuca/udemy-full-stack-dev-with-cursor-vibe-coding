@@ -6,6 +6,7 @@ import { useAuth } from "../contexts/auth-context"
 import GoogleLoginButton from "./google-login-button"
 import UserProfile from "./user-profile"
 import { useState } from "react"
+import Link from "next/link"
 
 export function Header() {
   const { isAuthenticated } = useAuth()
@@ -18,10 +19,10 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center space-x-2">
+        <Link href="/" className="flex items-center space-x-2 hover:opacity-80 transition-opacity">
           <Github className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
           <span className="text-lg sm:text-xl font-bold text-foreground">Dandi GitHub Analyzer</span>
-        </div>
+        </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
           <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
