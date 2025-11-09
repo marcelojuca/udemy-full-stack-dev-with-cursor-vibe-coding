@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">1. Introduction</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  Dandi ("we", "us", "our", or "Company") is operated by Wild Rose IT Consulting Inc. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
+                  Dandi (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;, or &quot;Company&quot;) is operated by Wild Rose IT Consulting Inc. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
                 </p>
               </section>
 
@@ -70,7 +70,7 @@ export default function PrivacyPolicy() {
               </section>
 
               <section>
-                <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">6. Children's Privacy</h2>
+                <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">6. Children&apos;s Privacy</h2>
                 <p className="text-foreground/90 leading-relaxed">
                   Our Service does not address anyone under the age of 13. We do not knowingly collect personally identifiable information from children under 13. If we become aware that a child under 13 has provided us with personal information, we immediately delete such information from our servers.
                 </p>
@@ -79,14 +79,14 @@ export default function PrivacyPolicy() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">7. Changes to This Privacy Policy</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "Last updated" date at the top of this Privacy Policy.
+                  We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the &quot;Last updated&quot; date at the top of this Privacy Policy.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">8. Your Rights (PIPEDA Compliance)</h2>
                 <p className="text-foreground/90 leading-relaxed mb-3">
-                  Under Canada's Personal Information Protection and Electronic Documents Act (PIPEDA), you have the following rights:
+                  Under Canada&apos;s Personal Information Protection and Electronic Documents Act (PIPEDA), you have the following rights:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-foreground/90 pl-2">
                   <li><strong>Access Your Data:</strong> Request a copy of all personal data we hold about you</li>
