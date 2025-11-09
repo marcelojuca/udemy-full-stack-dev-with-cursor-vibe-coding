@@ -67,7 +67,7 @@ export default function TermsOfService() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">6. Links</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  Wild Rose IT Consulting Inc. has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Wild Rose IT Consulting Inc. of the site. Use of any such linked website is at the user's own risk.
+                  Wild Rose IT Consulting Inc. has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Wild Rose IT Consulting Inc. of the site. Use of any such linked website is at the user&apos;s own risk.
                 </p>
               </section>
 
