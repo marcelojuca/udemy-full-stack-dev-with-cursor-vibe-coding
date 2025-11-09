@@ -121,6 +121,15 @@ src/
 - **DRY principle** - avoid repetition
 - **Readability over performance** optimization
 
+### JSX & HTML Best Practices
+
+- **Escape special characters in JSX text content** - ESLint rule: `react/no-unescaped-entities`
+  - Double quotes: Use `&quot;` instead of `"`
+  - Single quotes/apostrophes: Use `&apos;` instead of `'`
+  - Example: `Dandi (&quot;we&quot;, &quot;us&quot;)` not `Dandi ("we", "us")`
+  - This prevents ESLint errors during build and ensures proper HTML rendering
+  - Common in legal pages (Terms of Service, Privacy Policy) with quotations
+
 ## Key Dependencies
 
 - **Next.js 15.5** - App Router, server/client components
