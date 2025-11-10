@@ -1,73 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Check } from "lucide-react"
-import { useAuth } from '../contexts/auth-context'
-import { useState } from 'react'
-
-const plans = [
-  {
-    name: "Free",
-    price: "$0",
-    description: "Perfect for getting started with repository analysis",
-    features: [
-        "Limited to 10 requests",
-        "Basic insights and summaries",
-    ],
-    cta: "Get Started Free",
-    popular: true,
-    comingSoon: false,
-    disabled: false,
-  },
-  {
-    name: "Basic",
-    price: "$19",
-    description: "For developers who need insights about their own repositories and other repositories they are interested in",
-    features: [
-      "Limited to 500 requests",
-      "Advanced analytics",
-    ],
-    cta: "Start Basic Trial",
-    popular: false,
-    comingSoon: true,
-    disabled: true,
-  },
-  {
-    name: "Pro",
-    price: "$35",
-    description: "For developers who need more insights than usual",
-    features: [
-      "Limited to 1,000 requests",
-      "Custom integrations",
-    ],
-    cta: "Contact Sales",
-    popular: false,
-    comingSoon: true,
-    disabled: false,
-  },
-]
+'use client'
 
 export function PricingSection() {
-  const { login, loading } = useAuth()
-  const [isLoading, setIsLoading] = useState(false)
-
-  const handleLogin = async () => {
-    try {
-      setIsLoading(true)
-      await login('google')
-    } catch (error) {
-      console.error('Login failed:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleButtonClick = (plan: any) => {
-    if (plan.name === 'Free') {
-      handleLogin()
-    }
-    // Other plans are disabled or coming soon
-  }
-
   return (
     <section id="pricing" className="py-8 sm:py-12 md:py-16 px-4">
       <div className="container mx-auto">
@@ -80,71 +13,11 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
-            <Card
-              key={index}
-              className={`relative bg-card border-border h-full flex flex-col ${
-                plan.popular ? "ring-2 ring-primary shadow-lg sm:scale-105" : ""
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                    Most Popular
-                  </span>
-                </div>
-              )}
-
-              {plan.comingSoon && (
-                <div className="absolute -top-3 right-4">
-                  <span className="bg-orange-500 text-white px-3 py-1 rounded-full text-xs sm:text-sm font-medium">
-                    Coming Soon
-                  </span>
-                </div>
-              )}
-
-              <CardHeader className="text-center pb-4">
-                <CardTitle className="text-card-foreground text-lg sm:text-xl">{plan.name}</CardTitle>
-                <div className="mt-4">
-                  <span className="text-3xl sm:text-4xl font-bold text-card-foreground">{plan.price}</span>
-                  <span className="text-muted-foreground text-sm sm:text-base">/month</span>
-                </div>
-                <CardDescription className="text-muted-foreground text-sm sm:text-base">
-                  {plan.description}
-                </CardDescription>
-              </CardHeader>
-
-              <CardContent className="flex-1 flex flex-col pt-0">
-                <ul className="space-y-2 sm:space-y-3 mb-6">
-                  {plan.features.map((feature, featureIndex) => (
-                    <li key={featureIndex} className="flex items-start space-x-3">
-                      <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-card-foreground text-sm sm:text-base leading-relaxed">
-                        {feature}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-
-                <Button
-                  onClick={() => handleButtonClick(plan)}
-                  disabled={plan.disabled || loading || isLoading}
-                  className={`w-full mt-auto ${
-                    plan.disabled
-                      ? "bg-secondary text-secondary-foreground cursor-not-allowed opacity-50"
-                      : plan.name === 'Free'
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : plan.popular
-                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-                  }`}
-                >
-                  {loading || isLoading ? "Loading..." : plan.cta}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex justify-center">
+          <stripe-pricing-table
+            pricing-table-id="prctbl_1SRyLQE68yv2YzEA5mdR45yT"
+            publishable-key="pk_test_51SRg21E68yv2YzEAWWtxAn9PnI2pS6Atie3yEk4zQ8HJybWzj9SCUZtePfOpLUR4qTeR699byyhtj4dsBcqGZYUx002GK87WNU">
+          </stripe-pricing-table>
         </div>
       </div>
     </section>
