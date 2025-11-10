@@ -1,5 +1,16 @@
 'use client'
 
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'stripe-pricing-table': {
+        'pricing-table-id': string
+        'publishable-key': string
+      }
+    }
+  }
+}
+
 export function PricingSection() {
   return (
     <section id="pricing" className="py-8 sm:py-12 md:py-16 px-4">
