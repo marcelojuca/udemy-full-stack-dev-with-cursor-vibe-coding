@@ -23,14 +23,14 @@ export default function TermsOfService() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">1. Agreement to Terms</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  By accessing and using Dandi (&quot;the Service&quot;), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service. These terms constitute a legally binding agreement between you and Wild Rose IT Consulting Inc., the company operating the Dandi service.
+                  By accessing and using Xpto (&quot;the Service&quot;), you accept and agree to be bound by the terms and provisions of this agreement. If you do not agree to abide by these terms, please do not use this service. These terms constitute a legally binding agreement between you and Wild Rose IT Consulting Inc., the company operating the Xpto service.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">2. Use License</h2>
                 <p className="text-foreground/90 leading-relaxed mb-3">
-                  Permission is granted to use Dandi for personal, non-commercial use. This is the grant of a license, not a transfer of title, and under this license you may not:
+                  Permission is granted to use Xpto for personal, non-commercial use. This is the grant of a license, not a transfer of title, and under this license you may not:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-foreground/90 pl-2">
                   <li>Modify, copy, or reproduce the materials without authorization</li>
@@ -46,21 +46,21 @@ export default function TermsOfService() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">3. Disclaimer</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  The materials on Dandi are provided on an &apos;as is&apos; basis. Wild Rose IT Consulting Inc. makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+                  The materials on Xpto are provided on an &apos;as is&apos; basis. Wild Rose IT Consulting Inc. makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">4. Limitations</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  In no event shall Wild Rose IT Consulting Inc. or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Dandi, even if we or our authorized representative has been notified orally or in writing of the possibility of such damage.
+                  In no event shall Wild Rose IT Consulting Inc. or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Xpto, even if we or our authorized representative has been notified orally or in writing of the possibility of such damage.
                 </p>
               </section>
 
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">5. Accuracy of Materials</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  The materials appearing on Dandi could include technical, typographical, or photographic errors. Wild Rose IT Consulting Inc. does not warrant that any of the materials on the Service are accurate, complete, or current. We may make changes to the materials contained on the Service at any time without notice.
+                  The materials appearing on Xpto could include technical, typographical, or photographic errors. Wild Rose IT Consulting Inc. does not warrant that any of the materials on the Service are accurate, complete, or current. We may make changes to the materials contained on the Service at any time without notice.
                 </p>
               </section>
 

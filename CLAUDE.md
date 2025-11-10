@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a **Next.js 15 full-stack application** (Dandi - GitHub Analyzer) that analyzes GitHub repositories and provides insights, summaries, star tracking, and cool facts. It combines frontend UI with backend AI integration using LangChain and OpenAI.
+This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that analyzes GitHub repositories and provides insights, summaries, star tracking, and cool facts. It combines frontend UI with backend AI integration using LangChain and OpenAI.
 
 ## Common Commands
 
@@ -126,7 +126,7 @@ src/
 - **Escape special characters in JSX text content** - ESLint rule: `react/no-unescaped-entities`
   - Double quotes: Use `&quot;` instead of `"`
   - Single quotes/apostrophes: Use `&apos;` instead of `'`
-  - Example: `Dandi (&quot;we&quot;, &quot;us&quot;)` not `Dandi ("we", "us")`
+  - Example: `Xpto (&quot;we&quot;, &quot;us&quot;)` not `Xpto ("we", "us")`
   - This prevents ESLint errors during build and ensures proper HTML rendering
   - Common in legal pages (Terms of Service, Privacy Policy) with quotations
 

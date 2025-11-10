@@ -23,7 +23,7 @@ export default function PrivacyPolicy() {
               <section>
                 <h2 className="text-xl sm:text-2xl font-semibold mb-3 sm:mb-4">1. Introduction</h2>
                 <p className="text-foreground/90 leading-relaxed">
-                  Dandi (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;, or &quot;Company&quot;) is operated by Wild Rose IT Consulting Inc. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
+                  Xpto (&quot;we&quot;, &quot;us&quot;, &quot;our&quot;, or &quot;Company&quot;) is operated by Wild Rose IT Consulting Inc. This page informs you of our policies regarding the collection, use, and disclosure of personal data when you use our Service and the choices you have associated with that data.
                 </p>
               </section>
 

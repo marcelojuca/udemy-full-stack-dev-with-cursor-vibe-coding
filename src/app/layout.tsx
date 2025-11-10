@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Dandi GitHub Analyzer - Unlock Insights from Your GitHub Repositories",
-  description: "Get comprehensive insights, summaries, stars tracking, cool facts, and latest pull requests from any GitHub repository with Dandi GitHub Analyzer.",
+  title: "Xpto GitHub Analyzer - Unlock Insights from Your GitHub Repositories",
+  description: "Get comprehensive insights, summaries, stars tracking, cool facts, and latest pull requests from any GitHub repository with Xpto GitHub Analyzer.",
   generator: "v0.app",
 };
 

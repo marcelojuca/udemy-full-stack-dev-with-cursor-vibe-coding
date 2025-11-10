@@ -6,7 +6,7 @@ const testimonials = [
     name: "Sarah Chen",
     role: "Open Source Maintainer",
     content:
-      "Dandi has completely changed how I track and understand the repositories I maintain. The insights are incredibly valuable.",
+      "Xpto has completely changed how I track and understand the repositories I maintain. The insights are incredibly valuable.",
     rating: 5,
   },
   {
@@ -27,7 +27,7 @@ export function TestimonialsSection() {
             Loved by Developers Worldwide
           </h2>
           <p className="text-lg sm:text-xl text-muted-foreground text-balance max-w-2xl mx-auto leading-relaxed">
-            See what the open source community is saying about Dandi GitHub Analyzer.
+            See what the open source community is saying about Xpto GitHub Analyzer.
           </p>
         </div>
 
