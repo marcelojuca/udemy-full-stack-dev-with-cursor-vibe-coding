@@ -1,4 +1,34 @@
+'use client'
+
+import { useState } from 'react'
+import { useToast } from '../hooks/use-toast'
+
 export default function PlanCard() {
+  const [isLoading, setIsLoading] = useState(false)
+  const { showToastNotification } = useToast()
+
+  const handleManagePlan = async (): Promise<void> => {
+    try {
+      setIsLoading(true)
+      const res = await fetch('/api/stripe/billing-portal', { method: 'POST' })
+      const data = await res.json()
+
+      if (data.error) {
+        showToastNotification(data.error, 'error')
+        return
+      }
+
+      if (data.url) {
+        window.location.href = data.url
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      showToastNotification('Failed to open billing portal', 'error')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   return (
     <div className="bg-gradient-to-r from-primary to-accent rounded-xl p-6 text-primary-foreground">
       <div className="flex justify-between items-start mb-4">
@@ -6,8 +36,11 @@ export default function PlanCard() {
           <p className="text-sm font-medium opacity-90">CURRENT PLAN</p>
           <h2 className="text-3xl font-bold mt-1">Researcher</h2>
         </div>
-        <button className="bg-primary-foreground/20 hover:bg-primary-foreground/30 px-4 py-2 rounded-lg text-sm font-medium text-foreground transition-colors">
-          Manage Plan
+        <button
+          onClick={handleManagePlan}
+          disabled={isLoading}
+          className="bg-primary-foreground/20 hover:bg-primary-foreground/30 disabled:opacity-50 px-4 py-2 rounded-lg text-sm font-medium text-foreground transition-colors">
+          {isLoading ? 'Loading...' : 'Manage Plan'}
         </button>
       </div>
       <div className="space-y-4">

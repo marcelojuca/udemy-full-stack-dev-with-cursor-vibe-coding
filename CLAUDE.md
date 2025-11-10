@@ -51,11 +51,22 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **LangChain Setup**: Uses ChatPromptTemplate + ChatOpenAI with `withStructuredOutput()` for strict schema enforcement
 - **Model**: gpt-4-1-nano (cost-effective for analysis)
 
-### 4. Rate Limiting
+### 4. Stripe Payment Integration
+- **Location**: `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx`
+- **Key Features**:
+  - Stripe pricing table embedded in pricing section
+  - Billing portal for subscription management (upgrade/downgrade)
+  - Secure customer portal hosted by Stripe
+  - Seamless subscription management without building custom UI
+- **Pricing Table**: Displays Free, Basic ($19), and Pro ($35) plans
+- **Manage Plan Button**: Redirects authenticated users to Stripe billing portal
+- **Payment Processing**: All handled securely by Stripe
+
+### 5. Rate Limiting
 - **Location**: `src/lib/rate-limiting.js`
 - **Prevents API abuse** by limiting requests per user/IP
 
-### 5. UI Framework
+### 6. UI Framework
 - **Next.js App Router** with TypeScript support
 - **Shadcn/ui components** (from `@radix-ui/*`) for consistent, accessible UI
 - **Tailwind CSS 4** for styling (configured in `tailwind.config.js` via `@tailwindcss/postcss`)
@@ -164,6 +175,10 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 # OpenAI API
 OPENAI_API_KEY=sk-your-openai-api-key
+
+# Stripe (for payment processing)
+STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_your-stripe-publishable-key
 ```
 
 ### Validate Environment Setup
@@ -199,6 +214,8 @@ You can now run: npm run dev
 | `GOOGLE_CLIENT_ID` | Google Cloud Console → Credentials → OAuth 2.0 Client ID |
 | `GOOGLE_CLIENT_SECRET` | Google Cloud Console → Credentials → OAuth 2.0 Client Secret |
 | `OPENAI_API_KEY` | OpenAI Dashboard → API Keys → Create new key |
+| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API Keys → Secret Key (test/live) |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Dashboard → Developers → API Keys → Publishable Key (test/live) |
 
 ### Setup Checklist
 
