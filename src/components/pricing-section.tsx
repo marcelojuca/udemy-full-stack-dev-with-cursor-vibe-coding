@@ -33,7 +33,7 @@ const plans = [
   },
   {
     name: "Enterprise",
-    price: "$99",
+    price: "$35",
     description: "For enterprise with developers and teams who need more requests than usual for their projects",
     features: [
       "Limited to 1,000 requests",
