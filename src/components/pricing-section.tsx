@@ -1,5 +1,3 @@
-'use client'
-
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -10,6 +8,8 @@ declare global {
     }
   }
 }
+
+'use client'
 
 export function PricingSection() {
   return (
