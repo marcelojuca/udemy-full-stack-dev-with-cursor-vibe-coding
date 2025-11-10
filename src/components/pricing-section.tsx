@@ -19,22 +19,22 @@ const plans = [
     disabled: false,
   },
   {
-    name: "Pro",
+    name: "Basic",
     price: "$19",
-    description: "For developers and teams who need more insights",
+    description: "For developers who need insights about their own repositories and other repositories they are interested in",
     features: [
       "Limited to 500 requests",
       "Advanced analytics",
     ],
-    cta: "Start Pro Trial",
+    cta: "Start Basic Trial",
     popular: false,
     comingSoon: true,
     disabled: true,
   },
   {
-    name: "Enterprise",
+    name: "Pro",
     price: "$35",
-    description: "For enterprise with developers and teams who need more requests than usual for their projects",
+    description: "For developers who need more insights than usual",
     features: [
       "Limited to 1,000 requests",
       "Custom integrations",
