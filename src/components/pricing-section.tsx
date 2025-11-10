@@ -84,7 +84,7 @@ export function PricingSection() {
           {plans.map((plan, index) => (
             <Card
               key={index}
-              className={`relative bg-card border-border h-full ${
+              className={`relative bg-card border-border h-full flex flex-col ${
                 plan.popular ? "ring-2 ring-primary shadow-lg sm:scale-105" : ""
               }`}
             >
@@ -115,8 +115,8 @@ export function PricingSection() {
                 </CardDescription>
               </CardHeader>
 
-              <CardContent className="space-y-4 pt-0">
-                <ul className="space-y-2 sm:space-y-3">
+              <CardContent className="flex-1 flex flex-col pt-0">
+                <ul className="space-y-2 sm:space-y-3 mb-6">
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start space-x-3">
                       <Check className="h-4 w-4 text-primary flex-shrink-0 mt-0.5" />
@@ -130,7 +130,7 @@ export function PricingSection() {
                 <Button
                   onClick={() => handleButtonClick(plan)}
                   disabled={plan.disabled || loading || isLoading}
-                  className={`w-full mt-6 ${
+                  className={`w-full mt-auto ${
                     plan.disabled
                       ? "bg-secondary text-secondary-foreground cursor-not-allowed opacity-50"
                       : plan.name === 'Free'
