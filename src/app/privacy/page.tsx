@@ -150,7 +150,7 @@ export default function PrivacyPolicy() {
                   If you have questions about this Privacy Policy or wish to exercise your rights:
                 </p>
                 <ul className="list-disc list-inside space-y-2 text-foreground/90 pl-2">
-                  <li>Email us at: support@dandi.lat</li>
+                  <li>Email us at: xpto_saas@googlegroups.com</li>
                   <li>Response time: 30 days</li>
                   <li>If you are not satisfied with our response, you may file a complaint with the Office of the Privacy Commissioner of Canada</li>
                 </ul>
