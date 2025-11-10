@@ -5,7 +5,7 @@ import { useToast } from '../hooks/use-toast'
 
 export default function PlanCard() {
   const [isLoading, setIsLoading] = useState(false)
-  const { showToastNotification } = useToast()
+  const { toast } = useToast()
 
   const handleManagePlan = async (): Promise<void> => {
     try {
@@ -14,7 +14,11 @@ export default function PlanCard() {
       const data = await res.json()
 
       if (data.error) {
-        showToastNotification(data.error, 'error')
+        toast({
+          title: 'Error',
+          description: data.error,
+          variant: 'destructive',
+        })
         return
       }
 
@@ -23,7 +27,11 @@ export default function PlanCard() {
       }
     } catch (error) {
       console.error('Error:', error)
-      showToastNotification('Failed to open billing portal', 'error')
+      toast({
+        title: 'Error',
+        description: 'Failed to open billing portal',
+        variant: 'destructive',
+      })
     } finally {
       setIsLoading(false)
     }
