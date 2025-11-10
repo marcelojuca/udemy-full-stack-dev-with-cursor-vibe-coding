@@ -1,10 +1,10 @@
-# Dandi - GitHub Repository Analyzer
+# Xpto - GitHub Repository Analyzer
 
 > A full-stack Next.js application that analyzes GitHub repositories and provides AI-powered insights, summaries, star tracking, and cool facts.
 
 ## Overview
 
-**Dandi** is a comprehensive GitHub analysis platform built with Next.js 15, combining a modern frontend with a powerful backend that integrates LangChain and OpenAI. Users can authenticate via Google OAuth, manage API keys securely, and get instant AI-powered summaries and insights about GitHub repositories.
+**Xpto** is a comprehensive GitHub analysis platform built with Next.js 15, combining a modern frontend with a powerful backend that integrates LangChain and OpenAI. Users can authenticate via Google OAuth, manage API keys securely, and get instant AI-powered summaries and insights about GitHub repositories.
 
 **Course Context**: This project is part of the [Cursor Course: FullStack Development with Cursor Vibe Coding](https://www.udemy.com/course/cursor-ai-ide/learn/lecture/45609807).
 

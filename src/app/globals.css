@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Updated color tokens to match Dandi GitHub Analyzer design brief */
+  /* Updated color tokens to match Xpto GitHub Analyzer design brief */
   --background: oklch(1 0 0); /* #ffffff */
   --foreground: oklch(0.35 0 0); /* #475569 */
   --card: oklch(0.97 0 0); /* #f1f5f9 */

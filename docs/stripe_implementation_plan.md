@@ -365,7 +365,7 @@ Every invoice issued to Canadian customers **MUST include**:
 
 #### Special Considerations for Cloud/SaaS
 
-1. **Cloud-based software** (like Dandi)
+1. **Cloud-based software** (like Xpto)
    - Classified as "supply of services" not goods
    - Same GST rules as other services
    - Location of customer matters
