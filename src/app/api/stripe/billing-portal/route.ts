@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth/next'
 import Stripe from 'stripe'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || '')
+function getStripeClient(): Stripe {
+  const apiKey = process.env.STRIPE_SECRET_KEY
+  if (!apiKey) {
+    throw new Error('STRIPE_SECRET_KEY environment variable is not set')
+  }
+  return new Stripe(apiKey)
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -11,6 +17,8 @@ export async function POST(req: NextRequest) {
     if (!session?.user?.email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
+
+    const stripe = getStripeClient()
 
     // Find customer by email in Stripe
     const customers = await stripe.customers.list({

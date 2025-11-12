@@ -4,7 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Overview
 
-This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that analyzes GitHub repositories and provides insights, summaries, star tracking, and cool facts. It combines frontend UI with backend AI integration using LangChain and OpenAI.
+This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer + Figma Image Resizer) that combines:
+- **Frontend**: Responsive web app with user authentication (Google OAuth)
+- **Backend**: AI-powered GitHub analysis (LangChain + OpenAI) + image processing API
+- **Plugins**: Figma Image Resizer Pro plugin for in-app image editing
+- **Monetization**: Freemium subscription model via Stripe (Pro & Enterprise tiers)
+
+The platform bridges web services with Figma ecosystem, enabling designers to process images directly in Figma while accessing advanced features through a subscription model.
+
+**Learning Context**: This project is built as part of the [Cursor Course: Full-Stack Development with Cursor Vibe Coding](https://www.udemy.com/course/cursor-ai-ide/). It demonstrates full-stack development, SaaS monetization, plugin architecture, and production-grade payment processing with Stripe.
 
 ## Common Commands
 
@@ -12,12 +20,23 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Start dev server**: `npm run dev` (runs on http://localhost:3000)
 - **Build for production**: `npm run build`
 - **Run production build locally**: `npm start`
-- **Lint code**: `eslint` (configured in eslint.config.mjs)
+- **Lint code**: `eslint`
+- **Fix linting issues**: `eslint --fix`
 
 ### Database
-- **Setup development database**: `node setup-database.js` (initializes Supabase tables locally)
-- **Setup production database**: Automated via GitHub Actions on merge to `main` (see Deployment section)
+- **Setup development database**: `node setup-database.js` (initializes Supabase tables)
+- **Setup production database**: `node setup-production-db.js` - *Automated via GitHub Actions on merge to `main`*
 - **Validate environment**: `node validate-env.js` (checks all services are configured)
+
+### Quality Checks
+- **Type checking**: TypeScript compiler runs during `npm run build` (strict mode is OFF - use caution)
+- **Linting**: ESLint runs automatically during build with `next/core-web-vitals` config
+- **Full build test**: `npm run build && npm start` (test production build locally)
+
+### Plugin Development
+- **Build plugin**: `cd plugins/image-resizer && npm run build`
+- **Watch mode**: `cd plugins/image-resizer && npm run watch`
+- **Reload in Figma**: ⌘+R (macOS) or Ctrl+R (Windows/Linux)
 
 ## Architecture & Key Systems
 
@@ -49,7 +68,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
   3. `chain.js` uses ChatOpenAI with structured output (Zod schema) to analyze README
   4. Returns summary and cool facts
 - **LangChain Setup**: Uses ChatPromptTemplate + ChatOpenAI with `withStructuredOutput()` for strict schema enforcement
-- **Model**: gpt-4-1-nano (cost-effective for analysis)
+- **Model**: gpt-4-mini (cost-effective for analysis)
 
 ### 4. Stripe Payment Integration
 - **Location**: `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx`
@@ -81,45 +100,139 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
   - Custom AuthProvider (manages app-level auth context)
 - **Next Themes**: Supports dark mode toggle (configured in providers)
 
+### 7. Stripe Payment Integration (Monetization)
+- **Location**: `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx`
+- **Status**: In development (Phase 1 backend setup)
+- **Key Features**:
+  - Stripe pricing table component embedded in `/pricing` page
+  - Billing portal for subscription management (upgrade/downgrade)
+  - Secure customer portal hosted by Stripe
+  - Three subscription tiers: Free ($0), Pro ($19/mo), Enterprise ($35/mo)
+- **Integration**: Plugin authentication via API keys, tier-based rate limiting
+- **Docs**: See `docs/stripe_implementation_plan.md` for detailed Stripe setup and `docs/integration-plan.md` for monetization strategy
+
+## Figma Plugins
+
+### Image Resizer Pro Plugin
+- **Location**: `plugins/image-resizer/`
+- **Purpose**: In-Figma image processing with web backend integration
+- **Status**: Active development (monetization integration in Phase 2)
+- **Development**:
+  - Build: `cd plugins/image-resizer && npm run build`
+  - Watch mode: `cd plugins/image-resizer && npm run watch`
+  - Reload in Figma: ⌘+R or Ctrl+R
+- **Authentication**: Via API keys from main website
+- **Future**: Tier-based feature access, usage tracking, rate limiting per subscription
+
+### Plugin Architecture
+- Plugins authenticate with the main website via API keys
+- Rate limiting enforced per subscription tier (Free 5/day, Pro Unlimited, Enterprise Unlimited+2x)
+- Usage tracking and analytics implementation in Phase 2
+- Secure image processing API at `/api/plugin/*` endpoints
+
+See `docs/integration-plan.md` for monetization strategy and `docs/stripe_implementation_plan.md` for backend setup.
+
+## Key API Endpoints
+
+### Authentication & Core
+| Endpoint | Method | Purpose | Auth Required |
+|----------|--------|---------|---|
+| `/api/auth/[...nextauth]` | GET/POST | NextAuth authentication flow | No |
+| `/api/api-keys` | POST | Create a new API key | Yes |
+| `/api/api-keys/[id]` | DELETE | Delete an API key | Yes |
+| `/api/validate-key` | POST | Validate GitHub/OpenAI API keys | Yes |
+| `/api/github-summarizer` | POST | Analyze GitHub repository | Yes |
+
+### Plugin Integration (In Development)
+| Endpoint | Method | Purpose | Auth Required |
+|----------|--------|---------|---|
+| `/api/plugin/auth/verify-key` | POST | Verify API key & get tier info | API Key |
+| `/api/plugin/process-image` | POST | Process single image | API Key |
+| `/api/plugin/batch-process` | POST | Batch process images (Pro+) | API Key |
+
+### Payment & Subscription (In Development)
+| Endpoint | Method | Purpose | Auth Required |
+|----------|--------|---------|---|
+| `/api/payments/create-payment` | POST | Initiate payment | Yes |
+| `/api/payments/create-subscription` | POST | Create recurring subscription | Yes |
+| `/api/webhooks/stripe` | POST | Stripe webhook handler | Signature |
+| `/api/stripe/billing-portal` | POST | Create Stripe billing portal session | Yes |
+
+**Rate limiting**: All endpoints respect per-tier limits (see `src/lib/rate-limiting.js`)
+
 ## Project Structure
 
 ```
-src/
-├── app/                          # Next.js App Router
-│   ├── api/                      # API routes (NextAuth, GitHub analyzer, API keys)
-│   ├── auth/                     # Auth pages (signin, error)
-│   ├── dashboards/               # Protected user dashboard
-│   ├── playground/               # Demo/testing page
-│   ├── layout.tsx                # Root layout with metadata
-│   ├── providers.tsx             # SessionProvider & AuthProvider setup
-│   └── globals.css               # Global Tailwind + CSS variables
-├── components/
-│   ├── ui/                       # Shadcn components (button, card, toast, etc.)
-│   ├── api-key-*.tsx             # API key management UI
-│   ├── dashboard-wrapper.tsx     # Protected dashboard wrapper
-│   ├── sidebar.tsx               # Navigation sidebar
-│   ├── hero-section.tsx          # Landing page sections
-│   └── ...other feature sections
-├── contexts/
-│   └── auth-context.tsx          # App-level auth state
-├── hooks/
-│   ├── use-api-keys.ts           # API key CRUD operations
-│   ├── use-form-data.ts          # Form state management
-│   ├── use-modal-state.ts        # Modal dialog state
-│   ├── use-sidebar.ts            # Sidebar navigation state
-│   └── use-toast.ts              # Toast notifications
-├── lib/
-│   ├── auth.js                   # NextAuth configuration
-│   ├── chain.js                  # LangChain + OpenAI integration
-│   ├── supabase.js               # Supabase client
-│   ├── get-repo-info.js          # GitHub API wrapper
-│   ├── api-keys-*.js             # API key service layer
-│   ├── rate-limiting.js          # Request throttling
-│   └── utils.ts                  # Utility functions
-├── types/                        # TypeScript type definitions
-└── utils/
-    ├── validation.ts             # Form validation schemas (Zod)
-    └── clipboard.ts              # Clipboard utilities
+project-root/
+├── src/                          # Main Next.js application
+│   ├── app/
+│   │   ├── api/                  # API routes
+│   │   │   ├── auth/[...nextauth]/    # NextAuth configuration
+│   │   │   ├── api-keys/              # API key management
+│   │   │   ├── github-summarizer/     # GitHub analysis
+│   │   │   ├── plugin/                # Plugin integration (in dev)
+│   │   │   ├── payments/              # Stripe payments (in dev)
+│   │   │   ├── webhooks/              # Webhook handlers (in dev)
+│   │   │   └── validate-key/          # Key validation
+│   │   ├── auth/                 # Authentication pages
+│   │   ├── dashboards/           # Protected user dashboard
+│   │   ├── pricing/              # Pricing page
+│   │   ├── playground/           # Demo/testing page
+│   │   ├── layout.tsx
+│   │   ├── providers.tsx         # SessionProvider + Stripe provider
+│   │   └── globals.css
+│   ├── components/
+│   │   ├── ui/                   # Shadcn/ui components
+│   │   ├── payment/              # Payment UI (in dev)
+│   │   ├── api-key-*.tsx         # API key management
+│   │   ├── dashboard-wrapper.tsx
+│   │   ├── sidebar.tsx
+│   │   └── ...
+│   ├── contexts/
+│   │   └── auth-context.tsx
+│   ├── hooks/
+│   │   ├── use-api-keys.ts
+│   │   ├── use-form-data.ts
+│   │   └── ...
+│   ├── lib/
+│   │   ├── auth.js
+│   │   ├── chain.js
+│   │   ├── supabase.js
+│   │   ├── stripe.js             # Stripe utilities (in dev)
+│   │   ├── invoice-service.js    # Invoice generation (in dev)
+│   │   ├── api-keys-*.js
+│   │   ├── rate-limiting.js
+│   │   └── ...
+│   ├── types/
+│   └── utils/
+│
+├── plugins/                      # Figma plugins directory
+│   └── image-resizer/            # Image Resizer Pro plugin
+│       ├── src/
+│       │   ├── main.ts           # Plugin main code
+│       │   ├── ui.tsx            # UI components
+│       │   ├── input.css         # Tailwind CSS
+│       │   └── ...
+│       ├── manifest.json         # Plugin metadata
+│       ├── package.json
+│       ├── tsconfig.json
+│       ├── tailwind.config.js
+│       └── docs/
+│
+├── docs/                         # Project documentation
+│   ├── integration-plan.md       # Monetization & Stripe roadmap
+│   ├── stripe_implementation_plan.md # Detailed Stripe setup
+│   └── ...
+│
+├── .github/workflows/            # GitHub Actions
+│   └── validate-and-deploy-db.yml
+│
+├── setup-database.js             # Initialize Supabase schema
+├── setup-production-db.js        # Production schema
+├── validate-env.js               # Environment validation
+├── package.json
+├── CLAUDE.md                     # This file
+└── .env.local / .env.production.local
 ```
 
 ## Code Implementation Guidelines (from .cursorrules)
@@ -140,6 +253,32 @@ src/
   - Example: `Xpto (&quot;we&quot;, &quot;us&quot;)` not `Xpto ("we", "us")`
   - This prevents ESLint errors during build and ensures proper HTML rendering
   - Common in legal pages (Terms of Service, Privacy Policy) with quotations
+
+## Common Code Patterns
+
+### Component Structure
+- **Client vs Server**: Use `'use client'` directive for interactive components, keep API routes and utils as server-side
+- **Protected Routes**: Use `DashboardWrapper` component to wrap pages requiring authentication
+- **Form Handling**: Use `react-hook-form` with Zod schemas for validation (see `src/utils/validation.ts`)
+- **Toast Notifications**: Use `useToast` hook from `src/hooks/use-toast.ts` for user feedback
+
+### API Route Patterns
+- **Authentication Check**: Import `getServerSession` from NextAuth to verify user in API routes
+- **Error Responses**: Return consistent JSON with status codes (200, 400, 401, 500)
+- **Rate Limiting**: All endpoints should use `rateLimitMiddleware` from `src/lib/rate-limiting.js`
+- **Example**: See `src/app/api/github-summarizer/route.js` for complete pattern
+
+### Custom Hooks
+- **`useApiKeys`** - CRUD operations for user API keys
+- **`useToast`** - Show toast notifications
+- **`useFormData`** - Manage form state and validation
+- **`useModalState`** - Control modal dialogs
+- **`useSidebar`** - Sidebar navigation state
+
+### Data Fetching
+- **Client-side**: Use fetch in `useEffect` with proper cleanup
+- **Server-side**: Use `getServerSession` in API routes or server components
+- **LangChain**: Use `chain.js` to invoke AI analysis with structured output (Zod schemas)
 
 ## Key Dependencies
 
@@ -573,6 +712,7 @@ When making database schema changes:
 
 ## Development Workflow
 
+### Web Application
 1. Start dev server: `npm run dev`
 2. Make changes to components/pages
 3. Test in browser at http://localhost:3000
@@ -580,3 +720,201 @@ When making database schema changes:
 5. Commit changes with clear messages
 6. Push to trigger build validation (TypeScript + ESLint)
 7. If database schema changed, GitHub Actions deploys to production on merge to main
+
+### Figma Plugin Development
+1. Navigate to plugin: `cd plugins/image-resizer`
+2. Start watch mode: `npm run watch`
+3. Open plugin in Figma: Right-click → Plugins → Development → Import plugin from manifest.json
+4. Make changes to TypeScript/React files
+5. Reload plugin in Figma (⌘+R or Ctrl+R)
+6. Build for distribution: `npm run build` (outputs to `build/` directory)
+7. Commit changes to main project
+
+---
+
+## Monetization & Stripe Integration
+
+### Current Status: Phase 1 (Backend Setup) - IN PROGRESS
+
+The project implements a **freemium subscription model** with Stripe for the Figma Image Resizer plugin.
+
+**Subscription Tiers**:
+| Tier | Price | Limit |
+|------|-------|-------|
+| Free | $0 | 5 images/day |
+| Pro | $19/mo | Unlimited |
+| Enterprise | $35/mo | Unlimited + 2x speed |
+
+### Implementation Roadmap
+
+**Phase 1: Backend Setup (IN PROGRESS)**
+- Stripe account and API keys configured
+- Environment variables setup
+- Pricing table embedded on `/pricing` page
+- Billing portal integration at `/api/stripe/billing-portal`
+- See: `docs/stripe_implementation_plan.md`
+
+**Phase 2: Plugin-Backend Connection (NOT STARTED)**
+- API key authentication system
+- Tier-based rate limiting enforcement
+- Plugin UI tier indicators
+- Usage tracking and analytics
+
+**Phase 3: Figma Community Publishing (NOT STARTED)**
+- Figma seller approval
+- Plugin published to Figma Community
+- Live payment processing
+
+**Phase 4: Marketing & Optimization (NOT STARTED)**
+- Community outreach and growth
+- Usage metrics and optimization
+- Customer support framework
+
+### Development Notes
+
+**API Keys**:
+- Format: `sk_prod_[32-char-string]`
+- Hashed in database (never store plaintext)
+- Plugin auth: `Authorization: Bearer sk_prod_...`
+
+**Rate Limiting**:
+- Free: 5 operations/day (reset midnight UTC)
+- Pro: Unlimited (100 req/min burst)
+- Enterprise: Unlimited (1000 req/min burst)
+
+**GST Compliance** (Alberta):
+- 5% GST on all sales
+- Show breakdown on invoices
+- Track for CRA filing
+
+**Payment Flow**:
+User upgrade → Stripe payment → Webhook → DB update → API key permissions → Plugin tier update → Unlimited access
+
+### Key Documentation
+
+- **`docs/stripe_implementation_plan.md`** - Technical Stripe setup, database schema, API examples
+- **`docs/integration-plan.md`** - Monetization strategy, roadmap, success metrics
+
+---
+
+## Quick Reference: Key File Locations
+
+| Feature | Primary Files |
+|---------|---|
+| Authentication | `src/lib/auth.js`, `src/app/api/auth/[...nextauth]/route.js`, `src/contexts/auth-context.tsx` |
+| API Keys Management | `src/lib/api-keys-service.js`, `src/app/api/api-keys/route.js`, `src/components/api-key-*.tsx` |
+| GitHub Analysis | `src/lib/chain.js`, `src/lib/get-repo-info.js`, `src/app/api/github-summarizer/route.js` |
+| Stripe Payments | `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx` |
+| Database Setup | `setup-database.js`, `setup-production-db.js` |
+| Environment Validation | `validate-env.js` |
+| Rate Limiting | `src/lib/rate-limiting.js` |
+| Theme/Dark Mode | `src/app/providers.tsx`, `src/app/globals.css` |
+| Validation Schemas | `src/utils/validation.ts` |
+| Custom Hooks | `src/hooks/*.ts` |
+
+## Error Handling & Debugging
+
+### API Route Error Handling Pattern
+
+```javascript
+// Standard response pattern
+export async function POST(request) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.id) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    // Validate request body
+    const body = await request.json();
+    const validation = MySchema.safeParse(body);
+    if (!validation.success) {
+      return Response.json({ error: validation.error }, { status: 400 });
+    }
+
+    // Rate limiting
+    const rateLimited = await rateLimitMiddleware(session.user.id);
+    if (rateLimited) {
+      return Response.json({ error: 'Rate limited' }, { status: 429 });
+    }
+
+    // Business logic
+    const result = await doSomething(validation.data);
+    return Response.json({ success: true, data: result });
+  } catch (error) {
+    console.error('API Error:', error);
+    return Response.json({ error: 'Internal error' }, { status: 500 });
+  }
+}
+```
+
+### Client-Side Error Handling
+
+- Use `useToast` hook for user-facing errors
+- Log errors to console in development for debugging
+- Never expose sensitive information in error messages
+- Catch and handle `AbortError` for fetch cleanup
+
+### Debug Flags
+
+- Check `src/lib/supabase.js` for connection debugging
+- Use browser DevTools Console to inspect AuthContext state
+- Check browser Network tab for API response codes
+- Use VS Code debugger with `npm run dev` and breakpoints
+
+---
+
+## Troubleshooting Common Issues
+
+### TypeScript Errors During Development
+
+- **Issue**: Type errors in terminal but code runs
+  - **Cause**: TypeScript strict mode is OFF (`tsconfig.json`: `"strict": false`)
+  - **Solution**: This is intentional for flexibility, but fix type errors before merging to main. Enable stricter checks in IDE settings.
+
+### Stripe Integration Issues
+
+- **Issue**: Stripe pricing table not displaying
+  - **Cause**: Missing TypeScript type declaration
+  - **Solution**: Check that `types/stripe.d.ts` exists with proper declaration. Reference: `src/components/plan-card.tsx`
+
+- **Issue**: Billing portal redirect fails
+  - **Cause**: Not authenticated or missing `STRIPE_SECRET_KEY`
+  - **Solution**:
+    1. Verify user is authenticated (check AuthContext in browser DevTools)
+    2. Check Stripe keys in environment variables
+    3. Verify Stripe test/live mode matches keys used
+
+### OpenAI Rate Limiting
+
+- **Issue**: "Rate limit exceeded" errors
+  - **Cause**: Too many requests from single user
+  - **Solution**: Check `src/lib/rate-limiting.js` for limits. Adjust if needed. Rate limits are per-user, not global.
+
+### Supabase Connection Issues
+
+- **Issue**: Database setup fails with connection error
+  - **Cause**: Wrong credentials or project inactive
+  - **Solution**:
+    1. Verify Supabase project is active
+    2. Check `SUPABASE_SERVICE_ROLE_KEY` has correct permissions
+    3. Run: `node validate-env.js` to diagnose
+    4. For production: Use `ENV_FILE=.env.production.local node validate-env.js`
+
+### Google OAuth Login Fails
+
+- **Issue**: Redirect error after clicking "Sign in with Google"
+  - **Cause**: Missing or incorrect redirect URI
+  - **Solution**:
+    1. For dev: Add `http://localhost:3000/api/auth/callback/google` to Google Cloud Console
+    2. For prod: Add `https://yourdomain.com/api/auth/callback/google`
+    3. Verify `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` match Cloud Console
+
+### Build Fails with ESLint Errors
+
+- **Issue**: Build fails due to ESLint violations
+  - **Common violations**:
+    - Unescaped entities in JSX (use `&quot;` for `"`, `&apos;` for `'`)
+    - Missing aria-labels on interactive elements
+  - **Solution**: Run `eslint --fix` to auto-fix, then review remaining errors
+  - **Reference**: See "Code Implementation Guidelines" section for details

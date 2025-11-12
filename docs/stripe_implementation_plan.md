@@ -365,7 +365,7 @@ Every invoice issued to Canadian customers **MUST include**:
 
 #### Special Considerations for Cloud/SaaS
 
-1. **Cloud-based software** (like Xpto)
+1. **Cloud-based software** (like Dandi)
    - Classified as "supply of services" not goods
    - Same GST rules as other services
    - Location of customer matters
@@ -614,10 +614,10 @@ CREATE TABLE IF NOT EXISTS api_key_audit_log (
 - ⚠️ TODO: Audit logging of sensitive operations
 
 **Actions to take:**
-1. Enable Supabase Row-Level Security (RLS)
-2. Example: User can only see their own API keys
-3. Log all sensitive database changes
-4. Never expose database details in error messages
+1. [ ] Enable Supabase Row-Level Security (RLS)
+2. [ ] Example: User can only see their own API keys
+3. [ ] Log all sensitive database changes
+4. [ ] Never expose database details in error messages
 
 **Enable RLS on api_keys table:**
 ```sql
@@ -651,14 +651,14 @@ USING (auth.uid() = user_id);
 #### **5. Payment Security** ⭐ Very Important (for Stripe)
 
 **Current Status:**
-- ✅ DONE: Stripe PCI-DSS compliant (Level 1)
-- ✅ DONE: Use Stripe payment intents (not raw CC)
-- ✅ DONE: Never handle raw credit card data
-- ⚠️ TODO: Webhook signature verification
-- ⚠️ TODO: Idempotency keys for payment operations
+- [ ] Stripe PCI-DSS compliant (Level 1)
+- [ ] Use Stripe payment intents (not raw CC)
+- [ ] Never handle raw credit card data
+- [ ] Webhook signature verification
+- [ ] Idempotency keys for payment operations
 
 **Actions to take:**
-1. Always use Stripe Elements (never raw card input) ✅ Already planned
+1. Always use Stripe Elements (never raw card input)
 2. Verify webhook signatures (already in code examples)
 3. Use idempotency keys to prevent duplicate charges
 4. Store minimal payment info (only what CRA needs for invoices)
@@ -700,8 +700,8 @@ export async function POST(request) {
 
 **Current Status:**
 - ✅ DONE: `.env` files in `.gitignore` (no secrets in git)
-- ⚠️ TODO: Dependency scanning
-- ⚠️ TODO: Regular security updates
+- [ ] Dependency scanning
+- [ ] Regular security updates
 
 **Actions to take:**
 1. Use `npm audit` regularly to check for vulnerabilities
@@ -728,8 +728,8 @@ export async function POST(request) {
 #### **7. Logging & Monitoring**
 
 **Current Status:**
-- ⚠️ TODO: Security logging
-- ⚠️ TODO: Alerts on suspicious activity
+- [ ] Security logging
+- [ ] Alerts on suspicious activity
 
 **What to log:**
 ```javascript
