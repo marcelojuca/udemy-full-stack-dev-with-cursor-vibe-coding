@@ -255,6 +255,98 @@ All tables include `created_at` and `updated_at` timestamps. Foreign keys are se
 | `verification_tokens` | Email verification (NextAuth) | token, expires |
 | `user_api_keys` | Stored API keys | user_id, key_name, api_key (hashed), created_at |
 
+## Multi-Environment Setup
+
+This project uses a **three-tier environment strategy** with **single Vercel project** and **single GitHub repository**:
+
+```
+Local Development (localhost:3000)
+    ↓ Feature branches (no preview)
+Staging (dandi.lat)
+    ↓ After QA approval
+Production (xpto.space)
+```
+
+### Git Branch Strategy
+
+| Branch | Environment | URL | Auto-Deploy |
+|--------|-------------|-----|-------------|
+| `main` | Production | https://xpto.space | ✅ Yes (to Production) |
+| `staging` | Staging/QA | https://dandi.lat | ✅ Yes (to Preview) |
+| `develop` | Local Dev | localhost:3000 | ❌ No |
+| `feature/*` | Local Dev | localhost:3000 | ❌ No |
+
+### Deployment Workflow
+
+**1. Feature Development**
+```bash
+git checkout -b feature/xyz
+# Make changes, test locally with: npm run dev
+git push -u origin feature/xyz
+```
+- ✅ Test locally only
+- ✅ No preview deployment
+
+**2. Code Review & Staging**
+```bash
+# Create PR: feature/xyz → staging
+# After approval, merge to staging
+git checkout staging
+git merge feature/xyz
+git push origin staging
+```
+- ✅ Vercel auto-deploys to dandi.lat
+- ✅ QA tests on staging
+
+**3. Production Promotion**
+```bash
+# After staging approval
+git checkout main
+git merge staging
+git push origin main
+```
+- ✅ Vercel auto-deploys to xpto.space
+- ✅ GitHub Actions updates database schema
+- ✅ Production is live
+
+### Vercel Configuration
+
+**Location:** Vercel Dashboard → xpto-saas project → Settings → Git
+
+**Recommended Settings:**
+- Production Branch: `main`
+- Preview Branches: `staging` only
+- Deploy Previews: Enabled
+
+### Environment Variables by Tier
+
+Add these to **Vercel → Settings → Environment Variables** with different values per environment:
+
+| Variable | Production | Preview (Staging) | Development |
+|----------|-----------|----------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL` | prod-url | staging-url | dev-url |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | prod-key | staging-key | dev-key |
+| `SUPABASE_SERVICE_ROLE_KEY` | prod-role | staging-role | dev-role |
+| `NEXTAUTH_SECRET` | prod-secret | staging-secret | dev-secret |
+| `NEXTAUTH_URL` | `https://xpto.space` | `https://dandi.lat` | `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID` | prod-id | staging-id | dev-id |
+| `GOOGLE_CLIENT_SECRET` | prod-secret | staging-secret | dev-secret |
+| `OPENAI_API_KEY` | shared | shared | shared |
+| `STRIPE_SECRET_KEY` | live-key | test-key | test-key |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | live-pub | test-pub | test-pub |
+
+**Tip:** Each environment uses **separate Supabase projects** for data isolation.
+
+### Google OAuth Setup
+
+Configure redirect URIs in **Google Cloud Console → Credentials → OAuth 2.0 Client IDs:**
+
+- Production: `https://xpto.space/api/auth/callback/google`
+- Staging: `https://dandi.lat/api/auth/callback/google`
+- Development: `http://localhost:3000/api/auth/callback/google`
+
+---
+
 ## Deployment
 
 ### Production Environment Variables
