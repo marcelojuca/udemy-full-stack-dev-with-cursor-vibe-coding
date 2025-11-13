@@ -6,18 +6,34 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that analyzes GitHub repositories and provides insights, summaries, star tracking, and cool facts. It combines frontend UI with backend AI integration using LangChain and OpenAI.
 
+## Quick Lookup
+
+Need to find something fast? Use these references:
+- **How do I enable/disable Stripe?** → Check `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` in environment setup
+- **Where is authentication handled?** → `src/lib/auth.js`, `src/contexts/auth-context.tsx`, `src/app/api/auth/[...nextauth]/route.js`
+- **How do I add a new API route?** → Create file in `src/app/api/` using Next.js 15 App Router conventions
+- **How do I add a new environment variable?** → Add to `.env.local`, `.env.production.local`, and update `validate-env.js`
+- **How do I make an API call?** → Use `fetch` from `src/lib/supabase.js` or create custom service in `src/lib/`
+- **Where are protected routes?** → `src/components/dashboard-wrapper.tsx` wraps `/dashboards` and `/protected` pages
+- **How does GitHub analysis work?** → User URL → `get-repo-info.js` → `chain.js` with LangChain → Zod-validated response
+- **Where are form components?** → Check `src/components/` for forms; validation schemas in `src/utils/validation.ts`
+
 ## Common Commands
 
 ### Development
 - **Start dev server**: `npm run dev` (runs on http://localhost:3000)
 - **Build for production**: `npm run build`
 - **Run production build locally**: `npm start`
-- **Lint code**: `eslint` (configured in eslint.config.mjs)
+- **Lint code**: `npm run lint` (uses ESLint config in eslint.config.mjs)
 
 ### Database
 - **Setup development database**: `node setup-database.js` (initializes Supabase tables locally)
 - **Setup production database**: Automated via GitHub Actions on merge to `main` (see Deployment section)
 - **Validate environment**: `node validate-env.js` (checks all services are configured)
+
+### Pre-Deployment Checks
+- **Full build validation**: `npm run build` (catches TypeScript errors and ESLint violations)
+- **Lint check**: `npm run lint` (must pass before deployment)
 
 ## Architecture & Key Systems
 
@@ -122,15 +138,16 @@ src/
     └── clipboard.ts              # Clipboard utilities
 ```
 
-## Code Implementation Guidelines (from .cursorrules)
+## Code Implementation Guidelines (from `.cursor/rules/front-end-dev.mdc`)
 
-- **Early returns** for cleaner code
-- **Tailwind-only styling** - no inline CSS or style tags
+- **Early returns** for cleaner, more readable code
+- **Tailwind-only styling** - avoid inline CSS or style tags; use `class:` over ternary operators
 - **Event handlers** prefixed with "handle" (e.g., `handleClick`, `handleSubmit`)
-- **Accessibility first** - include aria-labels, tabindex, and keyboard event handlers
+- **Accessibility first** - include aria-labels, tabindex, keyboard handlers on interactive elements
 - **Arrow functions with types** - `const myFunc = (): void => {}`
-- **DRY principle** - avoid repetition
-- **Readability over performance** optimization
+- **DRY principle** - avoid code repetition
+- **Readability over performance** - prioritize clear code over micro-optimizations
+- **Descriptive naming** - use clear variable and function names
 
 ### JSX & HTML Best Practices
 
@@ -140,6 +157,12 @@ src/
   - Example: `Xpto (&quot;we&quot;, &quot;us&quot;)` not `Xpto ("we", "us")`
   - This prevents ESLint errors during build and ensures proper HTML rendering
   - Common in legal pages (Terms of Service, Privacy Policy) with quotations
+
+### TypeScript Considerations
+
+- **TypeScript strict mode is OFF** (`tsconfig.json`: `"strict": false`) - be mindful of type safety
+- Always define types explicitly, especially for function parameters and return types
+- Use Zod schemas for runtime validation of API responses and external data
 
 ## Key Dependencies
 
@@ -232,13 +255,15 @@ Before starting development:
 
 ## Important Notes
 
-- **TypeScript strict mode is OFF** (`tsconfig.json`: `"strict": false`) - be mindful of type safety
-- **ESLint checking is enabled** during build - fix linting errors before deployment
+- **TypeScript strict mode is OFF** (`tsconfig.json`: `"strict": false`) - be mindful of explicit type definitions
+- **ESLint checking is enabled** during build - `npm run lint` will catch and fail on violations
 - **Environment variables**: Uses `.env.local` (dev) and `.env.production.local` (prod)
-- **Secrets are gitignored**: `.env*` files are in `.gitignore` - never commit them
+- **Secrets are gitignored**: `.env*` files are in `.gitignore` - never commit credentials
 - **Remote image support** for Google OAuth profile pictures (configured in `next.config.mjs`)
 - **Logging is reduced** in development to avoid verbose Next.js fetch logs
-- **Path alias**: `@/*` maps to `./src/*` for clean imports
+- **Path alias**: `@/*` maps to `./src/*` for clean imports (e.g., `import { useAuth } from '@/contexts/auth-context'`)
+- **No tests configured** - testing decisions left to the developer
+- **Stripe is optional** - payment features require `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
 ## Database Setup & Synchronization
 
