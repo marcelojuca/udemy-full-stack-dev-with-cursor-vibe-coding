@@ -4,12 +4,8 @@ import { analyzeReadme } from '../../../lib/chain';
 import { checkAndIncrementUsage } from '../../../lib/rate-limiting';
 import { getBasicRepoInfo } from '../../../lib/get-repo-info';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
