@@ -11,7 +11,10 @@
  * Then copy and paste the SQL from setup-production-db.sql file
  */
 
-require('dotenv').config({ path: '.env.production.local' })
+// Load environment variables from file if ENV_FILE is set, otherwise use .env.production.local
+// In CI/CD, environment variables are set directly, so dotenv is optional
+const envFile = process.env.ENV_FILE || '.env.production.local'
+require('dotenv').config({ path: envFile })
 const fs = require('fs')
 const path = require('path')
 
