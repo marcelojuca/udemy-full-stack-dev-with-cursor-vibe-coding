@@ -33,7 +33,7 @@ export const useModalState = () => {
     setViewingKey(null);
   };
 
-  const isModalOpen = showCreateForm || editingKey || viewingKey;
+  const isModalOpen = Boolean(showCreateForm || editingKey || viewingKey);
 
   return {
     showCreateForm,

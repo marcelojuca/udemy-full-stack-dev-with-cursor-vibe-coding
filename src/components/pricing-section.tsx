@@ -2,21 +2,6 @@
 
 import React from 'react'
 
-interface StripePricingTableElement extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> {
-  'pricing-table-id'?: string
-  'publishable-key'?: string
-  'client-reference-id'?: string
-  'customer-email'?: string
-}
-
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'stripe-pricing-table': StripePricingTableElement
-    }
-  }
-}
-
 export function PricingSection() {
   return (
     <section id="pricing" className="py-8 sm:py-12 md:py-16 px-4">
