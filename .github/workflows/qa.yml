@@ -87,7 +87,6 @@ jobs:
 
       - name: ❌ Report failures
         if: |
-          failure() ||
           steps.format-check.outcome == 'failure' ||
           steps.lint-check.outcome == 'failure' ||
           steps.type-check.outcome == 'failure' ||
