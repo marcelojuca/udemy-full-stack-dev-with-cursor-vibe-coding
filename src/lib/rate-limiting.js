@@ -15,7 +15,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export async function validateApiKey(apiKey) {
   // Validate environment variables at runtime before use
   validateSupabaseEnv();
-  
+
   try {
     if (!apiKey) {
       return {

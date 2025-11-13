@@ -8,9 +8,12 @@
 /**
  * Checks if a value is a placeholder (used during build time)
  */
-function isPlaceholder(value: string | undefined, type: 'supabase' | 'stripe' = 'supabase'): boolean {
+function isPlaceholder(
+  value: string | undefined,
+  type: 'supabase' | 'stripe' = 'supabase'
+): boolean {
   if (!value) return true;
-  
+
   const placeholders = {
     supabase: {
       url: 'https://placeholder.supabase.co',
@@ -21,7 +24,7 @@ function isPlaceholder(value: string | undefined, type: 'supabase' | 'stripe' = 
       secretKey: 'sk_test_placeholder_key_for_build_time_only',
     },
   };
-  
+
   if (type === 'supabase') {
     return (
       value === placeholders.supabase.url ||
@@ -29,11 +32,11 @@ function isPlaceholder(value: string | undefined, type: 'supabase' | 'stripe' = 
       value === placeholders.supabase.serviceKey
     );
   }
-  
+
   if (type === 'stripe') {
     return value === placeholders.stripe.secretKey;
   }
-  
+
   return false;
 }
 
@@ -49,21 +52,21 @@ export function validateSupabaseEnv(): void {
   if (!supabaseUrl || isPlaceholder(supabaseUrl, 'supabase')) {
     throw new Error(
       'Missing required environment variable: NEXT_PUBLIC_SUPABASE_URL. ' +
-      'Please set this variable in your environment configuration.'
+        'Please set this variable in your environment configuration.'
     );
   }
 
   if (!supabaseAnonKey || isPlaceholder(supabaseAnonKey, 'supabase')) {
     throw new Error(
       'Missing required environment variable: NEXT_PUBLIC_SUPABASE_ANON_KEY. ' +
-      'Please set this variable in your environment configuration.'
+        'Please set this variable in your environment configuration.'
     );
   }
 
   if (!supabaseServiceKey || isPlaceholder(supabaseServiceKey, 'supabase')) {
     throw new Error(
       'Missing required environment variable: SUPABASE_SERVICE_ROLE_KEY. ' +
-      'Please set this variable in your environment configuration.'
+        'Please set this variable in your environment configuration.'
     );
   }
 }
@@ -78,7 +81,7 @@ export function validateStripeEnv(): void {
   if (!stripeSecretKey || isPlaceholder(stripeSecretKey, 'stripe')) {
     throw new Error(
       'Missing required environment variable: STRIPE_SECRET_KEY. ' +
-      'Please set this variable in your environment configuration.'
+        'Please set this variable in your environment configuration.'
     );
   }
 }
@@ -90,22 +93,21 @@ export function validateStripeEnv(): void {
 export function validateAllEnvVars(): void {
   validateSupabaseEnv();
   validateStripeEnv();
-  
+
   // Add other validations as needed
   const nextAuthSecret = process.env.NEXTAUTH_SECRET;
   if (!nextAuthSecret || nextAuthSecret.length < 32) {
     throw new Error(
       'Missing or invalid environment variable: NEXTAUTH_SECRET. ' +
-      'Must be at least 32 characters long.'
+        'Must be at least 32 characters long.'
     );
   }
-  
+
   const nextAuthUrl = process.env.NEXTAUTH_URL;
   if (!nextAuthUrl) {
     throw new Error(
       'Missing required environment variable: NEXTAUTH_URL. ' +
-      'Please set this variable in your environment configuration.'
+        'Please set this variable in your environment configuration.'
     );
   }
 }
-

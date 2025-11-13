@@ -14,7 +14,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 export async function POST(request) {
   // Validate environment variables at runtime before use
   validateSupabaseEnv();
-  
+
   try {
     const { githubUrl } = await request.json();
     const apiKey = request.headers.get('x-api-key');

@@ -11,7 +11,7 @@ const stripe = new Stripe(stripeSecretKey);
 export async function POST(req: NextRequest) {
   // Validate environment variables at runtime before use
   validateStripeEnv();
-  
+
   try {
     const session = await getServerSession();
 

@@ -6,7 +6,7 @@ import { supabaseAdmin, ensureSupabaseEnv } from '../../../../lib/supabase';
 export async function GET(request, { params }) {
   // Validate environment variables at runtime before use
   ensureSupabaseEnv();
-  
+
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -38,7 +38,7 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   // Validate environment variables at runtime before use
   ensureSupabaseEnv();
-  
+
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -102,7 +102,7 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   // Validate environment variables at runtime before use
   ensureSupabaseEnv();
-  
+
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
