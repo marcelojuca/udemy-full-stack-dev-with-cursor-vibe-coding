@@ -32,35 +32,35 @@ jobs:
         id: format-check
         run: |
           echo "Checking code formatting with Prettier..."
-          npm run format:check
+          yarn format:check
         continue-on-error: true
 
       - name: 🔍 Lint check
         id: lint-check
         run: |
           echo "Checking code quality with ESLint..."
-          npm run lint
+          yarn lint
         continue-on-error: true
 
       - name: 📝 Type check
         id: type-check
         run: |
           echo "Checking types with TypeScript..."
-          npm run type-check
+          yarn type-check
         continue-on-error: true
 
       - name: 🧪 Run tests
         id: tests
         run: |
           echo "Running unit tests..."
-          npm run test:coverage
+          yarn test:coverage
         continue-on-error: true
 
       - name: 🔨 Build check
         id: build-check
         run: |
           echo "Building for production..."
-          npm run build
+          yarn build
         continue-on-error: true
 
       - name: 📊 Upload coverage
