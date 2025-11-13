@@ -146,6 +146,174 @@ async function setupDatabase() {
       console.log('✅ Usage tracking columns added to api_keys table')
     }
 
+    // Create subscription_plans table
+    const { error: plansError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS subscription_plans (
+          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+          plan_slug VARCHAR(50) UNIQUE NOT NULL,
+          stripe_product_id VARCHAR(255),
+          stripe_price_id VARCHAR(255),
+          name VARCHAR(255) NOT NULL,
+          description TEXT,
+          price_monthly INTEGER DEFAULT 0,
+          limits JSONB NOT NULL DEFAULT '{"resizesPerDay": 2, "batchSize": 1, "isDaily": false}'::jsonb,
+          features TEXT[],
+          is_active BOOLEAN DEFAULT true,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `
+    })
+
+    if (plansError) {
+      console.log('Subscription plans table already exists or error:', plansError.message)
+    } else {
+      console.log('✅ Subscription plans table created')
+    }
+
+    // Seed subscription plans
+    const { error: seedPlansError } = await supabase.rpc('exec_sql', {
+      sql: `
+        INSERT INTO subscription_plans (plan_slug, name, price_monthly, limits, features) VALUES
+          ('free', 'Free', 0, '{"resizesPerDay": 2, "batchSize": 1, "isDaily": false}'::jsonb, ARRAY['basic_resize']),
+          ('basic', 'Basic', 1900, '{"resizesPerDay": 4, "batchSize": 5, "isDaily": true}'::jsonb, ARRAY['batch_resize', 'aspect_ratio']),
+          ('pro', 'Pro', 3500, '{"resizesPerDay": 6, "batchSize": 20, "isDaily": true}'::jsonb, ARRAY['unlimited_batch', 'priority_support']),
+          ('enterprise', 'Enterprise', 0, '{"resizesPerDay": -1, "batchSize": -1, "isDaily": false}'::jsonb, ARRAY['custom_limits', 'dedicated_support'])
+        ON CONFLICT (plan_slug) DO NOTHING;
+      `
+    })
+
+    if (seedPlansError) {
+      console.log('Subscription plans already seeded or error:', seedPlansError.message)
+    } else {
+      console.log('✅ Subscription plans seeded')
+    }
+
+    // Create plugin_tokens table
+    const { error: pluginTokensError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS plugin_tokens (
+          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          token VARCHAR(500) UNIQUE NOT NULL,
+          refresh_token VARCHAR(500),
+          expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          last_used_at TIMESTAMP WITH TIME ZONE,
+          revoked BOOLEAN DEFAULT false
+        );
+      `
+    })
+
+    if (pluginTokensError) {
+      console.log('Plugin tokens table already exists or error:', pluginTokensError.message)
+    } else {
+      console.log('✅ Plugin tokens table created')
+    }
+
+    // Create plugin_usage table
+    const { error: pluginUsageError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS plugin_usage (
+          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          action VARCHAR(100) NOT NULL,
+          plan VARCHAR(50),
+          metadata JSONB DEFAULT '{}',
+          limit_enforced BOOLEAN DEFAULT false,
+          daily_count INTEGER,
+          limit_remaining INTEGER,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `
+    })
+
+    if (pluginUsageError) {
+      console.log('Plugin usage table already exists or error:', pluginUsageError.message)
+    } else {
+      console.log('✅ Plugin usage table created')
+    }
+
+    // Create daily_usage_summary table
+    const { error: dailyUsageError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS daily_usage_summary (
+          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+          action VARCHAR(100) NOT NULL,
+          usage_date DATE NOT NULL DEFAULT CURRENT_DATE,
+          count INTEGER DEFAULT 0,
+          last_incremented TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          UNIQUE(user_id, action, usage_date)
+        );
+      `
+    })
+
+    if (dailyUsageError) {
+      console.log('Daily usage summary table already exists or error:', dailyUsageError.message)
+    } else {
+      console.log('✅ Daily usage summary table created')
+    }
+
+    // Create increment_daily_usage function
+    const { error: funcError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE OR REPLACE FUNCTION increment_daily_usage(
+          p_user_id UUID,
+          p_action VARCHAR,
+          p_date DATE DEFAULT CURRENT_DATE
+        )
+        RETURNS INTEGER AS $$
+        DECLARE
+          current_count INTEGER;
+        BEGIN
+          INSERT INTO daily_usage_summary (user_id, action, usage_date, count)
+          VALUES (p_user_id, p_action, p_date, 1)
+          ON CONFLICT (user_id, action, usage_date)
+          DO UPDATE SET
+            count = daily_usage_summary.count + 1,
+            last_incremented = NOW()
+          RETURNING count INTO current_count;
+
+          RETURN current_count;
+        END;
+        $$ LANGUAGE plpgsql;
+      `
+    })
+
+    if (funcError) {
+      console.log('increment_daily_usage function already exists or error:', funcError.message)
+    } else {
+      console.log('✅ increment_daily_usage function created')
+    }
+
+    // Create user_subscriptions table
+    const { error: userSubsError } = await supabase.rpc('exec_sql', {
+      sql: `
+        CREATE TABLE IF NOT EXISTS user_subscriptions (
+          id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+          user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+          plan VARCHAR(50) NOT NULL DEFAULT 'free',
+          stripe_customer_id VARCHAR(255),
+          stripe_subscription_id VARCHAR(255),
+          status VARCHAR(50) DEFAULT 'active',
+          limits JSONB DEFAULT '{"resizesPerDay": 2, "batchSize": 1, "isDaily": false}'::jsonb,
+          current_period_start TIMESTAMP WITH TIME ZONE,
+          current_period_end TIMESTAMP WITH TIME ZONE,
+          payment_failed_at TIMESTAMP WITH TIME ZONE,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `
+    })
+
+    if (userSubsError) {
+      console.log('User subscriptions table already exists or error:', userSubsError.message)
+    } else {
+      console.log('✅ User subscriptions table created')
+    }
+
     // Create indexes
     const { error: indexesError } = await supabase.rpc('exec_sql', {
       sql: `
@@ -155,9 +323,17 @@ async function setupDatabase() {
         CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON verification_tokens(token);
         CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
         CREATE INDEX IF NOT EXISTS idx_api_keys_key ON api_keys(key);
+        CREATE INDEX IF NOT EXISTS idx_plugin_tokens_user_id ON plugin_tokens(user_id);
+        CREATE INDEX IF NOT EXISTS idx_plugin_tokens_token ON plugin_tokens(token);
+        CREATE INDEX IF NOT EXISTS idx_plugin_usage_user_id ON plugin_usage(user_id);
+        CREATE INDEX IF NOT EXISTS idx_plugin_usage_created_at ON plugin_usage(created_at);
+        CREATE INDEX IF NOT EXISTS idx_daily_usage_user_action_date ON daily_usage_summary(user_id, action, usage_date);
+        CREATE INDEX IF NOT EXISTS idx_user_subscriptions_user_id ON user_subscriptions(user_id);
+        CREATE INDEX IF NOT EXISTS idx_user_subscriptions_stripe_customer ON user_subscriptions(stripe_customer_id);
+        CREATE INDEX IF NOT EXISTS idx_user_subscriptions_stripe_subscription ON user_subscriptions(stripe_subscription_id);
       `
     })
-    
+
     if (indexesError) {
       console.log('Indexes already exist or error:', indexesError.message)
     } else {
