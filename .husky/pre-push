@@ -1,0 +1,49 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🚀 Running pre-push checks..."
+
+# Get the current branch name
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Skip checks for main and staging (CI/CD handles these)
+if [ "$BRANCH" = "main" ] || [ "$BRANCH" = "staging" ]; then
+  echo "⏭️  Skipping pre-push checks for $BRANCH branch (CI/CD will handle)"
+  exit 0
+fi
+
+echo "📋 Running QA checks before push..."
+echo ""
+
+# Run format check
+echo "🎨 Checking code formatting..."
+if ! npm run format:check; then
+  echo "❌ Format check failed! Run 'npm run format' to fix."
+  exit 1
+fi
+
+# Run lint check
+echo "🔍 Checking code quality..."
+if ! npm run lint; then
+  echo "❌ Lint check failed! Run 'npm run lint:fix' to fix."
+  exit 1
+fi
+
+# Run type check
+echo "📝 Checking types..."
+if ! npm run type-check; then
+  echo "❌ Type check failed! Fix TypeScript errors before pushing."
+  exit 1
+fi
+
+# Run tests
+echo "🧪 Running tests..."
+if ! npm run test:coverage; then
+  echo "❌ Tests failed! Fix failing tests before pushing."
+  exit 1
+fi
+
+echo ""
+echo "✅ All pre-push checks passed!"
+echo ""
+

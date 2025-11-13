@@ -597,3 +597,157 @@ When making database schema changes:
 5. Commit changes with clear messages
 6. Push to trigger build validation (TypeScript + ESLint)
 7. If database schema changed, GitHub Actions deploys to production on merge to main
+
+---
+
+## Pre-Deployment Best Practices & Quality Assurance
+
+### ⚠️ IMPORTANT: Always Run QA Checks Before Deploying
+
+**Before committing, pushing, or deploying**, ensure all quality checks pass:
+
+### Quick Commands (Choose One)
+
+```bash
+# Option 1: Use Justfile (Recommended)
+just qa              # Run all QA checks with auto-fixes
+just pre-deploy      # Full pre-deployment check (includes build)
+
+# Option 2: Use npm scripts
+npm run qa           # Run all QA checks with auto-fixes
+npm run pre-deploy   # Full pre-deployment check (includes build)
+
+# Option 3: Use pre-deploy check script (Most comprehensive)
+npm run pre-deploy-check   # Interactive check with detailed output
+```
+
+### Automated Git Hooks (Already Configured)
+
+**Pre-commit hook** (runs automatically on `git commit`):
+
+- ✅ Formats staged files with Prettier
+- ✅ Lints staged files with ESLint (auto-fixes)
+- ✅ Type checks TypeScript files
+- ⚠️ **Blocks commit if checks fail**
+
+**Pre-push hook** (runs automatically on `git push` for feature branches):
+
+- ✅ Format check
+- ✅ Lint check
+- ✅ Type check
+- ✅ Test suite
+- ⚠️ **Blocks push if checks fail**
+- ℹ️ **Skipped for `main` and `staging` branches** (CI/CD handles these)
+
+### Manual QA Checklist
+
+Before deploying, verify:
+
+- [ ] **Formatting**: `npm run format:check` passes
+- [ ] **Linting**: `npm run lint` passes
+- [ ] **Types**: `npm run type-check` passes
+- [ ] **Tests**: `npm run test:coverage` passes
+- [ ] **Build**: `npm run build` succeeds
+- [ ] **Environment**: `node validate-env.js` passes (if env vars are set)
+
+### For AI Agents / Automated Tools
+
+**Before making any changes that will be deployed:**
+
+1. **Run pre-deployment check**:
+
+   ```bash
+   npm run pre-deploy-check
+   ```
+
+2. **If checks fail**, fix issues before proceeding:
+
+   ```bash
+   npm run format        # Fix formatting
+   npm run lint:fix      # Fix linting
+   # Fix TypeScript errors manually
+   # Fix failing tests
+   ```
+
+3. **After making changes**, run checks again:
+
+   ```bash
+   just qa              # Quick check
+   # OR
+   npm run pre-deploy-check   # Comprehensive check
+   ```
+
+4. **Only commit/push when all checks pass**
+
+### GitHub Actions Enforcement
+
+The QA workflow (`.github/workflows/qa.yml`) automatically runs on:
+
+- ✅ Pull requests to `main`, `staging`, `develop`
+- ✅ Pushes to `main`, `staging`, `develop`
+
+**Workflow checks:**
+
+- Format check
+- Lint check
+- Type check
+- Test suite
+- Build verification
+
+**⚠️ Important**: The workflow will **fail** if any check fails, blocking merges when branch protection is enabled.
+
+### Bypassing Hooks (Not Recommended)
+
+If you absolutely must bypass hooks (e.g., for emergency fixes):
+
+```bash
+# Skip pre-commit hook
+git commit --no-verify -m "emergency fix"
+
+# Skip pre-push hook
+git push --no-verify
+```
+
+**⚠️ Warning**: Only use `--no-verify` in emergencies. CI/CD will still catch issues.
+
+### Troubleshooting Failed Checks
+
+**If pre-commit hook fails:**
+
+```bash
+# Fix formatting
+npm run format
+
+# Fix linting
+npm run lint:fix
+
+# Fix types (check error messages)
+npm run type-check
+
+# Then commit again
+git add .
+git commit -m "your message"
+```
+
+**If pre-push hook fails:**
+
+```bash
+# Run full QA check locally
+just qa
+
+# Or use the comprehensive check
+npm run pre-deploy-check
+
+# Fix any issues, then push again
+git push
+```
+
+### Best Practices Summary
+
+1. ✅ **Always run `just qa` or `npm run pre-deploy-check` before deploying**
+2. ✅ **Let git hooks catch issues early** (pre-commit and pre-push)
+3. ✅ **Fix issues locally** before pushing to avoid CI/CD failures
+4. ✅ **Never skip hooks** unless it's a true emergency
+5. ✅ **Review GitHub Actions results** before merging PRs
+6. ✅ **Keep code formatted** (Prettier runs automatically on commit)
+7. ✅ **Follow TypeScript best practices** (type checking is enforced)
