@@ -22,45 +22,45 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'yarn'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
         continue-on-error: false
 
       - name: 🎨 Format check
         id: format-check
         run: |
           echo "Checking code formatting with Prettier..."
-          yarn format:check
+          npm run format:check
         continue-on-error: true
 
       - name: 🔍 Lint check
         id: lint-check
         run: |
           echo "Checking code quality with ESLint..."
-          yarn lint
+          npm run lint
         continue-on-error: true
 
       - name: 📝 Type check
         id: type-check
         run: |
           echo "Checking types with TypeScript..."
-          yarn type-check
+          npm run type-check
         continue-on-error: true
 
       - name: 🧪 Run tests
         id: tests
         run: |
           echo "Running unit tests..."
-          yarn test:coverage
+          npm run test:coverage
         continue-on-error: true
 
       - name: 🔨 Build check
         id: build-check
         run: |
           echo "Building for production..."
-          yarn build
+          npm run build
         continue-on-error: true
 
       - name: 📊 Upload coverage
