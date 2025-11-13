@@ -1,20 +1,20 @@
-'use client'
+'use client';
 
-import { Button } from "@/components/ui/button"
-import { Github, Menu, X } from "lucide-react"
-import { useAuth } from "../contexts/auth-context"
-import GoogleLoginButton from "./google-login-button"
-import UserProfile from "./user-profile"
-import { useState } from "react"
-import Link from "next/link"
+import { Button } from '@/components/ui/button';
+import { Github, Menu, X } from 'lucide-react';
+import { useAuth } from '../contexts/auth-context';
+import GoogleLoginButton from './google-login-button';
+import UserProfile from './user-profile';
+import { useState } from 'react';
+import Link from 'next/link';
 
 export function Header() {
-  const { isAuthenticated } = useAuth()
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const { isAuthenticated } = useAuth();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen)
-  }
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -25,9 +25,24 @@ export function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
-          <a href="#features" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Features</a>
-          <a href="#pricing" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-          <a href="#about" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">About</a>
+          <a
+            href="#features"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Features
+          </a>
+          <a
+            href="#pricing"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Pricing
+          </a>
+          <a
+            href="#about"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            About
+          </a>
         </nav>
 
         <div className="hidden md:flex items-center space-x-3">
@@ -85,9 +100,7 @@ export function Header() {
         </div>
       )}
     </header>
-  )
+  );
 }
 
-export default Header
-
- 
+export default Header;

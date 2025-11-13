@@ -1,22 +1,22 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { Star } from "lucide-react"
+import { Card, CardContent } from '@/components/ui/card';
+import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    name: "Sarah Jim Xu",
-    role: "Open Source Maintainer",
+    name: 'Sarah Jim Xu',
+    role: 'Open Source Maintainer',
     content:
-      "Xpto has completely changed how I track and understand the repositories I maintain. The insights are incredibly valuable.",
+      'Xpto has completely changed how I track and understand the repositories I maintain. The insights are incredibly valuable.',
     rating: 5,
   },
   {
-    name: "Emily Johnson",
-    role: "DevOps Engineer",
+    name: 'Emily Johnson',
+    role: 'DevOps Engineer',
     content:
-      "Love the cool facts feature! It helps me discover interesting patterns and statistics I never would have found manually.",
+      'Love the cool facts feature! It helps me discover interesting patterns and statistics I never would have found manually.',
     rating: 5,
   },
-]
+];
 
 export function TestimonialsSection() {
   return (
@@ -46,7 +46,9 @@ export function TestimonialsSection() {
                 </p>
 
                 <div className="mt-auto">
-                  <div className="font-semibold text-card-foreground text-sm sm:text-base">{testimonial.name}</div>
+                  <div className="font-semibold text-card-foreground text-sm sm:text-base">
+                    {testimonial.name}
+                  </div>
                   <div className="text-xs sm:text-sm text-muted-foreground">{testimonial.role}</div>
                 </div>
               </CardContent>
@@ -55,5 +57,5 @@ export function TestimonialsSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

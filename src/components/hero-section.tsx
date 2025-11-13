@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button"
-import { ArrowRight, BarChart3, GitBranch, Star } from "lucide-react"
+import { Button } from '@/components/ui/button';
+import { ArrowRight, BarChart3, GitBranch, Star } from 'lucide-react';
 
 export function HeroSection() {
   return (
@@ -10,5 +10,5 @@ export function HeroSection() {
         </h1>
       </div>
     </section>
-  )
+  );
 }

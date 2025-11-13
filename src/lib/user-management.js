@@ -1,4 +1,4 @@
-import { supabaseAdmin } from './supabase'
+import { supabaseAdmin } from './supabase';
 
 /**
  * Check if a user exists in the database by email
@@ -11,17 +11,18 @@ export async function checkUserExists(email) {
       .from('users')
       .select('id')
       .eq('email', email)
-      .single()
+      .single();
 
-    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
-      console.error('Error checking user existence:', error)
-      return false
+    if (error && error.code !== 'PGRST116') {
+      // PGRST116 = no rows returned
+      console.error('Error checking user existence:', error);
+      return false;
     }
 
-    return !!data
+    return !!data;
   } catch (error) {
-    console.error('Error checking user existence:', error)
-    return false
+    console.error('Error checking user existence:', error);
+    return false;
   }
 }
 
@@ -40,21 +41,21 @@ export async function saveNewUser(userData) {
           email: userData.email,
           email_verified: userData.emailVerified ? new Date() : null,
           image: userData.image,
-        }
+        },
       ])
       .select()
-      .single()
+      .single();
 
     if (error) {
-      console.error('Error saving new user:', error)
-      return null
+      console.error('Error saving new user:', error);
+      return null;
     }
 
     // User saved successfully
-    return data
+    return data;
   } catch (error) {
-    console.error('Error saving new user:', error)
-    return null
+    console.error('Error saving new user:', error);
+    return null;
   }
 }
 
@@ -69,16 +70,16 @@ export async function getUserByEmail(email) {
       .from('users')
       .select('*')
       .eq('email', email)
-      .single()
+      .single();
 
     if (error && error.code !== 'PGRST116') {
-      console.error('Error getting user by email:', error)
-      return null
+      console.error('Error getting user by email:', error);
+      return null;
     }
 
-    return data
+    return data;
   } catch (error) {
-    console.error('Error getting user by email:', error)
-    return null
+    console.error('Error getting user by email:', error);
+    return null;
   }
 }

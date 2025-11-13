@@ -1,7 +1,7 @@
-'use client'
+'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { useSession, signIn, signOut } from 'next-auth/react'
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { useSession, signIn, signOut } from 'next-auth/react';
 
 interface AuthContextType {
   user: any;
@@ -19,46 +19,46 @@ const AuthContext = createContext<AuthContextType>({
   login: async () => {},
   logout: async () => {},
   isAuthenticated: false,
-})
+});
 
 interface AuthProviderProps {
   children: ReactNode;
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const { data: session, status } = useSession()
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { data: session, status } = useSession();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (status === 'loading') {
-      setLoading(true)
+      setLoading(true);
     } else if (status === 'authenticated') {
-      setUser(session.user)
-      setLoading(false)
+      setUser(session.user);
+      setLoading(false);
     } else {
-      setUser(null)
-      setLoading(false)
+      setUser(null);
+      setLoading(false);
     }
-  }, [session, status])
+  }, [session, status]);
 
   const login = async (provider = 'google') => {
     try {
-      await signIn(provider, { callbackUrl: '/' })
+      await signIn(provider, { callbackUrl: '/' });
     } catch (error) {
-      console.error('Login error:', error)
-      throw error
+      console.error('Login error:', error);
+      throw error;
     }
-  }
+  };
 
   const logout = async () => {
     try {
-      await signOut({ callbackUrl: '/' })
+      await signOut({ callbackUrl: '/' });
     } catch (error) {
-      console.error('Logout error:', error)
-      throw error
+      console.error('Logout error:', error);
+      throw error;
     }
-  }
+  };
 
   const value = {
     user,
@@ -67,19 +67,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     login,
     logout,
     isAuthenticated: !!user,
-  }
+  };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext)
+  const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
+    throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context
+  return context;
 }

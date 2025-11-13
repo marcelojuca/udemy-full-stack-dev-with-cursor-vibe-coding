@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import React from 'react'
+import React from 'react';
 
 export function PricingSection() {
   return (
@@ -31,11 +31,12 @@ export function PricingSection() {
           <div className="w-full max-w-6xl">
             {React.createElement('stripe-pricing-table', {
               'pricing-table-id': 'prctbl_1SRyLQE68yv2YzEA5mdR45yT',
-              'publishable-key': 'pk_test_51SRg21E68yv2YzEAWWtxAn9PnI2pS6Atie3yEk4zQ8HJybWzj9SCUZtePfOpLUR4qTeR699byyhtj4dsBcqGZYUx002GK87WNU'
+              'publishable-key':
+                'pk_test_51SRg21E68yv2YzEAWWtxAn9PnI2pS6Atie3yEk4zQ8HJybWzj9SCUZtePfOpLUR4qTeR699byyhtj4dsBcqGZYUx002GK87WNU',
             })}
           </div>
         </div>
       </div>
     </section>
-  )
+  );
 }

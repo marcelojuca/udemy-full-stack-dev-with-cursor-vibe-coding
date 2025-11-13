@@ -9,7 +9,7 @@ import { getUserByEmail } from './user-management';
 export async function getAuthenticatedUserId() {
   try {
     const session = await getServerSession(authOptions);
-    
+
     if (!session?.user?.email) {
       return null;
     }
@@ -29,14 +29,14 @@ export async function getAuthenticatedUserId() {
  */
 export async function requireAuth(request) {
   const userId = await getAuthenticatedUserId();
-  
+
   if (!userId) {
     return {
       userId: null,
-      error: new Response(
-        JSON.stringify({ error: 'Authentication required' }),
-        { status: 401, headers: { 'Content-Type': 'application/json' } }
-      )
+      error: new Response(JSON.stringify({ error: 'Authentication required' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      }),
     };
   }
 

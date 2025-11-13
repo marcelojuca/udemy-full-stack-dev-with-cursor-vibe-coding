@@ -1,6 +1,7 @@
 # Stripe Integration Implementation Plan
 
 ## Table of Contents
+
 1. [Stack & Architecture Overview](#stack--architecture-overview)
 2. [Removed Features (Intentional)](#removed-features-intentional)
 3. [Canadian Tax & Invoice Considerations](#canadian-tax--invoice-considerations)
@@ -17,17 +18,17 @@
 
 ### Current Tech Stack
 
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| **Frontend** | Next.js 15 (App Router), React, TypeScript | UI, routing, server/client components |
-| **Styling** | Tailwind CSS 4, Shadcn/UI (Radix UI) | Responsive design, accessible components |
-| **Backend** | Next.js API Routes | Serverless functions for API endpoints |
-| **Auth** | NextAuth v4 + Supabase Adapter | Google OAuth, session management |
-| **Database** | Supabase (PostgreSQL) | User data, API keys, sessions |
-| **AI/Analysis** | LangChain + OpenAI (gpt-4-1-nano) | GitHub repo analysis with structured output |
-| **Forms** | React Hook Form + Zod | Validation & type-safe form handling |
-| **Notifications** | Sonner (Toast library) | User feedback |
-| **Deployment** | Vercel + GitHub Actions | CI/CD, automated DB schema deployment |
+| Layer             | Technology                                 | Purpose                                     |
+| ----------------- | ------------------------------------------ | ------------------------------------------- |
+| **Frontend**      | Next.js 15 (App Router), React, TypeScript | UI, routing, server/client components       |
+| **Styling**       | Tailwind CSS 4, Shadcn/UI (Radix UI)       | Responsive design, accessible components    |
+| **Backend**       | Next.js API Routes                         | Serverless functions for API endpoints      |
+| **Auth**          | NextAuth v4 + Supabase Adapter             | Google OAuth, session management            |
+| **Database**      | Supabase (PostgreSQL)                      | User data, API keys, sessions               |
+| **AI/Analysis**   | LangChain + OpenAI (gpt-4-1-nano)          | GitHub repo analysis with structured output |
+| **Forms**         | React Hook Form + Zod                      | Validation & type-safe form handling        |
+| **Notifications** | Sonner (Toast library)                     | User feedback                               |
+| **Deployment**    | Vercel + GitHub Actions                    | CI/CD, automated DB schema deployment       |
 
 ### Architecture Overview
 
@@ -74,6 +75,7 @@
 ### Key Systems
 
 #### 1. Authentication Flow
+
 ```
 User clicks "Sign in with Google"
   ↓
@@ -87,6 +89,7 @@ Protected pages (/dashboards, /protected) check authentication
 ```
 
 #### 2. GitHub Analysis Flow
+
 ```
 User submits GitHub repo URL
   ↓
@@ -102,6 +105,7 @@ Frontend displays results
 ```
 
 #### 3. API Key Management
+
 ```
 User creates API key (name, type: GitHub/OpenAI)
   ↓
@@ -123,17 +127,20 @@ During development, two features were intentionally removed to streamline the MV
 **Location**: `/src/components/api-demo-section.tsx` (lines 180-202)
 
 **What was removed:**
+
 - A formatted preview panel that displayed the AI analysis results in a human-readable format
 - Showed `summary` and `cool_facts` parsed and displayed separately from raw JSON
 - Was commented out to simplify the API demo interface
 
 **Why removed:**
+
 - The API playground already shows raw JSON responses
 - Users can parse JSON manually or use their own client libraries
 - Reduced complexity in the demo UI
 - Focus shifted to showcasing the API capability rather than interpretation
 
 **Code location (if you want to restore it):**
+
 ```typescript
 // Previously in api-demo-section.tsx lines 180-202
 // Rendered the parsed summary and cool_facts in card components
@@ -141,6 +148,7 @@ During development, two features were intentionally removed to streamline the MV
 ```
 
 **Impact on current flow:**
+
 - ✅ API endpoint still works perfectly
 - ✅ Users still receive complete JSON response
 - ✅ Raw response is displayed in the API demo panel
@@ -148,6 +156,7 @@ During development, two features were intentionally removed to streamline the MV
 
 **Restoration notes:**
 If you want to bring this back later:
+
 1. The parsing logic is simple: `JSON.parse(response).summary` and `JSON.parse(response).cool_facts`
 2. Original components likely used Card components from Shadcn/UI
 3. Would fit nicely in a tab next to the raw JSON display
@@ -159,17 +168,20 @@ If you want to bring this back later:
 **Location**: `/src/components/api-demo-section.tsx` (lines 216-222)
 
 **What was removed:**
+
 - A button linking to `/docs` (API documentation page)
 - Was intended to help users understand the GitHub analyzer API endpoints
 - Commented out when the `/docs` page was not implemented
 
 **Why removed:**
+
 - The documentation page was planned but never developed
 - Broken link would confuse users
 - Better to wait until proper documentation exists before showing the link
 - Current sidebar already has a "Docs" navigation link (even if `/docs` page doesn't exist yet)
 
 **Code location (if you want to restore it):**
+
 ```typescript
 // Previously in api-demo-section.tsx lines 216-222
 // <Button variant="outline" asChild>
@@ -178,12 +190,14 @@ If you want to bring this back later:
 ```
 
 **Impact on current flow:**
+
 - ✅ API still fully functional
 - ❌ No quick link to documentation from playground
 - ⚠️ Sidebar has docs link but the page doesn't exist yet
 
 **Restoration notes:**
 To bring this feature back:
+
 1. Create `/src/app/docs/page.tsx` with comprehensive API documentation
 2. Document all endpoints: `POST /api/github-summarizer`, `POST /api/api-keys`, etc.
 3. Include: request/response examples, error codes, rate limiting info, authentication
@@ -194,6 +208,7 @@ To bring this feature back:
 ### Impact on Stripe Integration
 
 These removed features do **NOT** affect Stripe implementation:
+
 - ✅ Stripe payment flow is independent of GitHub analysis
 - ✅ Invoice generation doesn't depend on API documentation
 - ✅ Tax calculations work regardless of formatted previews
@@ -209,15 +224,15 @@ You can safely proceed with Stripe implementation without worrying about these r
 
 ⚠️ **IMPORTANT**: The following is technical guidance only. **Consult with a Canadian accountant/lawyer** for tax and legal compliance specific to your situation.
 
-| Consideration | Notes | Action |
-|---|---|---|
-| **GST/HST Registration** | Alberta uses 5% GST (not HST). Need to register if revenue > $30k/year | Register with CRA, collect 5% GST |
-| **Business Number (BN)** | Required for GST registration and tax filings | Register with CRA online |
-| **PST** | Not applicable in Alberta (no provincial sales tax) | No action needed |
+| Consideration                  | Notes                                                                                          | Action                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------ |
+| **GST/HST Registration**       | Alberta uses 5% GST (not HST). Need to register if revenue > $30k/year                         | Register with CRA, collect 5% GST    |
+| **Business Number (BN)**       | Required for GST registration and tax filings                                                  | Register with CRA online             |
+| **PST**                        | Not applicable in Alberta (no provincial sales tax)                                            | No action needed                     |
 | **Invoice Requirements (CRA)** | Must include: business name, date, GST number, itemized services, GST collected, customer name | Configure Stripe or custom invoicing |
-| **Record Keeping** | Keep all invoices and transaction records for 6 years | Stripe provides transaction history |
-| **Income Tax** | Business income taxed federally (15-33%) + Alberta provincial (10-15%) | File annual corporate return |
-| **Quarterly Filings** | If GST registered, file GST returns (quarterly, monthly, or annually) | Use CRA NETFILE |
+| **Record Keeping**             | Keep all invoices and transaction records for 6 years                                          | Stripe provides transaction history  |
+| **Income Tax**                 | Business income taxed federally (15-33%) + Alberta provincial (10-15%)                         | File annual corporate return         |
+| **Quarterly Filings**          | If GST registered, file GST returns (quarterly, monthly, or annually)                          | Use CRA NETFILE                      |
 
 ### CRA-Compliant Invoice Requirements
 
@@ -256,16 +271,19 @@ Every invoice issued to Canadian customers **MUST include**:
 ### GST Collection Rules
 
 **When to Charge GST:**
+
 - ✅ All digital services to Canadian businesses
 - ✅ All digital services to Canadian consumers
 - ✅ Even if customer is outside Canada but delivering to Canada
 - ❌ Services to non-Canadian businesses with valid HST/GST exemption certificate (rare)
 
 **GST Rate for Alberta:**
+
 - 5% (no provincial sales tax in Alberta)
 - Example: $100 service = $100 + $5 GST = $105 total
 
 **GST Remittance:**
+
 - If registered: Must file GST return (quarterly/monthly/annually)
 - Report: Total GST collected minus Input Tax Credits (ITCs)
 - Payment due: As per filing frequency
@@ -284,34 +302,36 @@ Every invoice issued to Canadian customers **MUST include**:
 
 #### 1. GST/HST Registration (MANDATORY if revenue > $30,000)
 
-| Revenue Level | Action | Timing |
-|---|---|---|
-| **< $30,000/year** | Optional to register | Can register voluntarily |
-| **≥ $30,000/year** | **MUST register** | Within 30 days of exceeding threshold |
+| Revenue Level      | Action               | Timing                                |
+| ------------------ | -------------------- | ------------------------------------- |
+| **< $30,000/year** | Optional to register | Can register voluntarily              |
+| **≥ $30,000/year** | **MUST register**    | Within 30 days of exceeding threshold |
 
 **For SaaS context:** Revenue = all customer payments for your service (including subscriptions), not just profit.
 
 #### 2. What You Must Do With CRA
 
-| Item | Details | Timeline |
-|------|---------|----------|
-| **Register for GST** | Contact CRA, provide business details | When revenue approaches $30k |
-| **Get Business Number (BN)** | Used for all CRA communications | After registration |
-| **Get GST/HST Account Number** | Enables tax filings | After registration |
-| **Register for NETFILE** | Electronic filing system | Before first GST return |
-| **Set Filing Frequency** | Choose: Quarterly (common), Monthly, or Annually | During registration |
-| **File Quarterly Returns** | Report GST collected, pay if owing | Every quarter (or chosen frequency) |
-| **Annual Income Tax Return** | Report net business income | By June 15 (or earlier if incorporated) |
+| Item                           | Details                                          | Timeline                                |
+| ------------------------------ | ------------------------------------------------ | --------------------------------------- |
+| **Register for GST**           | Contact CRA, provide business details            | When revenue approaches $30k            |
+| **Get Business Number (BN)**   | Used for all CRA communications                  | After registration                      |
+| **Get GST/HST Account Number** | Enables tax filings                              | After registration                      |
+| **Register for NETFILE**       | Electronic filing system                         | Before first GST return                 |
+| **Set Filing Frequency**       | Choose: Quarterly (common), Monthly, or Annually | During registration                     |
+| **File Quarterly Returns**     | Report GST collected, pay if owing               | Every quarter (or chosen frequency)     |
+| **Annual Income Tax Return**   | Report net business income                       | By June 15 (or earlier if incorporated) |
 
 ### CRA Registration Process (Step-by-Step)
 
 #### Phase 1: Before Launch
+
 - [x] Determine: Will revenue likely exceed $30k/year?
 - [x] Register business with Alberta (if not done): https://www.albertaregistry.ca
 - [x] Set up business bank account
 - [ ] Plan pricing structure (factor in 5% GST)
 
 #### Phase 2: When Revenue Approaches $30,000
+
 1. **Call CRA**: 1-800-959-5525
 2. **Request**: GST/HST Registration
 3. **Provide**:
@@ -324,6 +344,7 @@ Every invoice issued to Canadian customers **MUST include**:
    - GST/HST Account Number - starts with BN + identifier
 
 #### Phase 3: After Registration
+
 1. **Register for NETFILE**: https://www.canada.ca/netfile
    - Allows electronic tax filing
    - Required for GST returns
@@ -337,6 +358,7 @@ Every invoice issued to Canadian customers **MUST include**:
    - **Annually** (if very low volume, rare)
 
 #### Phase 4: Ongoing Compliance (Quarterly)
+
 - [ ] Calculate total GST collected (5% on all Canadian sales)
 - [ ] Calculate Input Tax Credits (GST paid on business expenses)
 - [ ] File GST return via NETFILE
@@ -344,6 +366,7 @@ Every invoice issued to Canadian customers **MUST include**:
 - [ ] Keep all invoices and transaction records
 
 #### Phase 5: Annually
+
 - [ ] File corporate income tax return (T2 if incorporated, T1 if sole proprietor)
 - [ ] Report net business income (revenue minus deductible expenses)
 - [ ] File by June 15 (or earlier for corporations)
@@ -354,12 +377,14 @@ Every invoice issued to Canadian customers **MUST include**:
 #### When to Charge GST (5% for Alberta)
 
 **✅ ALWAYS charge GST to:**
+
 - Canadian individuals (residents)
 - Canadian businesses
 - Canadian government entities
 - Any Canadian entity
 
 **❌ Typically NO GST for:**
+
 - Non-residents of Canada (foreign companies, US customers)
 - **BUT:** Must document proof of non-residency for CRA audit
 
@@ -388,6 +413,7 @@ Every invoice issued to Canadian customers **MUST include**:
 **General rule:** No GST charged if customer is outside Canada
 
 **Documentation required:** Must keep proof of non-residency:
+
 - Customer's tax ID (US EIN, IRS number)
 - Address in country
 - Business registration in foreign country
@@ -398,6 +424,7 @@ Every invoice issued to Canadian customers **MUST include**:
 ### Practical Example: Your SaaS Pricing
 
 #### Canadian Customer (Alberta resident)
+
 ```
 Monthly subscription (base):     $19.00
 GST (5%):                        $ 0.95
@@ -413,6 +440,7 @@ File to CRA: Report $28.50 GST collected
 ```
 
 #### US Customer (Non-resident)
+
 ```
 Monthly subscription (base):     $19.00
 GST (0%):                        $ 0.00
@@ -428,47 +456,50 @@ Required: Keep documentation proving US residency
 
 ⚠️ **CRA will investigate if:**
 
-| Issue | Risk | Prevention |
-|-------|------|-----------|
+| Issue                               | Risk                              | Prevention                              |
+| ----------------------------------- | --------------------------------- | --------------------------------------- |
 | No GST collection on Canadian sales | Penalties + back taxes + interest | Always collect GST, use proper invoices |
-| Under-reporting revenue | Audit, harsh penalties | Stripe/payment records are CRA records |
-| Falsely claiming non-residents | Significant penalties (50%+) | Document ALL non-resident claims |
-| Missing GST returns | Interest charges, penalties | File on time, use NETFILE |
-| No business registration | Fines, business shut down | Register with Alberta + CRA |
-| No records for 6 years | Can't prove deductions | Keep Stripe reports + invoices |
+| Under-reporting revenue             | Audit, harsh penalties            | Stripe/payment records are CRA records  |
+| Falsely claiming non-residents      | Significant penalties (50%+)      | Document ALL non-resident claims        |
+| Missing GST returns                 | Interest charges, penalties       | File on time, use NETFILE               |
+| No business registration            | Fines, business shut down         | Register with Alberta + CRA             |
+| No records for 6 years              | Can't prove deductions            | Keep Stripe reports + invoices          |
 
 ### Professional Help (Strongly Recommended)
 
 For a Canadian SaaS business, consider hiring:
 
 #### 1. **CPA/Accountant** (Essential)
+
 - Cost: $150-300/hour initial, or flat fee for SaaS setup (~$500-1500)
 - Handles: GST/HST filings, income tax, deductions, CRA correspondence
 - Find: Search "SaaS accountant Calgary" or "Canadian accountant Alberta"
 - Timeline: Hire before first revenue to plan properly
 
 #### 2. **Tax Lawyer** (Optional but helpful)
+
 - Cost: $250-400/hour
 - Use for: Privacy laws (PIPEDA), terms of service, international tax strategy
 - Helpful if: Expanding to US, selling to enterprises
 
 #### 3. **Bookkeeper** (Nice to have)
+
 - Cost: $500-2000/month or flat fee
 - Handles: Transaction recording, invoice management, GST tracking, expense categorization
 - Helpful if: You want to focus on development, not accounting
 
 ### Summary: SaaS Tax Compliance in Canada
 
-| Aspect | Requirement | Your Action |
-|--------|-------------|------------|
-| **GST Registration** | Mandatory at $30k+ revenue | Register with CRA when revenue approaches threshold |
-| **GST Collection** | 5% on all Canadian sales | Calculate GST in Stripe, invoice separately |
-| **GST Filing** | Quarterly (default) | File via CRA NETFILE every quarter |
-| **Record Keeping** | 6 years minimum | Keep Stripe reports, invoices, receipts |
-| **Income Tax** | Annual T1/T2 filing | Hire CPA for tax return |
-| **Invoicing** | CRA-compliant format | Use invoice generator with GST breakdown |
-| **Non-resident Sales** | Document non-residency | Keep tax IDs, attestations for US/international |
-| **Input Tax Credits** | Claim GST paid on expenses | Save all receipts for business expenses |
+| Aspect                 | Requirement                | Your Action                                         |
+| ---------------------- | -------------------------- | --------------------------------------------------- |
+| **GST Registration**   | Mandatory at $30k+ revenue | Register with CRA when revenue approaches threshold |
+| **GST Collection**     | 5% on all Canadian sales   | Calculate GST in Stripe, invoice separately         |
+| **GST Filing**         | Quarterly (default)        | File via CRA NETFILE every quarter                  |
+| **Record Keeping**     | 6 years minimum            | Keep Stripe reports, invoices, receipts             |
+| **Income Tax**         | Annual T1/T2 filing        | Hire CPA for tax return                             |
+| **Invoicing**          | CRA-compliant format       | Use invoice generator with GST breakdown            |
+| **Non-resident Sales** | Document non-residency     | Keep tax IDs, attestations for US/international     |
+| **Input Tax Credits**  | Claim GST paid on expenses | Save all receipts for business expenses             |
 
 ---
 
@@ -479,12 +510,14 @@ For a Canadian SaaS business, consider hiring:
 #### **1. Authentication & Access Control** ⭐ Most Important
 
 **Current Status:**
+
 - ✅ DONE: Google OAuth via NextAuth (industry standard)
 - ✅ DONE: Session management with Supabase adapter
 - ⚠️ TODO: Multi-Factor Authentication (MFA) for users
 - ⚠️ TODO: Role-based access control (RBAC) for admin functions
 
 **Actions to take:**
+
 1. Keep NextAuth + Google OAuth (very secure, actively maintained)
 2. Add optional MFA (TOTP apps like Google Authenticator) for paid tier users
 3. Implement API key rotation (users can refresh/revoke keys)
@@ -492,6 +525,7 @@ For a Canadian SaaS business, consider hiring:
 5. Log all authentication attempts (success and failure)
 
 **Example: Rate limiting login attempts**
+
 ```javascript
 // Add to auth endpoint
 const maxAttempts = 5;
@@ -499,10 +533,7 @@ const timeWindow = 15 * 60 * 1000; // 15 minutes
 
 const recentAttempts = await getFailedLoginAttempts(email, timeWindow);
 if (recentAttempts >= maxAttempts) {
-  return Response.json(
-    { error: 'Too many login attempts. Try again later.' },
-    { status: 429 }
-  );
+  return Response.json({ error: 'Too many login attempts. Try again later.' }, { status: 429 });
 }
 ```
 
@@ -511,18 +542,21 @@ if (recentAttempts >= maxAttempts) {
 #### **2. Data Protection in Transit** ⭐ Very Important
 
 **Current Status:**
+
 - ✅ DONE: HTTPS enforced (Vercel handles this)
 - ✅ DONE: Secure database with Supabase (encrypted at rest)
 - ⚠️ TODO: Encrypt sensitive data in database
 - ⚠️ TODO: Add security headers
 
 **Actions to take:**
+
 1. Enable Supabase encryption for `api_keys` table
 2. Hash API keys before storage (never store plaintext)
 3. Use `bcrypt` or `argon2` for hashing
 4. Add security headers to all responses
 
 **Implementation: Hash API Keys**
+
 ```javascript
 // When creating an API key
 import bcrypt from 'bcrypt';
@@ -539,10 +573,11 @@ await supabase.from('api_keys').insert({
 });
 
 // Return to user (show only once!)
-return { apiKey: plainKey, message: 'Save this key securely, you won\'t see it again' };
+return { apiKey: plainKey, message: "Save this key securely, you won't see it again" };
 ```
 
 **Add Security Headers to Next.js**
+
 ```javascript
 // next.config.mjs
 export default {
@@ -555,7 +590,10 @@ export default {
           { key: 'X-Frame-Options', value: 'DENY' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
-          { key: 'Content-Security-Policy', value: "default-src 'self'; script-src 'self' 'unsafe-inline'" },
+          {
+            key: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline'",
+          },
         ],
       },
     ];
@@ -568,11 +606,13 @@ export default {
 #### **3. API Key Security** ⭐ Very Important
 
 **Current Issues:**
+
 - Keys visible in dashboard (standard but risky if compromised)
 - No tracking of key usage
 - No key expiration
 
 **Improvements needed:**
+
 1. [ ] Hash keys before storage (see above)
 2. [ ] Show key only ONCE on creation (like GitHub, like AWS)
 3. [ ] Implement key rotation/expiration
@@ -581,6 +621,7 @@ export default {
 6. [ ] Allow users to revoke keys immediately
 
 **Database schema update:**
+
 ```sql
 ALTER TABLE api_keys ADD COLUMN IF NOT EXISTS (
   hashed_key TEXT NOT NULL,           -- bcrypt hash of actual key
@@ -608,18 +649,21 @@ CREATE TABLE IF NOT EXISTS api_key_audit_log (
 #### **4. Database Security** ⭐ Very Important
 
 **Current Status:**
+
 - ✅ DONE: Supabase handles most security
 - ✅ DONE: Foreign key constraints, cascade delete
 - ⚠️ TODO: Row-level security (RLS) policies
 - ⚠️ TODO: Audit logging of sensitive operations
 
 **Actions to take:**
+
 1. Enable Supabase Row-Level Security (RLS)
 2. Example: User can only see their own API keys
 3. Log all sensitive database changes
 4. Never expose database details in error messages
 
 **Enable RLS on api_keys table:**
+
 ```sql
 -- Enable RLS
 ALTER TABLE api_keys ENABLE ROW LEVEL SECURITY;
@@ -651,6 +695,7 @@ USING (auth.uid() = user_id);
 #### **5. Payment Security** ⭐ Very Important (for Stripe)
 
 **Current Status:**
+
 - ✅ DONE: Stripe PCI-DSS compliant (Level 1)
 - ✅ DONE: Use Stripe payment intents (not raw CC)
 - ✅ DONE: Never handle raw credit card data
@@ -658,6 +703,7 @@ USING (auth.uid() = user_id);
 - ⚠️ TODO: Idempotency keys for payment operations
 
 **Actions to take:**
+
 1. Always use Stripe Elements (never raw card input) ✅ Already planned
 2. Verify webhook signatures (already in code examples)
 3. Use idempotency keys to prevent duplicate charges
@@ -665,6 +711,7 @@ USING (auth.uid() = user_id);
 5. Stripe handles PCI-DSS compliance, not your app
 
 **Implement idempotency for payments:**
+
 ```javascript
 import { v4 as uuidv4 } from 'uuid';
 
@@ -699,12 +746,15 @@ export async function POST(request) {
 #### **6. Code & Dependency Security**
 
 **Current Status:**
+
 - ✅ DONE: `.env` files in `.gitignore` (no secrets in git)
 - ⚠️ TODO: Dependency scanning
 - ⚠️ TODO: Regular security updates
 
 **Actions to take:**
+
 1. Use `npm audit` regularly to check for vulnerabilities
+
    ```bash
    npm audit              # Check for issues
    npm audit fix          # Auto-fix compatible issues
@@ -728,10 +778,12 @@ export async function POST(request) {
 #### **7. Logging & Monitoring**
 
 **Current Status:**
+
 - ⚠️ TODO: Security logging
 - ⚠️ TODO: Alerts on suspicious activity
 
 **What to log:**
+
 ```javascript
 // Authentication
 - All login attempts (success + failure)
@@ -758,6 +810,7 @@ export async function POST(request) {
 ```
 
 **Example: Log security events**
+
 ```javascript
 async function logSecurityEvent(
   eventType: string,
@@ -785,6 +838,7 @@ async function logSecurityEvent(
 #### **8. PIPEDA Compliance** (Canada - Very Important!)
 
 **What is PIPEDA?**
+
 - Personal Information Protection and Electronic Documents Act
 - Canada's federal privacy law
 - Applies to all Canadian businesses collecting personal data
@@ -822,6 +876,7 @@ async function logSecurityEvent(
    - Test incident response plan annually
 
 **Example: Add PIPEDA compliance endpoint**
+
 ```javascript
 // POST /api/user/data-export
 // Allow user to download their data as JSON
@@ -898,16 +953,19 @@ Before launching your SaaS:
 ### Payment Refund Types
 
 #### **Full Refund** (Customer gets 100% back)
+
 - Example: Wrong credit card charged, customer requests refund
 - Stripe processes: Refund → Original payment method
 - Timeline: 5-10 business days
 
 #### **Partial Refund** (Customer gets % back)
+
 - Example: Customer used service for 2 weeks out of 4-week month, requests prorated refund
 - Stripe processes: Refund → Original payment method
 - Timeline: 5-10 business days
 
 #### **No Refund** (Service delivered)
+
 - Example: Monthly subscription completed, customer used service
 - Policy: Clearly state in terms of service
 
@@ -915,15 +973,15 @@ Before launching your SaaS:
 
 ### Stripe Refund Rules (Canada)
 
-| Rule | Details |
-|------|---------|
-| **Refund Timeline** | Can refund within 120 days of original charge (industry standard) |
-| **Currency** | Refunds processed in original currency (CAD) |
-| **Processing Time** | Takes 5-10 business days to appear in customer account |
-| **Processing Fees** | Stripe may retain processing fees (check your agreement) |
-| **GST Treatment** | GST collected must be refunded proportionally with service |
-| **CRA Documentation** | Must document reason for refund for audit trail |
-| **Reversal** | Can be reversed if customer disputes (chargeback) |
+| Rule                  | Details                                                           |
+| --------------------- | ----------------------------------------------------------------- |
+| **Refund Timeline**   | Can refund within 120 days of original charge (industry standard) |
+| **Currency**          | Refunds processed in original currency (CAD)                      |
+| **Processing Time**   | Takes 5-10 business days to appear in customer account            |
+| **Processing Fees**   | Stripe may retain processing fees (check your agreement)          |
+| **GST Treatment**     | GST collected must be refunded proportionally with service        |
+| **CRA Documentation** | Must document reason for refund for audit trail                   |
+| **Reversal**          | Can be reversed if customer disputes (chargeback)                 |
 
 ---
 
@@ -1000,10 +1058,7 @@ export async function POST(request) {
 
     // Validate inputs
     if (!orderId || !reason) {
-      return Response.json(
-        { error: 'Missing required fields: orderId, reason' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Missing required fields: orderId, reason' }, { status: 400 });
     }
 
     // Fetch order
@@ -1031,20 +1086,21 @@ export async function POST(request) {
     // Validate refund amount doesn't exceed original charge
     if (refundAmount > order.amount_cents) {
       return Response.json(
-        { error: `Refund amount (${refundAmount / 100}) exceeds charge amount (${order.amount_cents / 100})` },
+        {
+          error: `Refund amount (${refundAmount / 100}) exceeds charge amount (${order.amount_cents / 100})`,
+        },
         { status: 400 }
       );
     }
 
     if (refundAmount <= 0) {
-      return Response.json(
-        { error: 'Refund amount must be greater than 0' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Refund amount must be greater than 0' }, { status: 400 });
     }
 
     // Calculate GST to refund (proportional)
-    const gstRefunded = Math.round((refundAmount / order.amount_cents) * (order.amount_cents * 0.05));
+    const gstRefunded = Math.round(
+      (refundAmount / order.amount_cents) * (order.amount_cents * 0.05)
+    );
 
     // Create refund in Stripe
     const stripeRefund = await stripe.refunds.create({
@@ -1090,10 +1146,7 @@ export async function POST(request) {
 
     // Update order status if full refund
     if (refundAmount === order.amount_cents) {
-      await supabase
-        .from('orders')
-        .update({ status: 'refunded' })
-        .eq('id', orderId);
+      await supabase.from('orders').update({ status: 'refunded' }).eq('id', orderId);
     }
 
     return Response.json({
@@ -1107,10 +1160,7 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Refund creation error:', error);
-    return Response.json(
-      { error: error.message || 'Refund failed' },
-      { status: 500 }
-    );
+    return Response.json({ error: error.message || 'Refund failed' }, { status: 500 });
   }
 }
 
@@ -1393,43 +1443,51 @@ export const RefundModal: React.FC<RefundModalProps> = ({
 ## Refund & Reimbursement Policy
 
 ### Full Refund (100%)
+
 - Available within **7 days** of purchase for any reason
 - No questions asked
 - Refund appears in customer account within 5-10 business days
 
 ### Partial Refund (Prorated)
+
 - **Monthly subscriptions**: Cancel mid-month and receive prorated refund for unused days
 - Example: Cancel on day 15 of 30-day month = 50% refund
 - Must request within the current billing period
 
 ### No Refund
+
 - After 7-day full refund period
 - For services fully delivered and used
 - Non-refundable purchases clearly marked at checkout
 
 ### GST Treatment
+
 - All refunds include proportional GST refund
 - Example: $100 purchase + $5 GST refunded = $105 refunded total
 - GST is not a separate charge; it's included in the refund
 
 ### Processing
+
 - Refunds issued to original payment method used
 - **Takes 5-10 business days** to appear in customer account
 - Appears as a credit on customer's credit card/bank statement
 - Contact support to check refund status
 
 ### How to Request
+
 - Email: support@yourdomain.com
 - Provide: Order ID, reason for refund, any relevant details
 - Response time: 24 business hours
 
 ### Chargebacks & Disputes
+
 - If customer initiates chargeback/dispute with payment processor
 - We will investigate and respond to bank
 - Fraudulent chargebacks may result in account suspension
 - Valid disputes will be refunded
 
 ### Special Cases
+
 - **Service outage**: Automatic credit issued for affected period
 - **Billing error**: Immediate refund + credit for future usage
 - **Upgrade/downgrade**: Prorated credit applied to next billing cycle
@@ -1442,6 +1500,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
 **Important for Canadian tax purposes:**
 
 #### Document All Refunds
+
 ```sql
 -- Your refunds table tracks:
 - refund_id: Unique identifier
@@ -1454,6 +1513,7 @@ export const RefundModal: React.FC<RefundModalProps> = ({
 ```
 
 #### GST Adjustment in Quarterly Filings
+
 ```
 Example:
 
@@ -1476,6 +1536,7 @@ Quarterly GST Return (Jan-Mar):
 ```
 
 #### Calculate Net GST for Filing
+
 ```javascript
 // Monthly: Calculate net GST (collected minus refunded)
 const salesGST = totalSales * 0.05;
@@ -1483,11 +1544,11 @@ const refundsGST = totalRefunds * 0.05;
 const netGST = salesGST - refundsGST;
 
 // Example:
-const totalSales = 10000;        // $10,000 in sales
-const totalRefunds = 1500;       // $1,500 refunded
-const salesGST = 10000 * 0.05;   // $500
-const refundsGST = 1500 * 0.05;  // $75
-const netGST = 500 - 75;         // $425 to report/pay
+const totalSales = 10000; // $10,000 in sales
+const totalRefunds = 1500; // $1,500 refunded
+const salesGST = 10000 * 0.05; // $500
+const refundsGST = 1500 * 0.05; // $75
+const netGST = 500 - 75; // $425 to report/pay
 
 // Quarterly filing: Sum all monthly net GST
 ```
@@ -1516,6 +1577,7 @@ const netGST = 500 - 75;         // $425 to report/pay
 ### Phase 1: Stripe Account Setup (No Code Yet)
 
 #### Step 1: Create Stripe Canada Account
+
 1. Go to https://stripe.com/ca
 2. Sign up as "Business" (not individual)
 3. Complete business verification:
@@ -1525,6 +1587,7 @@ const netGST = 500 - 75;         // $425 to report/pay
    - GST/HST number (once you have it from CRA)
 
 #### Step 2: Configure Business Details in Stripe Dashboard
+
 1. Navigate to **Settings → Business Details**
 2. Add:
    - Business legal name
@@ -1539,6 +1602,7 @@ const netGST = 500 - 75;         // $425 to report/pay
    - Copy: **Secret Key** (starts with `sk_test_` or `sk_live_`)
 
 #### Step 3: Set Up Webhook Endpoints
+
 1. Go to **Developers → Webhooks**
 2. Click **Add Endpoint**
 3. Webhook URL: `https://yourdomain.com/api/webhooks/stripe`
@@ -1551,6 +1615,7 @@ const netGST = 500 - 75;         // $425 to report/pay
 5. Copy **Signing Secret** (starts with `whsec_`)
 
 #### Step 4: Test Mode vs. Live Mode
+
 - **Development**: Use Test keys (`pk_test_*`, `sk_test_*`)
 - **Production**: Switch to Live keys (`pk_live_*`, `sk_live_*`)
   - Requires identity verification
@@ -1766,9 +1831,7 @@ export const createInvoice = async ({
 
   // Get today's date and add 30 days for due date
   const issueDate = new Date().toISOString().split('T')[0];
-  const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-    .toISOString()
-    .split('T')[0];
+  const dueDate = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
   // Create invoice record
   const { data: invoiceData, error: invoiceError } = await supabase
@@ -1803,9 +1866,7 @@ export const createInvoice = async ({
     total_cents: item.quantity * item.unitPriceCents,
   }));
 
-  const { error: lineError } = await supabase
-    .from('line_items')
-    .insert(lineItemsForDB);
+  const { error: lineError } = await supabase.from('line_items').insert(lineItemsForDB);
 
   if (lineError) throw lineError;
 
@@ -1978,17 +2039,11 @@ export async function POST(request) {
 
     // Validate inputs
     if (!userId || !amountCents || !description) {
-      return Response.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     if (amountCents <= 0) {
-      return Response.json(
-        { error: 'Amount must be greater than 0' },
-        { status: 400 }
-      );
+      return Response.json({ error: 'Amount must be greater than 0' }, { status: 400 });
     }
 
     // Calculate GST (5% for Alberta)
@@ -2038,10 +2093,7 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Payment creation error:', error);
-    return Response.json(
-      { error: error.message || 'Payment creation failed' },
-      { status: 500 }
-    );
+    return Response.json({ error: error.message || 'Payment creation failed' }, { status: 500 });
   }
 }
 ```
@@ -2066,11 +2118,7 @@ export async function POST(request) {
   let event;
 
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      sig,
-      process.env.STRIPE_WEBHOOK_SECRET
-    );
+    event = stripe.webhooks.constructEvent(body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (error) {
     console.error(`Webhook signature verification failed: ${error.message}`);
     return Response.json({ error: 'Invalid signature' }, { status: 400 });
@@ -2515,6 +2563,7 @@ src/
 ### Monthly GST Tracking
 
 The `tax_summary` table tracks:
+
 - Monthly revenue total
 - GST collected (5%)
 - GST remitted to CRA
@@ -2523,16 +2572,19 @@ The `tax_summary` table tracks:
 ### CRA GST Return Filing
 
 **Frequency:**
+
 - Quarterly (most common for small businesses)
 - Monthly (optional if preferred)
 - Annually (if low revenue)
 
 **What to report:**
+
 - Total GST collected (from invoices)
 - Input Tax Credits (expenses with GST)
 - Net GST owing
 
 **How to file:**
+
 1. Log into CRA NETFILE: https://www.canada.ca/netfile
 2. Select: GST/HST Return (RT8)
 3. Enter: Monthly/quarterly summary from tax dashboard
@@ -2542,6 +2594,7 @@ The `tax_summary` table tracks:
 ### Annual Income Tax
 
 **File:** T1 General (personal) or T2 (corporation)
+
 - Report net business income
 - Claim business expenses
 - Attach: Schedule 8 (Business Income)
@@ -2553,12 +2606,14 @@ The `tax_summary` table tracks:
 ## Implementation Checklist
 
 **Setup Phase:**
+
 - [ ] Create Stripe Canada business account
 - [ ] Register with CRA for GST number
 - [ ] Get Stripe API keys (test & live)
 - [ ] Configure webhook in Stripe dashboard
 
 **Development Phase:**
+
 - [ ] Install Stripe dependencies
 - [ ] Update `.env.local` with Stripe keys
 - [ ] Update `setup-database.js` with payment tables
@@ -2571,6 +2626,7 @@ The `tax_summary` table tracks:
 - [ ] Create tax dashboard
 
 **Testing Phase:**
+
 - [ ] Test payment flow with Stripe test card
 - [ ] Verify invoice generation
 - [ ] Test webhook events
@@ -2578,6 +2634,7 @@ The `tax_summary` table tracks:
 - [ ] Test refund handling
 
 **Production Phase:**
+
 - [ ] Switch Stripe keys to live mode
 - [ ] Update `.env.production.local` with live keys
 - [ ] Run full payment flow test

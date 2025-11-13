@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Link from 'next/link';
 import Sidebar from './sidebar';
@@ -22,28 +22,29 @@ import { validateApiKeyForm } from '../utils/validation';
 export default function DashboardWrapper() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const { apiKeys, loading, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
-  const { formData, updateFormData, resetFormData, populateFormData, togglePermission } = useFormData();
-  const { 
-    showCreateForm, 
-    editingKey, 
-    viewingKey, 
-    isModalOpen, 
-    openCreateModal, 
-    openEditModal, 
-    openViewModal, 
-    closeAllModals 
+  const { formData, updateFormData, resetFormData, populateFormData, togglePermission } =
+    useFormData();
+  const {
+    showCreateForm,
+    editingKey,
+    viewingKey,
+    isModalOpen,
+    openCreateModal,
+    openEditModal,
+    openViewModal,
+    closeAllModals,
   } = useModalState();
   const { sidebarVisible, toggleSidebar } = useSidebar();
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
+
     const validationErrors = validateApiKeyForm(formData);
     if (validationErrors.length > 0) {
       window.showToastNotification(validationErrors.join(', '), 'error');
       return;
     }
-    
+
     const result = await createApiKey(formData);
     if (result.success) {
       closeAllModals();
@@ -56,13 +57,13 @@ export default function DashboardWrapper() {
 
   const handleUpdate = async (e) => {
     e.preventDefault();
-    
+
     const validationErrors = validateApiKeyForm(formData);
     if (validationErrors.length > 0) {
       window.showToastNotification(validationErrors.join(', '), 'error');
       return;
     }
-    
+
     const result = await updateApiKey(editingKey.id, formData);
     if (result.success) {
       closeAllModals();
@@ -116,10 +117,10 @@ export default function DashboardWrapper() {
               Sign in with your Google account to access the dashboard
             </p>
           </div>
-          
+
           <div className="mt-8 space-y-6">
             <GoogleLoginButton className="w-full" />
-            
+
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 By signing in, you agree to our terms of service and privacy policy.
@@ -135,12 +136,12 @@ export default function DashboardWrapper() {
     <div className="min-h-screen bg-background flex">
       {/* Mobile Backdrop */}
       {sidebarVisible && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => toggleSidebar()}
         />
       )}
-      
+
       {/* Sidebar */}
       {sidebarVisible && (
         <div className="fixed lg:relative z-50 lg:z-auto w-64">
@@ -169,11 +170,15 @@ export default function DashboardWrapper() {
                 </button>
               </div>
               <p className="text-muted-foreground mt-2">
-                The key is used to authenticate your requests to the Research API. To learn more, see the{' '}
-                <Link href="/docs" className="text-primary hover:underline">documentation page</Link>.
+                The key is used to authenticate your requests to the Research API. To learn more,
+                see the{' '}
+                <Link href="/docs" className="text-primary hover:underline">
+                  documentation page
+                </Link>
+                .
               </p>
             </div>
-            <APIKeyTable 
+            <APIKeyTable
               apiKeys={apiKeys}
               onView={handleView}
               onEdit={handleEdit}

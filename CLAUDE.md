@@ -9,12 +9,14 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 ## Common Commands
 
 ### Development
+
 - **Start dev server**: `npm run dev` (runs on http://localhost:3000)
 - **Build for production**: `npm run build`
 - **Run production build locally**: `npm start`
 - **Lint code**: `eslint` (configured in eslint.config.mjs)
 
 ### Database
+
 - **Setup development database**: `node setup-database.js` (initializes Supabase tables locally)
 - **Setup production database**: Automated via GitHub Actions on merge to `main` (see Deployment section)
 - **Validate environment**: `node validate-env.js` (checks all services are configured)
@@ -22,6 +24,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 ## Architecture & Key Systems
 
 ### 1. Authentication (NextAuth + Supabase)
+
 - **Location**: `src/lib/auth.js`, `src/app/api/auth/[...nextauth]/route.js`, `src/contexts/auth-context.tsx`
 - **Key Features**:
   - Google OAuth login via NextAuth v4
@@ -32,6 +35,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Protected pages**: `/dashboards` and `/protected` require authentication
 
 ### 2. API Keys Management
+
 - **Location**: `src/lib/api-keys-service.js`, `src/lib/api-keys-store-supabase.js`
 - **Database**: Supabase table `user_api_keys` (id, user_id, key_name, api_key, created_at)
 - **Endpoints**:
@@ -42,6 +46,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Security**: API keys are hashed before storage; user_id tied to each key
 
 ### 3. GitHub Analysis (LangChain + OpenAI)
+
 - **Location**: `src/lib/chain.js`, `src/app/api/github-summarizer/route.js`
 - **Flow**:
   1. User provides GitHub repo URL
@@ -52,6 +57,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Model**: gpt-4-1-nano (cost-effective for analysis)
 
 ### 4. Stripe Payment Integration
+
 - **Location**: `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx`
 - **Key Features**:
   - Stripe pricing table embedded in pricing section
@@ -63,10 +69,12 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Payment Processing**: All handled securely by Stripe
 
 ### 5. Rate Limiting
+
 - **Location**: `src/lib/rate-limiting.js`
 - **Prevents API abuse** by limiting requests per user/IP
 
 ### 6. UI Framework
+
 - **Next.js App Router** with TypeScript support
 - **Shadcn/ui components** (from `@radix-ui/*`) for consistent, accessible UI
 - **Tailwind CSS 4** for styling (configured in `tailwind.config.js` via `@tailwindcss/postcss`)
@@ -75,6 +83,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Responsive layout**: Sidebar + main content area pattern
 
 ### 6. Providers & Context
+
 - **Location**: `src/app/providers.tsx`
 - **Wraps entire app with**:
   - NextAuth SessionProvider (handles auth state)
@@ -190,6 +199,7 @@ node validate-env.js
 ```
 
 This script checks:
+
 - ✅ All required environment variables are set
 - ✅ Supabase connection works
 - ✅ Google OAuth credentials are valid
@@ -197,6 +207,7 @@ This script checks:
 - ✅ NextAuth configuration is correct
 
 **Output example:**
+
 ```
 ✨ All validations passed! Your environment is ready.
 You can now run: npm run dev
@@ -204,17 +215,17 @@ You can now run: npm run dev
 
 ### Environment Variable Sources
 
-| Variable | Where to Find |
-|----------|--------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Dashboard → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API → Anon Key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Project Settings → API → Service Role Key |
-| `NEXTAUTH_SECRET` | Generate: `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `http://localhost:3000` (dev) or your deployment URL (prod) |
-| `GOOGLE_CLIENT_ID` | Google Cloud Console → Credentials → OAuth 2.0 Client ID |
-| `GOOGLE_CLIENT_SECRET` | Google Cloud Console → Credentials → OAuth 2.0 Client Secret |
-| `OPENAI_API_KEY` | OpenAI Dashboard → API Keys → Create new key |
-| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API Keys → Secret Key (test/live) |
+| Variable                             | Where to Find                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Supabase Dashboard → Project Settings → API → Project URL              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Supabase Dashboard → Project Settings → API → Anon Key                 |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Supabase Dashboard → Project Settings → API → Service Role Key         |
+| `NEXTAUTH_SECRET`                    | Generate: `openssl rand -base64 32`                                    |
+| `NEXTAUTH_URL`                       | `http://localhost:3000` (dev) or your deployment URL (prod)            |
+| `GOOGLE_CLIENT_ID`                   | Google Cloud Console → Credentials → OAuth 2.0 Client ID               |
+| `GOOGLE_CLIENT_SECRET`               | Google Cloud Console → Credentials → OAuth 2.0 Client Secret           |
+| `OPENAI_API_KEY`                     | OpenAI Dashboard → API Keys → Create new key                           |
+| `STRIPE_SECRET_KEY`                  | Stripe Dashboard → Developers → API Keys → Secret Key (test/live)      |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Dashboard → Developers → API Keys → Publishable Key (test/live) |
 
 ### Setup Checklist
@@ -268,13 +279,13 @@ This project uses **separate Supabase projects** for development and production:
 
 The application uses these tables:
 
-| Table | Purpose | Key Fields |
-|-------|---------|-----------|
-| `users` | User accounts (NextAuth) | id, email, name, image |
-| `accounts` | OAuth provider data (NextAuth) | user_id, provider, access_token |
-| `sessions` | User sessions (NextAuth) | user_id, session_token, expires |
-| `verification_tokens` | Email verification (NextAuth) | token, expires |
-| `api_keys` | User API keys for GitHub/OpenAI | user_id, key, name, usage tracking |
+| Table                 | Purpose                         | Key Fields                         |
+| --------------------- | ------------------------------- | ---------------------------------- |
+| `users`               | User accounts (NextAuth)        | id, email, name, image             |
+| `accounts`            | OAuth provider data (NextAuth)  | user_id, provider, access_token    |
+| `sessions`            | User sessions (NextAuth)        | user_id, session_token, expires    |
+| `verification_tokens` | Email verification (NextAuth)   | token, expires                     |
+| `api_keys`            | User API keys for GitHub/OpenAI | user_id, key, name, usage tracking |
 
 All tables include `created_at` and `updated_at` timestamps.
 Foreign keys are set to CASCADE DELETE on user deletion.
@@ -329,6 +340,7 @@ ENV_FILE=.env.production.local node validate-env.js
 ```
 
 Expected output:
+
 ```
 ✨ All validations passed! Your environment is ready.
 ```
@@ -366,12 +378,12 @@ Expected output:
 
 ### Services Status
 
-| Service | Development | Production | Notes |
-|---------|-------------|-----------|-------|
-| Supabase | ✅ Configured | ⚠️ Needs setup | Separate projects (safer) |
-| Google OAuth | ✅ Configured | ✅ Configured | Need redirect URI in Cloud Console |
-| OpenAI | ✅ Working | ✅ Working | Same key in both environments |
-| NextAuth | ✅ Configured | ❌ Missing | Add NEXTAUTH_SECRET and NEXTAUTH_URL |
+| Service      | Development   | Production     | Notes                                |
+| ------------ | ------------- | -------------- | ------------------------------------ |
+| Supabase     | ✅ Configured | ⚠️ Needs setup | Separate projects (safer)            |
+| Google OAuth | ✅ Configured | ✅ Configured  | Need redirect URI in Cloud Console   |
+| OpenAI       | ✅ Working    | ✅ Working     | Same key in both environments        |
+| NextAuth     | ✅ Configured | ❌ Missing     | Add NEXTAUTH_SECRET and NEXTAUTH_URL |
 
 ---
 
@@ -388,6 +400,7 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 **Trigger**: Automatically runs on every push to `main` branch
 
 **What it does**:
+
 1. Checks out the code
 2. Sets up Node.js environment
 3. Installs dependencies
@@ -397,6 +410,7 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 7. **Fails explicitly** if any schema issues occur (blocks Vercel deployment)
 
 **Safety Features**:
+
 - ✅ Validates environment before deployment
 - ✅ Fails fast on Supabase connection errors
 - ✅ Prevents app deployment if database setup fails
@@ -411,16 +425,16 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 2. Navigate to **Settings → Secrets and variables → Actions**
 3. Click **New repository secret** and add these secrets:
 
-| Secret Name | Value | Source |
-|-------------|-------|--------|
-| `PROD_SUPABASE_URL` | Production Supabase project URL | `.env.production.local` |
-| `PROD_SUPABASE_ANON_KEY` | Production Supabase anon key | `.env.production.local` |
+| Secret Name                      | Value                                | Source                  |
+| -------------------------------- | ------------------------------------ | ----------------------- |
+| `PROD_SUPABASE_URL`              | Production Supabase project URL      | `.env.production.local` |
+| `PROD_SUPABASE_ANON_KEY`         | Production Supabase anon key         | `.env.production.local` |
 | `PROD_SUPABASE_SERVICE_ROLE_KEY` | Production Supabase service role key | `.env.production.local` |
-| `PROD_NEXTAUTH_SECRET` | Production NextAuth secret | `.env.production.local` |
-| `PROD_NEXTAUTH_URL` | Production NextAuth URL | `.env.production.local` |
-| `PROD_GOOGLE_CLIENT_ID` | Google OAuth client ID | `.env.production.local` |
-| `PROD_GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `.env.production.local` |
-| `PROD_OPENAI_API_KEY` | OpenAI API key | `.env.production.local` |
+| `PROD_NEXTAUTH_SECRET`           | Production NextAuth secret           | `.env.production.local` |
+| `PROD_NEXTAUTH_URL`              | Production NextAuth URL              | `.env.production.local` |
+| `PROD_GOOGLE_CLIENT_ID`          | Google OAuth client ID               | `.env.production.local` |
+| `PROD_GOOGLE_CLIENT_SECRET`      | Google OAuth client secret           | `.env.production.local` |
+| `PROD_OPENAI_API_KEY`            | OpenAI API key                       | `.env.production.local` |
 
 **Step 2: Configure GitHub Branch Protection** ⚠️ CRITICAL
 
@@ -440,6 +454,7 @@ This ensures GA failure **blocks** Vercel deployment:
 5. Click **Create** or **Save changes**
 
 **Result**:
+
 - ✅ GA must pass before merge button appears
 - ✅ If GA fails, merge is **BLOCKED**
 - ✅ Vercel only deploys after GA succeeds
@@ -483,6 +498,7 @@ This ensures GA failure **blocks** Vercel deployment:
 ```
 
 **Safety Guarantees:**
+
 - ❌ Cannot have broken database in production
 - ✅ Must have GA passing before merge allowed
 - ✅ Database schema guaranteed ready before app deploys
@@ -491,6 +507,7 @@ This ensures GA failure **blocks** Vercel deployment:
 #### Idempotent Operations
 
 The workflow is safe to run repeatedly because:
+
 - All `CREATE TABLE` statements use `IF NOT EXISTS`
 - All `CREATE INDEX` statements use `IF NOT EXISTS`
 - All `ALTER TABLE ADD COLUMN` statements use `IF NOT EXISTS`

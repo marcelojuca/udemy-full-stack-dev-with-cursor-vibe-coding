@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import { useAuth } from '../contexts/auth-context'
-import { useState } from 'react'
-import Image from 'next/image'
+import { useAuth } from '../contexts/auth-context';
+import { useState } from 'react';
+import Image from 'next/image';
 
 export default function UserProfile() {
-  const { user, logout, loading } = useAuth()
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const { user, logout, loading } = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
     try {
-      setIsLoggingOut(true)
-      await logout()
+      setIsLoggingOut(true);
+      await logout();
     } catch (error) {
-      console.error('Logout failed:', error)
+      console.error('Logout failed:', error);
     } finally {
-      setIsLoggingOut(false)
+      setIsLoggingOut(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -25,11 +25,11 @@ export default function UserProfile() {
         <div className="w-8 h-8 bg-gray-200 rounded-full animate-pulse"></div>
         <div className="w-20 h-4 bg-gray-200 rounded animate-pulse"></div>
       </div>
-    )
+    );
   }
 
   if (!user) {
-    return null
+    return null;
   }
 
   return (
@@ -45,21 +45,15 @@ export default function UserProfile() {
           />
         ) : (
           <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-sm font-medium">
-              {user.name?.charAt(0) || 'U'}
-            </span>
+            <span className="text-white text-sm font-medium">{user.name?.charAt(0) || 'U'}</span>
           </div>
         )}
         <div className="hidden sm:block">
-          <p className="text-sm font-medium text-gray-900">
-            {user.name || 'User'}
-          </p>
-          <p className="text-xs text-gray-500">
-            {user.email}
-          </p>
+          <p className="text-sm font-medium text-gray-900">{user.name || 'User'}</p>
+          <p className="text-xs text-gray-500">{user.email}</p>
         </div>
       </div>
-      
+
       <button
         onClick={handleLogout}
         disabled={isLoggingOut}
@@ -68,5 +62,5 @@ export default function UserProfile() {
         {isLoggingOut ? 'Signing out...' : 'Sign out'}
       </button>
     </div>
-  )
+  );
 }
