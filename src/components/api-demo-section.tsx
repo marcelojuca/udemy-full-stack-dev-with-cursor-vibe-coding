@@ -1,76 +1,75 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Textarea } from "@/components/ui/textarea"
-import { Badge } from "@/components/ui/badge"
-import { Loader2, Play, BookOpen, Copy, Check } from "lucide-react"
-import { toast } from "sonner"
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, Play, BookOpen, Copy, Check } from 'lucide-react';
+import { toast } from 'sonner';
 
 const defaultPayload = {
-  githubUrl: "https://github.com/langchain-ai/langchain",
-}
+  githubUrl: 'https://github.com/langchain-ai/langchain',
+};
 
 const mockResponse = {
-  "success": true,
-  "analysis": {
-    "summary": "The LangChain repository is a Python framework designed for building applications powered by large language models (LLMs). It offers tools for chaining components, integrating third-party services, and future-proofing AI application development. The ecosystem includes complementary tools like LangSmith for evaluation, LangGraph for agent orchestration, and deployment platforms, all aimed at simplifying and enhancing LLM-based application creation.",
-    "cool_facts": [
-
-      "LangChain supports real-time data augmentation by connecting LLMs to diverse data sources and external systems through a vast library of integrations.",
-      "The framework is part of a broader ecosystem that includes LangSmith for observability and evaluation, and LangGraph for building complex, controllable agent workflows, with adoption by major companies like LinkedIn, Uber, and GitLab."
-    ]
-
+  success: true,
+  analysis: {
+    summary:
+      'The LangChain repository is a Python framework designed for building applications powered by large language models (LLMs). It offers tools for chaining components, integrating third-party services, and future-proofing AI application development. The ecosystem includes complementary tools like LangSmith for evaluation, LangGraph for agent orchestration, and deployment platforms, all aimed at simplifying and enhancing LLM-based application creation.',
+    cool_facts: [
+      'LangChain supports real-time data augmentation by connecting LLMs to diverse data sources and external systems through a vast library of integrations.',
+      'The framework is part of a broader ecosystem that includes LangSmith for observability and evaluation, and LangGraph for building complex, controllable agent workflows, with adoption by major companies like LinkedIn, Uber, and GitLab.',
+    ],
   },
-  "githubUrl": "https://github.com/langchain-ai/langchain",
-  "repositoryInfo": {
-    "stars": 115483,
-    "version": "langchain-core==0.3.76",
-    "website": "https://python.langchain.com",
-    "license": "MIT License"
+  githubUrl: 'https://github.com/langchain-ai/langchain',
+  repositoryInfo: {
+    stars: 115483,
+    version: 'langchain-core==0.3.76',
+    website: 'https://python.langchain.com',
+    license: 'MIT License',
   },
-  "usage": 0,
-  "limit": 0
-}
+  usage: 0,
+  limit: 0,
+};
 
 export function ApiDemoSection() {
-  const [payload, setPayload] = useState(JSON.stringify(defaultPayload, null, 2))
-  const [response, setResponse] = useState<any>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const [copied, setCopied] = useState(false)
+  const [payload, setPayload] = useState(JSON.stringify(defaultPayload, null, 2));
+  const [response, setResponse] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const handleSendRequest = async () => {
     try {
-      setIsLoading(true)
+      setIsLoading(true);
 
       // Parse the payload to validate JSON
-      const parsedPayload = JSON.parse(payload)
+      const parsedPayload = JSON.parse(payload);
 
       // Simulate API call delay
-      await new Promise((resolve) => setTimeout(resolve, 2000))
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       // For demo purposes, return mock response
-      setResponse(mockResponse)
-      toast.success("Analysis completed successfully!")
+      setResponse(mockResponse);
+      toast.success('Analysis completed successfully!');
     } catch (error) {
-      toast.error("Invalid JSON payload. Please check your syntax.")
+      toast.error('Invalid JSON payload. Please check your syntax.');
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const copyToClipboard = async (text: string) => {
-    await navigator.clipboard.writeText(text)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-    toast.success("Copied to clipboard!")
-  }
+    await navigator.clipboard.writeText(text);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+    toast.success('Copied to clipboard!');
+  };
 
   const resetDemo = () => {
-    setPayload(JSON.stringify(defaultPayload, null, 2))
-    setResponse(null)
-  }
+    setPayload(JSON.stringify(defaultPayload, null, 2));
+    setResponse(null);
+  };
 
   return (
     <section className="py-12 sm:py-16 md:py-20 bg-muted/30">
@@ -81,7 +80,8 @@ export function ApiDemoSection() {
           </Badge>
           <h2 className="text-3xl font-bold tracking-tight mb-4">Try Our API Live</h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Test the GitHub Analyzer API with real requests. Edit the payload below and see instant results.
+            Test the GitHub Analyzer API with real requests. Edit the payload below and see instant
+            results.
           </p>
         </div>
 
@@ -93,7 +93,10 @@ export function ApiDemoSection() {
                 <div className="flex items-center justify-between">
                   <div>
                     <CardTitle className="flex items-center gap-2">
-                      <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                      <Badge
+                        variant="outline"
+                        className="bg-emerald-50 text-emerald-700 border-emerald-200"
+                      >
                         POST
                       </Badge>
                       Request
@@ -149,13 +152,18 @@ export function ApiDemoSection() {
                   <div>
                     <CardTitle className="flex items-center gap-2">
                       {response && (
-                        <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        <Badge
+                          variant="outline"
+                          className="bg-green-50 text-green-700 border-green-200"
+                        >
                           200 OK
                         </Badge>
                       )}
                       Response
                     </CardTitle>
-                    <CardDescription>{response ? "Analysis completed" : "Waiting for request..."}</CardDescription>
+                    <CardDescription>
+                      {response ? 'Analysis completed' : 'Waiting for request...'}
+                    </CardDescription>
                   </div>
                   {response && (
                     <Button
@@ -223,5 +231,5 @@ export function ApiDemoSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }

@@ -21,11 +21,7 @@ export const getApiKeys = async () => {
 
 export const addApiKey = async (apiKey) => {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('api_keys')
-      .insert([apiKey])
-      .select()
-      .single();
+    const { data, error } = await supabaseAdmin.from('api_keys').insert([apiKey]).select().single();
 
     if (error) {
       console.error('Error creating API key:', error);
@@ -62,11 +58,7 @@ export const updateApiKey = async (id, updates) => {
 
 export const deleteApiKey = async (id) => {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('api_keys')
-      .delete()
-      .eq('id', id)
-      .select();
+    const { data, error } = await supabaseAdmin.from('api_keys').delete().eq('id', id).select();
 
     if (error) {
       console.error('Error deleting API key:', error);
@@ -83,10 +75,7 @@ export const deleteApiKey = async (id) => {
 
 export const getApiKeyById = async (id) => {
   try {
-    const { data, error } = await supabaseAdmin
-      .from('api_keys')
-      .select('*')
-      .eq('id', id);
+    const { data, error } = await supabaseAdmin.from('api_keys').select('*').eq('id', id);
 
     if (error) {
       console.error('Error fetching API key by ID:', error);

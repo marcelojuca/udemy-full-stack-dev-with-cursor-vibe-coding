@@ -17,9 +17,9 @@ export async function getRepoInfo(githubUrl) {
     // Fetch repository information from GitHub API
     const repoResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}`, {
       headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'GitHub-Repo-Info-Fetcher'
-      }
+        Accept: 'application/vnd.github.v3+json',
+        'User-Agent': 'GitHub-Repo-Info-Fetcher',
+      },
     });
 
     if (!repoResponse.ok) {
@@ -34,12 +34,15 @@ export async function getRepoInfo(githubUrl) {
     // Fetch latest release information
     let latestVersion = null;
     try {
-      const releaseResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/releases/latest`, {
-        headers: {
-          'Accept': 'application/vnd.github.v3+json',
-          'User-Agent': 'GitHub-Repo-Info-Fetcher'
+      const releaseResponse = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/releases/latest`,
+        {
+          headers: {
+            Accept: 'application/vnd.github.v3+json',
+            'User-Agent': 'GitHub-Repo-Info-Fetcher',
+          },
         }
-      });
+      );
 
       if (releaseResponse.ok) {
         const releaseData = await releaseResponse.json();
@@ -54,9 +57,9 @@ export async function getRepoInfo(githubUrl) {
       try {
         const tagsResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/tags`, {
           headers: {
-            'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'GitHub-Repo-Info-Fetcher'
-          }
+            Accept: 'application/vnd.github.v3+json',
+            'User-Agent': 'GitHub-Repo-Info-Fetcher',
+          },
         });
 
         if (tagsResponse.ok) {
@@ -80,9 +83,8 @@ export async function getRepoInfo(githubUrl) {
       forks: repoData.forks_count || 0,
       watchers: repoData.watchers_count || 0,
       createdAt: repoData.created_at,
-      updatedAt: repoData.updated_at
+      updatedAt: repoData.updated_at,
     };
-
   } catch (error) {
     console.error('Error fetching repository info:', error);
     throw new Error(`Failed to fetch repository information: ${error.message}`);
@@ -97,12 +99,12 @@ export async function getRepoInfo(githubUrl) {
 export async function getBasicRepoInfo(githubUrl) {
   try {
     const repoInfo = await getRepoInfo(githubUrl);
-    
+
     return {
       stars: repoInfo.stars,
       version: repoInfo.version,
       website: repoInfo.website,
-      license: repoInfo.license
+      license: repoInfo.license,
     };
   } catch (error) {
     console.error('Error fetching basic repository info:', error);

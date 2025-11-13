@@ -61,11 +61,13 @@ Task: /implement-figma-plugin-auth --phase=database-foundation
 ```
 
 **Outputs**:
+
 - ✅ `setup-database.js` - Updated with 5 new tables + function + indexes
 - ✅ `setup-production-db.js` - Identical schema for production
 - ✅ 4 subscription plans seeded (free, basic, pro, enterprise)
 
 **Success Criteria**:
+
 - [ ] All 5 tables created with IF NOT EXISTS
 - [ ] increment_daily_usage() function created
 - [ ] All 6 new indexes created
@@ -73,6 +75,7 @@ Task: /implement-figma-plugin-auth --phase=database-foundation
 - [ ] Both setup files match exactly
 
 **Validation**:
+
 ```bash
 node setup-database.js
 # Should output: ✅ All tables created
@@ -93,6 +96,7 @@ Task: /implement-figma-plugin-auth --phase=backend-api
 ```
 
 **Outputs**:
+
 - ✅ `/src/lib/plugin-auth.js` (280 lines)
   - generatePluginToken()
   - validatePluginToken()
@@ -122,9 +126,10 @@ Task: /implement-figma-plugin-auth --phase=backend-api
   - postMessage communication
 
 - ✅ `/src/middleware.ts` (updated)
-  - CORS configuration for /api/plugin/* routes
+  - CORS configuration for /api/plugin/\* routes
 
 **Success Criteria**:
+
 - [ ] All 6 files created/updated
 - [ ] No hardcoded subscription limits
 - [ ] All limits fetched from subscription_plans table
@@ -133,6 +138,7 @@ Task: /implement-figma-plugin-auth --phase=backend-api
 - [ ] Database queries for token validation
 
 **Validation**:
+
 ```bash
 npm run build
 # Should compile without TypeScript errors
@@ -156,6 +162,7 @@ Task: /implement-figma-plugin-auth --phase=stripe-integration
 ```
 
 **Outputs**:
+
 - ✅ `/src/app/api/stripe/webhook/route.ts` (250 lines)
   - Webhook signature verification
   - Event router (5 event types)
@@ -170,6 +177,7 @@ Task: /implement-figma-plugin-auth --phase=stripe-integration
   - Fetches limits from subscription_plans table
 
 **Success Criteria**:
+
 - [ ] All 5 webhook event handlers implemented
 - [ ] Webhook signature verified with constructEvent()
 - [ ] Limits fetched from database (NOT Stripe metadata)
@@ -178,6 +186,7 @@ Task: /implement-figma-plugin-auth --phase=stripe-integration
 - [ ] Atomic database updates
 
 **Validation**:
+
 ```bash
 stripe listen --forward-to localhost:3000/api/stripe/webhook
 stripe trigger customer.subscription.created
@@ -203,6 +212,7 @@ Task: /implement-figma-plugin-auth --phase=plugin-frontend
 ```
 
 **Outputs**:
+
 - ✅ `/plugins/image-resizer/src/lib/auth.ts` (190 lines)
   - checkAuthentication() - Validate token on mount
   - startAuthentication() - Open auth window
@@ -225,6 +235,7 @@ Task: /implement-figma-plugin-auth --phase=plugin-frontend
   - Updated main Plugin component with auth logic
 
 **Success Criteria**:
+
 - [ ] All 3 files created/updated
 - [ ] postMessage flow handles origin validation
 - [ ] Token stored in figma.clientStorage (not localStorage)
@@ -233,6 +244,7 @@ Task: /implement-figma-plugin-auth --phase=plugin-frontend
 - [ ] Plugin builds successfully: npm run build
 
 **Validation**:
+
 ```bash
 cd plugins/image-resizer && npm run build
 # Should compile without errors
@@ -260,6 +272,7 @@ Task: /implement-figma-plugin-auth --phase=qa-testing
 ```
 
 **Test Coverage**:
+
 - ✅ 6 database schema tests
 - ✅ 10 API endpoint tests
 - ✅ 10 plugin auth flow tests
@@ -271,6 +284,7 @@ Task: /implement-figma-plugin-auth --phase=qa-testing
 **Total**: 45 integration tests
 
 **Success Criteria**:
+
 - [ ] All 45 tests pass
 - [ ] Database schema validates
 - [ ] API endpoints respond correctly
@@ -282,6 +296,7 @@ Task: /implement-figma-plugin-auth --phase=qa-testing
 - [ ] Test report generated with timestamp
 
 **Validation**:
+
 ```bash
 # Run all tests as documented in qa-integration-tester agent
 # Review test report: /docs/test-reports/plugin-auth-test-report-YYYY-MM-DD.md
@@ -299,6 +314,7 @@ Task: /implement-figma-plugin-auth --phase=qa-testing
 ### Prerequisites
 
 1. **Environment Setup**:
+
    ```bash
    # Generate PLUGIN_JWT_SECRET
    openssl rand -base64 32
@@ -321,6 +337,7 @@ Task: /implement-figma-plugin-auth --phase=qa-testing
 ```
 
 Runs all 5 agents in correct dependency order:
+
 1. ✅ backend-database-engineer (Phase 1)
 2. ✅ backend-api-developer + stripe-integration-specialist (Phase 2, parallel)
 3. ✅ plugin-frontend-developer (Phase 3)
@@ -419,10 +436,12 @@ Task(qa-integration-tester)
 ### Created Files (13 Total)
 
 **Database** (0 new files, 2 updated):
+
 - `/setup-database.js` ✏️ Updated
 - `/setup-production-db.js` ✏️ Updated
 
 **Backend API** (6 new files):
+
 - `/src/lib/plugin-auth.js` ✨ New
 - `/src/app/api/plugin/auth/route.js` ✨ New
 - `/src/app/api/plugin/user-info/route.js` ✨ New
@@ -431,15 +450,18 @@ Task(qa-integration-tester)
 - `/src/middleware.ts` ✏️ Updated
 
 **Stripe Webhooks** (2 new files):
+
 - `/src/app/api/stripe/webhook/route.ts` ✨ New
 - `/scripts/backfill-subscriptions.js` ✨ New
 
 **Plugin Frontend** (3 files):
+
 - `/plugins/image-resizer/src/lib/auth.ts` ✨ New
 - `/plugins/image-resizer/src/lib/api.ts` ✨ New
 - `/plugins/image-resizer/src/ui.tsx` ✏️ Updated
 
 **Testing & Documentation** (1 file):
+
 - `/docs/test-reports/plugin-auth-test-report-YYYY-MM-DD.md` ✨ Generated
 
 ### Total Lines of Code
@@ -539,6 +561,7 @@ Solution:
 ### After Each Phase
 
 **Phase 1 Complete**:
+
 ```
 ✅ node setup-database.js outputs all table creation messages
 ✅ 5 new tables visible in Supabase Dashboard
@@ -546,6 +569,7 @@ Solution:
 ```
 
 **Phase 2 Complete**:
+
 ```
 ✅ npm run build succeeds
 ✅ curl http://localhost:3000/api/plugin/auth returns response
@@ -553,6 +577,7 @@ Solution:
 ```
 
 **Phase 3 Complete**:
+
 ```
 ✅ Plugin loads in Figma
 ✅ "Sign in" button visible
@@ -561,6 +586,7 @@ Solution:
 ```
 
 **Phase 4 Complete**:
+
 ```
 ✅ All 45 tests pass
 ✅ Test report shows 0 failures
@@ -629,4 +655,3 @@ With proper parallel execution, the entire implementation takes **~2 weeks** ins
 **Start**: `/implement-figma-plugin-auth --execute-all`
 **Monitor**: Check completion of each phase
 **Validate**: Review test report at the end
-

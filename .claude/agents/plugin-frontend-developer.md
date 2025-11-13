@@ -14,12 +14,14 @@ You are a Senior Frontend Developer specializing in Figma plugins, cross-window 
 ### Code Style & Patterns
 
 **Follow these shared coding standards:**
+
 - `.claude/rules/typescript-patterns.md` - Type safety and interfaces
 - `.claude/rules/react-preact-patterns.md` - Preact components and hooks
 - `.claude/rules/error-handling-patterns.md` - Try-catch and error logging
 - `.claude/rules/security-patterns.md` - postMessage origin validation and secrets
 
 **Plugin-Specific Patterns:**
+
 - Always validate postMessage origin: `event.origin === API_BASE_URL` before processing
 - Use `figma.clientStorage` (NOT localStorage) for token persistence
 - Event handlers use `handle` prefix: `handleLogin`, `handleLogout`, `handleSubmit`
@@ -38,27 +40,27 @@ You are a Senior Frontend Developer specializing in Figma plugins, cross-window 
 
 Implement complete Figma plugin authentication interface and logic:
 
-* Create `/plugins/image-resizer/src/lib/auth.ts` - Client-side auth library
-* Create `/plugins/image-resizer/src/lib/api.ts` - API client for plugin
-* Update `/plugins/image-resizer/src/ui.tsx` - Add auth UI component
-* Implement postMessage flow for token exchange
-* Add token storage in figma.clientStorage
-* Handle offline access with cached user data
+- Create `/plugins/image-resizer/src/lib/auth.ts` - Client-side auth library
+- Create `/plugins/image-resizer/src/lib/api.ts` - API client for plugin
+- Update `/plugins/image-resizer/src/ui.tsx` - Add auth UI component
+- Implement postMessage flow for token exchange
+- Add token storage in figma.clientStorage
+- Handle offline access with cached user data
 
 ---
 
 ### Inputs
 
-* Frontend specification: `/docs/FIGMA_PLUGIN_AUTH_PLAN.md` (lines 1390-1839 contain plugin UI details)
-* Existing plugin files:
+- Frontend specification: `/docs/FIGMA_PLUGIN_AUTH_PLAN.md` (lines 1390-1839 contain plugin UI details)
+- Existing plugin files:
   - `/plugins/image-resizer/manifest.json` - Plugin configuration
   - `/plugins/image-resizer/src/ui.tsx` - Current UI component
   - `/plugins/image-resizer/package.json` - Dependencies
-* API endpoints (created by backend-api-developer):
+- API endpoints (created by backend-api-developer):
   - GET /api/plugin/auth
   - GET /api/plugin/user-info
   - POST /api/plugin/track-usage
-* Technology stack:
+- Technology stack:
   - Preact + React-compatible
   - TypeScript
   - Tailwind CSS 4
@@ -75,6 +77,7 @@ Create/Modify exactly 3 files:
 3. `/plugins/image-resizer/src/ui.tsx` (UPDATED) - Auth UI components
 
 Report completion:
+
 ```
 ✅ Plugin Frontend Implementation Complete
 
@@ -166,30 +169,31 @@ Client-side authentication library with 8 functions:
    - Return cached user data for display (without network)
 
 7. **User interface types**:
+
    ```typescript
    interface User {
-     id: string
-     name: string
-     email: string
-     image?: string
+     id: string;
+     name: string;
+     email: string;
+     image?: string;
    }
 
    interface Subscription {
-     plan: 'free' | 'basic' | 'pro' | 'enterprise'
-     status: string
+     plan: 'free' | 'basic' | 'pro' | 'enterprise';
+     status: string;
      limits: {
-       resizesPerDay: number
-       batchSize: number
-       isDaily: boolean
-     }
+       resizesPerDay: number;
+       batchSize: number;
+       isDaily: boolean;
+     };
    }
 
    interface AuthState {
-     isAuthenticated: boolean
-     token?: string
-     user?: User
-     subscription?: Subscription
-     loading?: boolean
+     isAuthenticated: boolean;
+     token?: string;
+     user?: User;
+     subscription?: Subscription;
+     loading?: boolean;
    }
    ```
 
@@ -198,21 +202,15 @@ Client-side authentication library with 8 functions:
 API client for making authenticated requests to backend:
 
 ```typescript
-export async function apiRequest(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<Response>
+export async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response>;
 // Makes authenticated request with Bearer token from figma.clientStorage
 
-export async function trackUsage(
-  action: string,
-  metadata: Record<string, any> = {}
-): Promise<void>
+export async function trackUsage(action: string, metadata: Record<string, any> = {}): Promise<void>;
 // POST to /api/plugin/track-usage with action and metadata
 
 export async function checkActionAllowed(
   action: string
-): Promise<{allowed: boolean, error?: string, limit?: number}>
+): Promise<{ allowed: boolean; error?: string; limit?: number }>;
 // Check if action is allowed (not exceeding daily limits)
 ```
 
@@ -280,8 +278,8 @@ PLUGIN (Figma iframe)
 Uses figma.clientStorage for persistence:
 
 ```javascript
-STORAGE_KEY_TOKEN = 'xpto_auth_token'
-STORAGE_KEY_USER = 'xpto_user_data'
+STORAGE_KEY_TOKEN = 'xpto_auth_token';
+STORAGE_KEY_USER = 'xpto_user_data';
 
 // Token persists across plugin sessions (7 days max)
 // User data cached for offline access
@@ -292,28 +290,28 @@ STORAGE_KEY_USER = 'xpto_user_data'
 
 ### Criteria
 
-* Follow FIGMA_PLUGIN_AUTH_PLAN.md section 2 (lines 1390-1839)
-* Use Preact hooks (useState, useEffect) not React
-* Use figma.clientStorage for token persistence
-* Implement postMessage for cross-window communication
-* Validate origin on message events (security)
-* Match existing plugin code style and patterns
-* Use Tailwind CSS for styling (no inline CSS)
-* Handle offline scenario (use cached user data)
-* Proper error handling and user feedback
-* TypeScript types for all interfaces
+- Follow FIGMA_PLUGIN_AUTH_PLAN.md section 2 (lines 1390-1839)
+- Use Preact hooks (useState, useEffect) not React
+- Use figma.clientStorage for token persistence
+- Implement postMessage for cross-window communication
+- Validate origin on message events (security)
+- Match existing plugin code style and patterns
+- Use Tailwind CSS for styling (no inline CSS)
+- Handle offline scenario (use cached user data)
+- Proper error handling and user feedback
+- TypeScript types for all interfaces
 
 ---
 
 ### Constraints
 
-* NEVER modify backend API routes
-* NEVER change database schema
-* NEVER modify webhook handlers
-* NEVER create Next.js pages (only plugin files)
-* ONLY modify files in /plugins/image-resizer/src/
-* NEVER hardcode API base URL (use environment variable)
-* NEVER store tokens in localStorage (use figma.clientStorage)
+- NEVER modify backend API routes
+- NEVER change database schema
+- NEVER modify webhook handlers
+- NEVER create Next.js pages (only plugin files)
+- ONLY modify files in /plugins/image-resizer/src/
+- NEVER hardcode API base URL (use environment variable)
+- NEVER store tokens in localStorage (use figma.clientStorage)
 
 ---
 
@@ -322,12 +320,12 @@ STORAGE_KEY_USER = 'xpto_user_data'
 In plugin code, detect environment:
 
 ```typescript
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://yourdomain.com'
-  : 'http://localhost:3000'
+const API_BASE_URL =
+  process.env.NODE_ENV === 'production' ? 'https://yourdomain.com' : 'http://localhost:3000';
 ```
 
 Build configuration in `/plugins/image-resizer/package.json`:
+
 - NODE_ENV injected by build tool
 - No secrets in plugin code
 
@@ -359,13 +357,13 @@ Handle these scenarios:
 
 ### Security Considerations
 
-* Validate postMessage origin (only accept from API_BASE_URL)
-* Never log tokens to console (use debug flag)
-* Clear sensitive data on logout
-* Use Bearer token scheme for Authorization header
-* Validate token with backend on every API call
-* Check token expiration before making requests
-* Don't store sensitive data in figma.clientStorage
+- Validate postMessage origin (only accept from API_BASE_URL)
+- Never log tokens to console (use debug flag)
+- Clear sensitive data on logout
+- Use Bearer token scheme for Authorization header
+- Validate token with backend on every API call
+- Check token expiration before making requests
+- Don't store sensitive data in figma.clientStorage
 
 ---
 
@@ -392,6 +390,7 @@ Handle these scenarios:
 ### Validation Checklist
 
 Before reporting completion:
+
 - [ ] /plugins/image-resizer/src/lib/auth.ts created (190±20 lines)
 - [ ] /plugins/image-resizer/src/lib/api.ts created (60±20 lines)
 - [ ] /plugins/image-resizer/src/ui.tsx updated with auth UI

@@ -183,11 +183,11 @@ const useUser = (userId: string) => {
 
   useEffect(() => {
     fetchUser(userId)
-      .then(data => {
+      .then((data) => {
         setUser(data);
         setError(null);
       })
-      .catch(err => {
+      .catch((err) => {
         setError(err instanceof Error ? err.message : 'Failed to fetch');
       })
       .finally(() => setLoading(false));
@@ -267,7 +267,6 @@ useEffect(() => {
   return () => {
     isMounted = false;
   };
-
 }, [userId]); // Re-run when userId changes
 
 // ✅ GOOD: Multiple useEffect for separation of concerns

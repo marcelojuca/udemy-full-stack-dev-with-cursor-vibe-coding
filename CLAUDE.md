@@ -9,6 +9,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 ## Quick Lookup
 
 Need to find something fast? Use these references:
+
 - **How do I enable/disable Stripe?** → Check `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` in environment setup
 - **Where is authentication handled?** → `src/lib/auth.js`, `src/contexts/auth-context.tsx`, `src/app/api/auth/[...nextauth]/route.js`
 - **How do I add a new API route?** → Create file in `src/app/api/` using Next.js 15 App Router conventions
@@ -21,23 +22,38 @@ Need to find something fast? Use these references:
 ## Common Commands
 
 ### Development
+
 - **Start dev server**: `npm run dev` (runs on http://localhost:3000)
 - **Build for production**: `npm run build`
 - **Run production build locally**: `npm start`
 - **Lint code**: `npm run lint` (uses ESLint config in eslint.config.mjs)
 
+### QA Workflow (Before Committing)
+
+- **Run all QA checks**: `just qa` or `npm run qa`
+  - Runs: format → lint:fix → type-check → test:coverage
+  - Should pass before pushing to any branch
+- **Run pre-deployment checks**: `just pre-deploy` or `npm run pre-deploy`
+  - Runs: format → lint → type-check → test:coverage → build
+  - Full validation before merging to staging/production
+- **Individual checks**:
+  - `just format` - Auto-format with Prettier
+  - `just lintfix` - Auto-fix ESLint issues
+  - `just type-check` - TypeScript type checking
+  - `just test` - Run Jest tests with coverage
+  - `just testwatch` - Run tests in watch mode
+  - `just build` - Verify production build
+
 ### Database
+
 - **Setup development database**: `node setup-database.js` (initializes Supabase tables locally)
 - **Setup production database**: Automated via GitHub Actions on merge to `main` (see Deployment section)
 - **Validate environment**: `node validate-env.js` (checks all services are configured)
 
-### Pre-Deployment Checks
-- **Full build validation**: `npm run build` (catches TypeScript errors and ESLint violations)
-- **Lint check**: `npm run lint` (must pass before deployment)
-
 ## Architecture & Key Systems
 
 ### 1. Authentication (NextAuth + Supabase)
+
 - **Location**: `src/lib/auth.js`, `src/app/api/auth/[...nextauth]/route.js`, `src/contexts/auth-context.tsx`
 - **Key Features**:
   - Google OAuth login via NextAuth v4
@@ -48,6 +64,7 @@ Need to find something fast? Use these references:
 - **Protected pages**: `/dashboards` and `/protected` require authentication
 
 ### 2. API Keys Management
+
 - **Location**: `src/lib/api-keys-service.js`, `src/lib/api-keys-store-supabase.js`
 - **Database**: Supabase table `user_api_keys` (id, user_id, key_name, api_key, created_at)
 - **Endpoints**:
@@ -58,6 +75,7 @@ Need to find something fast? Use these references:
 - **Security**: API keys are hashed before storage; user_id tied to each key
 
 ### 3. GitHub Analysis (LangChain + OpenAI)
+
 - **Location**: `src/lib/chain.js`, `src/app/api/github-summarizer/route.js`
 - **Flow**:
   1. User provides GitHub repo URL
@@ -68,6 +86,7 @@ Need to find something fast? Use these references:
 - **Model**: gpt-4-1-nano (cost-effective for analysis)
 
 ### 4. Stripe Payment Integration
+
 - **Location**: `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx`
 - **Key Features**:
   - Stripe pricing table embedded in pricing section
@@ -79,10 +98,12 @@ Need to find something fast? Use these references:
 - **Payment Processing**: All handled securely by Stripe
 
 ### 5. Rate Limiting
+
 - **Location**: `src/lib/rate-limiting.js`
 - **Prevents API abuse** by limiting requests per user/IP
 
 ### 6. UI Framework
+
 - **Next.js App Router** with TypeScript support
 - **Shadcn/ui components** (from `@radix-ui/*`) for consistent, accessible UI
 - **Tailwind CSS 4** for styling (configured in `tailwind.config.js` via `@tailwindcss/postcss`)
@@ -91,6 +112,7 @@ Need to find something fast? Use these references:
 - **Responsive layout**: Sidebar + main content area pattern
 
 ### 6. Providers & Context
+
 - **Location**: `src/app/providers.tsx`
 - **Wraps entire app with**:
   - NextAuth SessionProvider (handles auth state)
@@ -160,9 +182,13 @@ src/
 
 ### TypeScript Considerations
 
-- **TypeScript strict mode is OFF** (`tsconfig.json`: `"strict": false`) - be mindful of type safety
-- Always define types explicitly, especially for function parameters and return types
-- Use Zod schemas for runtime validation of API responses and external data
+- **TypeScript strict mode is ENABLED** (`tsconfig.json`: `"strict": true`)
+  - Enforces type safety for better code quality
+  - Catches potential bugs at compile time
+  - All function parameters require explicit types
+- **Always define types explicitly**, especially for function parameters and return types
+- **Use Zod schemas** for runtime validation of API responses and external data
+- **Test files are excluded** from strict mode checking (easier testing setup)
 
 ## Key Dependencies
 
@@ -213,6 +239,7 @@ node validate-env.js
 ```
 
 This script checks:
+
 - ✅ All required environment variables are set
 - ✅ Supabase connection works
 - ✅ Google OAuth credentials are valid
@@ -220,6 +247,7 @@ This script checks:
 - ✅ NextAuth configuration is correct
 
 **Output example:**
+
 ```
 ✨ All validations passed! Your environment is ready.
 You can now run: npm run dev
@@ -227,17 +255,17 @@ You can now run: npm run dev
 
 ### Environment Variable Sources
 
-| Variable | Where to Find |
-|----------|--------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Dashboard → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API → Anon Key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Project Settings → API → Service Role Key |
-| `NEXTAUTH_SECRET` | Generate: `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `http://localhost:3000` (dev) or your deployment URL (prod) |
-| `GOOGLE_CLIENT_ID` | Google Cloud Console → Credentials → OAuth 2.0 Client ID |
-| `GOOGLE_CLIENT_SECRET` | Google Cloud Console → Credentials → OAuth 2.0 Client Secret |
-| `OPENAI_API_KEY` | OpenAI Dashboard → API Keys → Create new key |
-| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API Keys → Secret Key (test/live) |
+| Variable                             | Where to Find                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Supabase Dashboard → Project Settings → API → Project URL              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Supabase Dashboard → Project Settings → API → Anon Key                 |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Supabase Dashboard → Project Settings → API → Service Role Key         |
+| `NEXTAUTH_SECRET`                    | Generate: `openssl rand -base64 32`                                    |
+| `NEXTAUTH_URL`                       | `http://localhost:3000` (dev) or your deployment URL (prod)            |
+| `GOOGLE_CLIENT_ID`                   | Google Cloud Console → Credentials → OAuth 2.0 Client ID               |
+| `GOOGLE_CLIENT_SECRET`               | Google Cloud Console → Credentials → OAuth 2.0 Client Secret           |
+| `OPENAI_API_KEY`                     | OpenAI Dashboard → API Keys → Create new key                           |
+| `STRIPE_SECRET_KEY`                  | Stripe Dashboard → Developers → API Keys → Secret Key (test/live)      |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Dashboard → Developers → API Keys → Publishable Key (test/live) |
 
 ### Setup Checklist
@@ -255,14 +283,21 @@ Before starting development:
 
 ## Important Notes
 
-- **TypeScript strict mode is OFF** (`tsconfig.json`: `"strict": false`) - be mindful of explicit type definitions
-- **ESLint checking is enabled** during build - `npm run lint` will catch and fail on violations
+- **TypeScript strict mode is ENABLED** (`tsconfig.json`: `"strict": true`) - enforces type safety
+  - All functions must have explicit parameter types
+  - Use `any` type sparingly (only when necessary)
+  - Test files excluded from strict checking
+- **QA Workflow is required** before pushing code:
+  - Run `just qa` locally before committing
+  - GitHub Actions enforces QA on all branches
+  - PRs cannot be merged if QA checks fail
+- **ESLint checking is enabled** during build and QA - violations will fail checks
 - **Environment variables**: Uses `.env.local` (dev) and `.env.production.local` (prod)
 - **Secrets are gitignored**: `.env*` files are in `.gitignore` - never commit credentials
 - **Remote image support** for Google OAuth profile pictures (configured in `next.config.mjs`)
 - **Logging is reduced** in development to avoid verbose Next.js fetch logs
 - **Path alias**: `@/*` maps to `./src/*` for clean imports (e.g., `import { useAuth } from '@/contexts/auth-context'`)
-- **No tests configured** - testing decisions left to the developer
+- **Jest tests configured** - write tests in `src/__tests__/` or alongside components
 - **Stripe is optional** - payment features require `STRIPE_SECRET_KEY` and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`
 
 ## Database Setup & Synchronization
@@ -293,13 +328,13 @@ This project uses **separate Supabase projects** for development and production:
 
 The application uses these tables:
 
-| Table | Purpose | Key Fields |
-|-------|---------|-----------|
-| `users` | User accounts (NextAuth) | id, email, name, image |
-| `accounts` | OAuth provider data (NextAuth) | user_id, provider, access_token |
-| `sessions` | User sessions (NextAuth) | user_id, session_token, expires |
-| `verification_tokens` | Email verification (NextAuth) | token, expires |
-| `api_keys` | User API keys for GitHub/OpenAI | user_id, key, name, usage tracking |
+| Table                 | Purpose                         | Key Fields                         |
+| --------------------- | ------------------------------- | ---------------------------------- |
+| `users`               | User accounts (NextAuth)        | id, email, name, image             |
+| `accounts`            | OAuth provider data (NextAuth)  | user_id, provider, access_token    |
+| `sessions`            | User sessions (NextAuth)        | user_id, session_token, expires    |
+| `verification_tokens` | Email verification (NextAuth)   | token, expires                     |
+| `api_keys`            | User API keys for GitHub/OpenAI | user_id, key, name, usage tracking |
 
 All tables include `created_at` and `updated_at` timestamps.
 Foreign keys are set to CASCADE DELETE on user deletion.
@@ -354,6 +389,7 @@ ENV_FILE=.env.production.local node validate-env.js
 ```
 
 Expected output:
+
 ```
 ✨ All validations passed! Your environment is ready.
 ```
@@ -391,18 +427,46 @@ Expected output:
 
 ### Services Status
 
-| Service | Development | Production | Notes |
-|---------|-------------|-----------|-------|
-| Supabase | ✅ Configured | ⚠️ Needs setup | Separate projects (safer) |
-| Google OAuth | ✅ Configured | ✅ Configured | Need redirect URI in Cloud Console |
-| OpenAI | ✅ Working | ✅ Working | Same key in both environments |
-| NextAuth | ✅ Configured | ❌ Missing | Add NEXTAUTH_SECRET and NEXTAUTH_URL |
+| Service      | Development   | Production     | Notes                                |
+| ------------ | ------------- | -------------- | ------------------------------------ |
+| Supabase     | ✅ Configured | ⚠️ Needs setup | Separate projects (safer)            |
+| Google OAuth | ✅ Configured | ✅ Configured  | Need redirect URI in Cloud Console   |
+| OpenAI       | ✅ Working    | ✅ Working     | Same key in both environments        |
+| NextAuth     | ✅ Configured | ❌ Missing     | Add NEXTAUTH_SECRET and NEXTAUTH_URL |
 
 ---
 
 ## Deployment & CI/CD
 
-### GitHub Actions Workflow
+### QA Workflow GitHub Actions
+
+**Location**: `.github/workflows/qa.yml`
+
+**Trigger**: Automatically runs on:
+
+- Every pull request to `main` and `develop` branches
+- Every push to `main` and `develop` branches
+
+**What it does**:
+
+1. Format checking with Prettier
+2. Linting with ESLint
+3. TypeScript type checking
+4. Jest unit tests with coverage
+5. Production build verification
+6. Uploads coverage to codecov
+7. Creates GitHub step summary with results
+
+**Safety Features**:
+
+- ✅ Fails if any check fails (protects repository quality)
+- ✅ Prevents merging broken code to staging/production
+- ✅ Coverage reports track test progress
+- ✅ Clear feedback on what passed/failed
+
+**Local equivalent**: Run `just qa` or `just pre-deploy` before pushing code
+
+### Database Schema Deployment
 
 This project uses **GitHub Actions** to automatically deploy database schema changes to production with **branch protection** to prevent broken deployments.
 
@@ -413,6 +477,7 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 **Trigger**: Automatically runs on every push to `main` branch
 
 **What it does**:
+
 1. Checks out the code
 2. Sets up Node.js environment
 3. Installs dependencies
@@ -422,6 +487,7 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 7. **Fails explicitly** if any schema issues occur (blocks Vercel deployment)
 
 **Safety Features**:
+
 - ✅ Validates environment before deployment
 - ✅ Fails fast on Supabase connection errors
 - ✅ Prevents app deployment if database setup fails
@@ -436,16 +502,16 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 2. Navigate to **Settings → Secrets and variables → Actions**
 3. Click **New repository secret** and add these secrets:
 
-| Secret Name | Value | Source |
-|-------------|-------|--------|
-| `PROD_SUPABASE_URL` | Production Supabase project URL | `.env.production.local` |
-| `PROD_SUPABASE_ANON_KEY` | Production Supabase anon key | `.env.production.local` |
+| Secret Name                      | Value                                | Source                  |
+| -------------------------------- | ------------------------------------ | ----------------------- |
+| `PROD_SUPABASE_URL`              | Production Supabase project URL      | `.env.production.local` |
+| `PROD_SUPABASE_ANON_KEY`         | Production Supabase anon key         | `.env.production.local` |
 | `PROD_SUPABASE_SERVICE_ROLE_KEY` | Production Supabase service role key | `.env.production.local` |
-| `PROD_NEXTAUTH_SECRET` | Production NextAuth secret | `.env.production.local` |
-| `PROD_NEXTAUTH_URL` | Production NextAuth URL | `.env.production.local` |
-| `PROD_GOOGLE_CLIENT_ID` | Google OAuth client ID | `.env.production.local` |
-| `PROD_GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `.env.production.local` |
-| `PROD_OPENAI_API_KEY` | OpenAI API key | `.env.production.local` |
+| `PROD_NEXTAUTH_SECRET`           | Production NextAuth secret           | `.env.production.local` |
+| `PROD_NEXTAUTH_URL`              | Production NextAuth URL              | `.env.production.local` |
+| `PROD_GOOGLE_CLIENT_ID`          | Google OAuth client ID               | `.env.production.local` |
+| `PROD_GOOGLE_CLIENT_SECRET`      | Google OAuth client secret           | `.env.production.local` |
+| `PROD_OPENAI_API_KEY`            | OpenAI API key                       | `.env.production.local` |
 
 **Step 2: Configure GitHub Branch Protection** ⚠️ CRITICAL
 
@@ -465,6 +531,7 @@ This ensures GA failure **blocks** Vercel deployment:
 5. Click **Create** or **Save changes**
 
 **Result**:
+
 - ✅ GA must pass before merge button appears
 - ✅ If GA fails, merge is **BLOCKED**
 - ✅ Vercel only deploys after GA succeeds
@@ -508,6 +575,7 @@ This ensures GA failure **blocks** Vercel deployment:
 ```
 
 **Safety Guarantees:**
+
 - ❌ Cannot have broken database in production
 - ✅ Must have GA passing before merge allowed
 - ✅ Database schema guaranteed ready before app deploys
@@ -516,6 +584,7 @@ This ensures GA failure **blocks** Vercel deployment:
 #### Idempotent Operations
 
 The workflow is safe to run repeatedly because:
+
 - All `CREATE TABLE` statements use `IF NOT EXISTS`
 - All `CREATE INDEX` statements use `IF NOT EXISTS`
 - All `ALTER TABLE ADD COLUMN` statements use `IF NOT EXISTS`
@@ -596,12 +665,77 @@ When making database schema changes:
 
 ---
 
-## Development Workflow
+## Git Workflow (3-Environment Setup)
 
-1. Start dev server: `npm run dev`
-2. Make changes to components/pages
-3. Test in browser at http://localhost:3000
-4. Check linting: `eslint` (or it will catch errors on build)
-5. Commit changes with clear messages
-6. Push to trigger build validation (TypeScript + ESLint)
-7. If database schema changed, GitHub Actions deploys to production on merge to main
+**Branches**: `feature/*` → `develop` → `staging` → `main`
+
+**Environments**:
+
+- `main` = Production (xpto.space)
+- `staging` = Staging (dandi.lat)
+- `develop` = Development
+
+**Workflow with QA Checks**:
+
+```bash
+# Feature development
+git checkout -b feature/xyz
+# ... make changes, test locally ...
+just qa                          # ✅ Run QA locally before pushing
+git push origin feature/xyz
+# → GitHub Actions runs QA workflow (format, lint, types, tests, build)
+# → Vercel auto-builds preview
+# → Create PR targeting 'develop'
+
+# Merge to develop (after QA passes)
+git checkout develop && git pull
+git merge feature/xyz && git push origin develop
+# → GitHub Actions runs QA checks on develop
+# → If checks fail, merge is blocked
+
+# Promote to staging (when ready to test)
+git checkout staging && git pull
+git merge develop && git push origin staging
+# → GitHub Actions runs QA checks on staging
+# → Vercel builds staging environment
+
+# Deploy to production (when staging validated)
+git checkout main && git pull
+git merge staging && git push origin main
+# → GitHub Actions validates database schema
+# → GitHub Actions runs final QA checks
+# → If QA/DB checks pass, Vercel deploys to xpto.space
+# → Database schema automatically deployed to production
+```
+
+**GitHub Actions Checks by Branch**:
+
+- `feature/*` branches: QA checks on PR (prevent broken code)
+- `develop` branch: QA checks on push (maintain code quality)
+- `staging` branch: QA checks on push (pre-production validation)
+- `main` branch: QA checks + Database validation (production safety)
+
+**Branch Protection**: `main` requires PR + code review + QA status checks pass
+
+## Local Development Workflow
+
+1. **Start dev server**: `npm run dev` (runs at http://localhost:3000)
+2. **Create feature branch**: `git checkout -b feature/xyz`
+3. **Make changes and test** locally at http://localhost:3000
+4. **Run QA checks locally** before committing:
+   - `just qa` - Format, lint, type-check, test (recommended)
+   - `just pre-deploy` - Full checks including build (before staging/prod merge)
+5. **Commit changes**: `git commit -m "feat: description"`
+   - Commit message follows conventional commits (feat:, fix:, etc.)
+6. **Push to feature branch**: `git push origin feature/xyz`
+   - GitHub Actions automatically runs QA checks on PR
+   - Vercel creates preview deployment
+7. **Create Pull Request** targeting `develop`
+   - Wait for GitHub Actions QA checks to pass
+   - Request code review from team
+8. **Merge when approved and QA passes**
+   - GitHub Actions runs QA again on develop branch
+9. **Promote through environments**
+   - develop → staging (test integration)
+   - staging → main (final production deployment)
+   - GitHub Actions validates database schema on each push

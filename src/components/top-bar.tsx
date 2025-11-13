@@ -1,23 +1,48 @@
-'use client'
+'use client';
 
 import UserProfile from './user-profile';
 
-export default function TopBar({ sidebarVisible, toggleSidebar }) {
+interface TopBarProps {
+  sidebarVisible: boolean;
+  toggleSidebar: () => void;
+}
+
+export default function TopBar({ sidebarVisible, toggleSidebar }: TopBarProps) {
   return (
     <div className="bg-card border-b border-border px-6 py-4 flex justify-between items-center">
       <div className="flex items-center space-x-4">
         <button
           onClick={toggleSidebar}
           className="p-2 rounded-lg hover:bg-muted transition-colors"
-          title={sidebarVisible ? "Hide sidebar" : "Show sidebar"}
+          title={sidebarVisible ? 'Hide sidebar' : 'Show sidebar'}
         >
           {sidebarVisible ? (
-            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            <svg
+              className="w-5 h-5 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           ) : (
-            <svg className="w-5 h-5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <svg
+              className="w-5 h-5 text-muted-foreground"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           )}
         </button>

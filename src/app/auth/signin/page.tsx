@@ -1,49 +1,49 @@
-'use client'
+'use client';
 
-import { signIn, getSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import LoadingSpinner from '../../../components/loading-spinner'
+import { signIn, getSession } from 'next-auth/react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import LoadingSpinner from '../../../components/loading-spinner';
 
 export default function SignIn() {
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const router = useRouter()
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     // Check if user is already signed in
     const checkSession = async () => {
-      const session = await getSession()
+      const session = await getSession();
       if (session) {
-        router.push('/')
+        router.push('/');
       }
-    }
-    checkSession()
-  }, [router])
+    };
+    checkSession();
+  }, [router]);
 
   const handleGoogleSignIn = async () => {
     try {
-      setLoading(true)
-      setError('')
-      const result = await signIn('google', { 
+      setLoading(true);
+      setError('');
+      const result = await signIn('google', {
         callbackUrl: '/',
-        redirect: false 
-      })
-      
+        redirect: false,
+      });
+
       if (result?.error) {
-        setError('Failed to sign in with Google. Please try again.')
+        setError('Failed to sign in with Google. Please try again.');
       } else if (result?.ok) {
-        router.push('/')
+        router.push('/');
       }
     } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+      setError('An unexpected error occurred. Please try again.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
-    return <LoadingSpinner />
+    return <LoadingSpinner />;
   }
 
   return (
@@ -57,14 +57,14 @@ export default function SignIn() {
             Use your Google account to access the dashboard
           </p>
         </div>
-        
+
         <div className="mt-8 space-y-6">
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm">
               {error}
             </div>
           )}
-          
+
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
@@ -90,7 +90,7 @@ export default function SignIn() {
             </svg>
             Continue with Google
           </button>
-          
+
           <div className="text-center">
             <button
               onClick={() => router.push('/')}
@@ -102,5 +102,5 @@ export default function SignIn() {
         </div>
       </div>
     </div>
-  )
+  );
 }

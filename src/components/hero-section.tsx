@@ -1,6 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { ArrowRight, BarChart3, GitBranch, Star } from "lucide-react"
-
 export function HeroSection() {
   return (
     <section className="py-8 sm:py-12 md:py-16 px-4 text-center">
@@ -10,5 +7,5 @@ export function HeroSection() {
         </h1>
       </div>
     </section>
-  )
+  );
 }

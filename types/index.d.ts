@@ -5,13 +5,13 @@ declare global {
         React.HTMLAttributes<HTMLElement>,
         HTMLElement
       > & {
-        'pricing-table-id'?: string
-        'publishable-key'?: string
-        'client-reference-id'?: string
-        'customer-email'?: string
-      }
+        'pricing-table-id'?: string;
+        'publishable-key'?: string;
+        'client-reference-id'?: string;
+        'customer-email'?: string;
+      };
     }
   }
 }
 
-export {}
+export {};

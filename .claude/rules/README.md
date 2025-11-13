@@ -9,9 +9,11 @@ This directory contains reusable coding patterns and best practices that Claude 
 ## Quick Reference Guide
 
 ### For Database Schema Work
+
 👉 **Read**: [`database-patterns.md`](./database-patterns.md)
 
 **Covers**:
+
 - Idempotent operations (IF NOT EXISTS)
 - Foreign keys with CASCADE DELETE
 - TIMESTAMP WITH TIME ZONE
@@ -25,9 +27,11 @@ This directory contains reusable coding patterns and best practices that Claude 
 ---
 
 ### For Next.js API Routes
+
 👉 **Read**: [`nextjs-api-patterns.md`](./nextjs-api-patterns.md)
 
 **Covers**:
+
 - HTTP status codes (200, 400, 401, 404, 429, 500)
 - Route structure with error handling
 - CORS handling (OPTIONS handler)
@@ -41,9 +45,11 @@ This directory contains reusable coding patterns and best practices that Claude 
 ---
 
 ### For TypeScript Code
+
 👉 **Read**: [`typescript-patterns.md`](./typescript-patterns.md)
 
 **Covers**:
+
 - Interface vs type decisions
 - Naming conventions (isLoading, handleClick, fetchUser)
 - Type safety best practices
@@ -56,9 +62,11 @@ This directory contains reusable coding patterns and best practices that Claude 
 ---
 
 ### For Error Handling
+
 👉 **Read**: [`error-handling-patterns.md`](./error-handling-patterns.md)
 
 **Covers**:
+
 - Guard clauses (early returns)
 - Try-catch blocks for async
 - Descriptive error messages
@@ -71,9 +79,11 @@ This directory contains reusable coding patterns and best practices that Claude 
 ---
 
 ### For Security
+
 👉 **Read**: [`security-patterns.md`](./security-patterns.md)
 
 **Covers**:
+
 - Never log secrets
 - Validate postMessage origins
 - Authorization header validation
@@ -89,9 +99,11 @@ This directory contains reusable coding patterns and best practices that Claude 
 ---
 
 ### For React/Preact Components
+
 👉 **Read**: [`react-preact-patterns.md`](./react-preact-patterns.md)
 
 **Covers**:
+
 - Functional components
 - Event handler naming (handle prefix)
 - State management with hooks
@@ -107,14 +119,14 @@ This directory contains reusable coding patterns and best practices that Claude 
 
 ## Rule Files at a Glance
 
-| File | Focus | Lines | Used By |
-|------|-------|-------|---------|
-| `typescript-patterns.md` | Type safety, naming | 70 | All agents |
-| `nextjs-api-patterns.md` | API routes, CORS | 80 | Backend agents |
-| `error-handling-patterns.md` | Error management | 70 | All agents |
-| `security-patterns.md` | Security, validation | 80 | All agents |
-| `database-patterns.md` | SQL, schema design | 75 | Database agent |
-| `react-preact-patterns.md` | Components, hooks | 80 | Frontend agent |
+| File                         | Focus                | Lines | Used By        |
+| ---------------------------- | -------------------- | ----- | -------------- |
+| `typescript-patterns.md`     | Type safety, naming  | 70    | All agents     |
+| `nextjs-api-patterns.md`     | API routes, CORS     | 80    | Backend agents |
+| `error-handling-patterns.md` | Error management     | 70    | All agents     |
+| `security-patterns.md`       | Security, validation | 80    | All agents     |
+| `database-patterns.md`       | SQL, schema design   | 75    | Database agent |
+| `react-preact-patterns.md`   | Components, hooks    | 80    | Frontend agent |
 
 **Total**: 290 lines of reusable patterns
 
@@ -130,12 +142,14 @@ The agent reads this section in its spec:
 ### Code Style & Patterns
 
 **Follow these shared coding standards:**
+
 - `.claude/rules/typescript-patterns.md`
 - `.claude/rules/nextjs-api-patterns.md`
 - `.claude/rules/error-handling-patterns.md`
 - `.claude/rules/security-patterns.md`
 
 **API-Specific Patterns:**
+
 - Return correct HTTP status codes
 - Validate Authorization header
 - Fetch limits from database (NEVER hardcode)
@@ -143,6 +157,7 @@ The agent reads this section in its spec:
 ```
 
 When creating API routes, the agent:
+
 1. References each rule file for decisions
 2. Applies TypeScript patterns (interfaces, naming)
 3. Applies API patterns (status codes, CORS)
@@ -177,7 +192,7 @@ When creating API routes, the agent:
 
 **Location**: `error-handling-patterns.md`
 
-```markdown
+````markdown
 ## Input Validation
 
 **Use Zod for all request validation:**
@@ -202,7 +217,9 @@ export async function POST(request: NextRequest) {
   }
 }
 ```
-```
+````
+
+````
 
 Then update agent: ✏️ Add to their Code Style section reference list.
 
@@ -268,7 +285,8 @@ When an agent is executing, it:
    **Follow these shared coding standards:**
    - `.claude/rules/typescript-patterns.md`
    - `.claude/rules/nextjs-api-patterns.md`
-   ```
+````
+
 3. **Reads each referenced rule file** for guidance
 4. **Applies patterns** when generating code
 5. **Produces consistent output** matching all referenced rules
@@ -281,35 +299,42 @@ When an agent is executing, it:
 
 ```markdown
 # backend-api-developer.md
+
 ### Code Standards
+
 - Use interfaces for extendable objects
 - Name event handlers with handleXxx
 - Return correct HTTP status codes
 - Always validate Authorization header
 - Never log tokens
 - Use try-catch for async
-[15+ more rules scattered here...]
+  [15+ more rules scattered here...]
 
 # stripe-integration-specialist.md
+
 ### Code Standards
+
 - Use interfaces for extendable objects (duplicate!)
 - Always verify Stripe signature
 - Never log secrets (duplicate!)
 - Log all changes for audit
 - Handle errors gracefully
-[15+ more rules scattered here...]
+  [15+ more rules scattered here...]
 
 # plugin-frontend-developer.md
+
 ### Code Standards
+
 - Use interfaces for extendable objects (duplicate!)
 - Name handlers with handleXxx (duplicate!)
 - Use figma.clientStorage not localStorage
 - Validate postMessage origin
 - Never log tokens (duplicate!)
-[15+ more rules scattered here...]
+  [15+ more rules scattered here...]
 ```
 
 ❌ Problems:
+
 - Same rules in 3+ places (maintenance nightmare)
 - Easy to miss updating one file
 - Inconsistent explanations
@@ -319,49 +344,59 @@ When an agent is executing, it:
 
 ```markdown
 # backend-api-developer.md
+
 ### Code Style & Patterns
 
 **Follow these shared coding standards:**
+
 - `.claude/rules/typescript-patterns.md`
 - `.claude/rules/nextjs-api-patterns.md`
 - `.claude/rules/error-handling-patterns.md`
 - `.claude/rules/security-patterns.md`
 
 **API-Specific Patterns:**
+
 - Return correct HTTP status codes
 - Fetch limits from database (NEVER hardcode)
-[Agent-specific rules only, ~10 lines]
+  [Agent-specific rules only, ~10 lines]
 
 # stripe-integration-specialist.md
+
 ### Code Style & Patterns
 
 **Follow these shared coding standards:**
+
 - `.claude/rules/typescript-patterns.md`
 - `.claude/rules/nextjs-api-patterns.md`
 - `.claude/rules/error-handling-patterns.md`
 - `.claude/rules/security-patterns.md`
 
 **Webhook-Specific Patterns:**
+
 - Always verify Stripe signature with constructEvent()
 - Idempotent operations
-[Agent-specific rules only, ~10 lines]
+  [Agent-specific rules only, ~10 lines]
 
 # plugin-frontend-developer.md
+
 ### Code Style & Patterns
 
 **Follow these shared coding standards:**
+
 - `.claude/rules/typescript-patterns.md`
 - `.claude/rules/react-preact-patterns.md`
 - `.claude/rules/error-handling-patterns.md`
 - `.claude/rules/security-patterns.md`
 
 **Plugin-Specific Patterns:**
+
 - Validate postMessage origins
 - Use figma.clientStorage not localStorage
-[Agent-specific rules only, ~10 lines]
+  [Agent-specific rules only, ~10 lines]
 ```
 
 ✅ Benefits:
+
 - Shared rules in ONE place (typescript-patterns.md covers all interfaces)
 - Easy to maintain (update once, benefits all agents)
 - Consistent explanations (one source of truth)
@@ -373,7 +408,7 @@ When an agent is executing, it:
 ## Quick Links
 
 - **Agent Specifications**: [`.claude/agents/`](..
-/agents/)
+  /agents/)
 - **Commands**: [`../commands/`](../commands/)
 - **Implementation Summary**: [`../../docs/CURSOR_RULES_IMPLEMENTATION_SUMMARY.md`](../../docs/CURSOR_RULES_IMPLEMENTATION_SUMMARY.md)
 - **Plan Documentation**: [`../../docs/FIGMA_PLUGIN_AUTH_PLAN.md`](../../docs/FIGMA_PLUGIN_AUTH_PLAN.md)

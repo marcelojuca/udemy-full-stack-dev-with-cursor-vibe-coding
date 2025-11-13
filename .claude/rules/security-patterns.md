@@ -57,9 +57,8 @@ Always verify the origin of postMessage events to prevent XSS and data theft:
 
 ```typescript
 // ✅ GOOD: Always validate origin
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://myapp.com'
-  : 'http://localhost:3000';
+const API_BASE_URL =
+  process.env.NODE_ENV === 'production' ? 'https://myapp.com' : 'http://localhost:3000';
 
 window.addEventListener('message', (event: MessageEvent) => {
   // CRITICAL: Verify origin before processing
@@ -114,11 +113,7 @@ export async function handleAuthSuccess() {
 
 // Plugin (in Figma iframe)
 function startAuthFlow() {
-  const authWindow = window.open(
-    '/plugin/auth',
-    'auth',
-    'width=500,height=600'
-  );
+  const authWindow = window.open('/plugin/auth', 'auth', 'width=500,height=600');
 
   window.addEventListener('message', (event) => {
     // ✅ Verify origin before processing
@@ -148,56 +143,37 @@ export async function GET(request: NextRequest) {
     // Step 1: Check header exists
     const authHeader = request.headers.get('authorization');
     if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Missing authorization header' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Missing authorization header' }, { status: 401 });
     }
 
     // Step 2: Validate Bearer format
     if (!authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Invalid authorization header format' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid authorization header format' }, { status: 401 });
     }
 
     // Step 3: Extract token
     const token = authHeader.substring(7);
     if (!token) {
-      return NextResponse.json(
-        { error: 'Empty token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Empty token' }, { status: 401 });
     }
 
     // Step 4: Validate token format
     if (token.length < 20) {
-      return NextResponse.json(
-        { error: 'Invalid token format' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid token format' }, { status: 401 });
     }
 
     // Step 5: Verify token (signature, expiration, database)
     const validation = await validateToken(token);
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: 'Invalid or expired token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid or expired token' }, { status: 401 });
     }
 
     // Token is valid, proceed with request
     const user = await getUser(validation.userId);
     return NextResponse.json({ user }, { status: 200 });
-
   } catch (error) {
     console.error('Error in GET:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 ```
@@ -214,7 +190,9 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.PLUGIN_JWT_SECRET!;
 
 // ✅ GOOD: Complete JWT validation
-async function validateJWT(token: string): Promise<{ valid: boolean; userId?: string; error?: string }> {
+async function validateJWT(
+  token: string
+): Promise<{ valid: boolean; userId?: string; error?: string }> {
   try {
     // Step 1: Verify signature
     const decoded = jwt.verify(token, JWT_SECRET) as { userId: string };
@@ -243,7 +221,6 @@ async function validateJWT(token: string): Promise<{ valid: boolean; userId?: st
 
     // Token is valid
     return { valid: true, userId: decoded.userId };
-
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       return { valid: false, error: 'Token expired' };
@@ -345,18 +322,23 @@ export async function POST(request: NextRequest) {
     // Now we know the data shape is correct
     const result = await resizeImage(validatedData);
     return NextResponse.json({ result });
-
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        error: 'Validation failed',
-        details: error.errors,
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          details: error.errors,
+        },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({
-      error: 'Internal server error',
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+      },
+      { status: 500 }
+    );
   }
 }
 
@@ -384,11 +366,7 @@ const { data } = await supabase
 
 // ✅ GOOD: Zod validation before query
 const userEmail = z.string().email().parse(input);
-const { data } = await supabase
-  .from('users')
-  .select('*')
-  .eq('email', userEmail)
-  .single();
+const { data } = await supabase.from('users').select('*').eq('email', userEmail).single();
 
 // ❌ BAD: String interpolation (DO NOT DO THIS)
 // This would be vulnerable if you were building SQL strings:
@@ -414,10 +392,7 @@ export async function GET(request: NextRequest) {
   const origin = request.headers.get('origin');
 
   if (!origin || !ALLOWED_ORIGINS.includes(origin)) {
-    return NextResponse.json(
-      { error: 'Forbidden' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   // Proceed with request
@@ -468,10 +443,7 @@ export async function POST(request: NextRequest) {
   const userId = getAuthenticatedUserId(request);
 
   if (!checkRateLimit(userId, 10, 60000)) {
-    return NextResponse.json(
-      { error: 'Rate limit exceeded' },
-      { status: 429 }
-    );
+    return NextResponse.json({ error: 'Rate limit exceeded' }, { status: 429 });
   }
 
   // Process request

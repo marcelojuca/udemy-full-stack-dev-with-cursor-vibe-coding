@@ -70,16 +70,16 @@ Prefix with `handle` followed by the action:
 
 ```typescript
 // ✅ Good
-const handleLogin = () => { };
-const handleLogout = () => { };
-const handleFormSubmit = (e: FormEvent) => { };
-const handleInputChange = (value: string) => { };
-const handleTokenExpiry = () => { };
+const handleLogin = () => {};
+const handleLogout = () => {};
+const handleFormSubmit = (e: FormEvent) => {};
+const handleInputChange = (value: string) => {};
+const handleTokenExpiry = () => {};
 
 // ❌ Bad
-const login = () => { };
-const onSubmit = () => { };
-const processClick = () => { };
+const login = () => {};
+const onSubmit = () => {};
+const processClick = () => {};
 ```
 
 ### Async Functions
@@ -88,15 +88,15 @@ Use verb that describes the action:
 
 ```typescript
 // ✅ Good
-async function fetchUser(id: string): Promise<User> { }
-async function createToken(userId: string): Promise<string> { }
-async function validateToken(token: string): Promise<boolean> { }
-async function updateSubscription(userId: string, plan: string): Promise<void> { }
+async function fetchUser(id: string): Promise<User> {}
+async function createToken(userId: string): Promise<string> {}
+async function validateToken(token: string): Promise<boolean> {}
+async function updateSubscription(userId: string, plan: string): Promise<void> {}
 
 // ❌ Bad
-async function getUser(id: string): Promise<User> { } // fetch is clearer for async
-async function makeToken(userId: string): Promise<string> { }
-async function check(token: string): Promise<boolean> { }
+async function getUser(id: string): Promise<User> {} // fetch is clearer for async
+async function makeToken(userId: string): Promise<string> {}
+async function check(token: string): Promise<boolean> {}
 ```
 
 ### Constants
@@ -167,7 +167,7 @@ function processWebhookData(data: WebhookData): void {
 }
 
 // ❌ Never use any
-function processWebhookData(data: any): void { }
+function processWebhookData(data: any): void {}
 ```
 
 ### Use `as const` for Literals
@@ -182,7 +182,7 @@ const PLANS = {
   PRO: 'pro',
 } as const;
 
-type Plan = typeof PLANS[keyof typeof PLANS]; // 'free' | 'basic' | 'pro'
+type Plan = (typeof PLANS)[keyof typeof PLANS]; // 'free' | 'basic' | 'pro'
 
 // ❌ Less ideal
 const PLANS = {
@@ -203,16 +203,16 @@ Be explicit about what's optional:
 ```typescript
 // ✅ Good
 interface UserData {
-  id: string;              // Required
-  name: string;            // Required
-  email: string;           // Required
-  avatar?: string;         // Optional
-  bio?: string;            // Optional
+  id: string; // Required
+  name: string; // Required
+  email: string; // Required
+  avatar?: string; // Optional
+  bio?: string; // Optional
 }
 
 // ❌ Bad
 interface UserData {
-  id: string | null;       // Should use optional instead
+  id: string | null; // Should use optional instead
   name: string | null;
   avatar: string | null;
 }

@@ -48,12 +48,15 @@ STRIPE_WEBHOOK_SECRET=<from-stripe-dashboard>
 ### Execution Options
 
 **Option 1: Full Implementation (Recommended)**
+
 ```bash
 /implement-figma-plugin-auth --execute-all
 ```
+
 Executes all 5 agents in correct dependency order. Timeline: ~14 days with parallelization.
 
 **Option 2: Phase-by-Phase (For Monitoring)**
+
 ```bash
 /implement-figma-plugin-auth --phase=database-foundation
 /implement-figma-plugin-auth --phase=backend-api
@@ -63,6 +66,7 @@ Executes all 5 agents in correct dependency order. Timeline: ~14 days with paral
 ```
 
 **Option 3: Individual Agents (Specific Tasks)**
+
 ```bash
 Task(backend-database-engineer)
 Task(backend-api-developer)
@@ -74,6 +78,7 @@ Task(qa-integration-tester)
 ### Agent Files
 
 All agent specifications are in `/.claude/agents/`:
+
 - `backend-database-engineer.md` - Database schema
 - `backend-api-developer.md` - API routes + auth library
 - `stripe-integration-specialist.md` - Webhooks + subscription sync
@@ -92,13 +97,13 @@ This plan has been decomposed into **5 specialized agents** for distributed, non
 
 ### Agent Summary Table
 
-| Phase | Agent | Duration | Key Deliverables | Dependencies |
-|-------|-------|----------|------------------|--------------|
-| 1 | Backend Database Engineer | 2 days | 5 tables + 1 function + 6 indexes + seed data | None |
-| 2A | Backend API Developer | 5 days | 3 API routes + auth library + middleware + success page | Phase 1 |
-| 2B | Stripe Integration Specialist | 4 days | Webhook handler + backfill script | Phase 1 (parallel with 2A) |
-| 3 | Plugin Frontend Developer | 5 days | Auth library + API client + UI components | Phase 2 (2A + 2B) |
-| 4 | QA Integration Tester | 2 days | 45 integration tests + test report | All phases |
+| Phase | Agent                         | Duration | Key Deliverables                                        | Dependencies               |
+| ----- | ----------------------------- | -------- | ------------------------------------------------------- | -------------------------- |
+| 1     | Backend Database Engineer     | 2 days   | 5 tables + 1 function + 6 indexes + seed data           | None                       |
+| 2A    | Backend API Developer         | 5 days   | 3 API routes + auth library + middleware + success page | Phase 1                    |
+| 2B    | Stripe Integration Specialist | 4 days   | Webhook handler + backfill script                       | Phase 1 (parallel with 2A) |
+| 3     | Plugin Frontend Developer     | 5 days   | Auth library + API client + UI components               | Phase 2 (2A + 2B)          |
+| 4     | QA Integration Tester         | 2 days   | 45 integration tests + test report                      | All phases                 |
 
 **Total Timeline**: ~14 days (parallelization saves 4 days vs. sequential)
 
@@ -123,6 +128,7 @@ Phase 4: QA Testing (Days 13-14)
 ### Agent Details
 
 #### Phase 1: Backend Database Engineer
+
 - **Database schema**: 5 new tables (subscription_plans, plugin_tokens, plugin_usage, daily_usage_summary, user_subscriptions)
 - **PostgreSQL function**: `increment_daily_usage()` for atomic usage tracking
 - **Indexes**: 6 performance indexes for query optimization
@@ -130,6 +136,7 @@ Phase 4: QA Testing (Days 13-14)
 - **Files**: Updates `setup-database.js` and `setup-production-db.js`
 
 #### Phase 2A: Backend API Developer
+
 - **Authentication library**: `/src/lib/plugin-auth.js` with 7 core functions
 - **API routes**:
   - `GET /api/plugin/auth` - Generate plugin token
@@ -139,18 +146,21 @@ Phase 4: QA Testing (Days 13-14)
 - **CORS middleware**: Updates `/src/middleware.ts` for Figma domain
 
 #### Phase 2B: Stripe Integration Specialist
+
 - **Webhook handler**: `/src/app/api/stripe/webhook/route.ts` with 5 event processors
 - **Event processors**: customer.subscription.created/updated/deleted, invoice.payment_succeeded/failed
 - **Backfill script**: `/scripts/backfill-subscriptions.js` for existing subscriptions
 - **Configuration**: Stripe product metadata setup guide (single source of truth)
 
 #### Phase 3: Plugin Frontend Developer
+
 - **Auth library**: `/plugins/image-resizer/src/lib/auth.ts` with 8 authentication functions
 - **API client**: `/plugins/image-resizer/src/lib/api.ts` for authenticated requests
 - **UI components**: Updates `/plugins/image-resizer/src/ui.tsx` with authentication UI
 - **Features**: postMessage flow, token storage, offline access with caching
 
 #### Phase 4: QA Integration Tester
+
 - **Test coverage**: 45 comprehensive integration tests
   - 6 database schema tests
   - 10 API endpoint tests
@@ -171,12 +181,14 @@ Phase 4: QA Testing (Days 13-14)
 **Location**: `/plugins/image-resizer/`
 
 **Stack**:
+
 - Build Tool: `@create-figma-plugin/build` v4.0.3
 - UI Framework: Preact (React-compatible)
 - Styling: Tailwind CSS 4
 - Language: TypeScript
 
 **Plugin Manifest** (`manifest.json`):
+
 ```json
 {
   "api": "1.0.0",
@@ -187,14 +199,8 @@ Phase 4: QA Testing (Days 13-14)
   "ui": "build/ui.js",
   "permissions": ["payments"],
   "networkAccess": {
-    "allowedDomains": [
-      "https://*.vercel.app",
-      "https://xpto.app"
-    ],
-    "devAllowedDomains": [
-      "http://localhost:3000",
-      "http://localhost:3001"
-    ]
+    "allowedDomains": ["https://*.vercel.app", "https://xpto.app"],
+    "devAllowedDomains": ["http://localhost:3000", "http://localhost:3001"]
   }
 }
 ```
@@ -210,6 +216,7 @@ Phase 4: QA Testing (Days 13-14)
 - ❌ **NO connection to website user accounts**
 
 **Tier System** (example):
+
 ```
 free:       2 one-time resizes
 basic:      4 resizes per day
@@ -222,17 +229,20 @@ enterprise: Unlimited
 **Tech Stack**: NextAuth v4 + Google OAuth + Supabase
 
 **Key Components**:
+
 - **Config**: `/src/lib/auth.js`
 - **Context**: `/src/contexts/auth-context.tsx`
 - **Routes**: `/src/app/api/auth/[...nextauth]/route.js`
 - **Database**: Supabase PostgreSQL with NextAuth tables
 
 **Authentication Flow**:
+
 ```
 Google Login → NextAuth OAuth → Supabase Session → AuthContext → Protected Routes
 ```
 
 **Database Tables**:
+
 - `users` - User accounts
 - `accounts` - OAuth provider data
 - `sessions` - JWT sessions
@@ -240,13 +250,13 @@ Google Login → NextAuth OAuth → Supabase Session → AuthContext → Protect
 
 ### The Gap
 
-| Aspect | Plugin | Website |
-|--------|--------|---------|
-| Authentication | ❌ None | ✅ NextAuth + Google OAuth |
-| Database | ❌ Local storage only | ✅ Supabase |
-| User Accounts | ❌ No accounts | ✅ Supabase users table |
-| Subscription Sync | ❌ Local tracking | ✅ Planned via API |
-| Payment | ✅ Figma.payments | ✅ Stripe |
+| Aspect            | Plugin                | Website                    |
+| ----------------- | --------------------- | -------------------------- |
+| Authentication    | ❌ None               | ✅ NextAuth + Google OAuth |
+| Database          | ❌ Local storage only | ✅ Supabase                |
+| User Accounts     | ❌ No accounts        | ✅ Supabase users table    |
+| Subscription Sync | ❌ Local tracking     | ✅ Planned via API         |
+| Payment           | ✅ Figma.payments     | ✅ Stripe                  |
 
 ---
 
@@ -307,13 +317,13 @@ Google Login → NextAuth OAuth → Supabase Session → AuthContext → Protect
 
 ### Key Constraints & Solutions
 
-| Constraint | Problem | Solution |
-|-----------|---------|----------|
-| **Figma iframe sandbox** | Cannot handle OAuth redirects directly | Open new browser window with `window.open()` |
-| **Plugin isolation** | No access to browser cookies | Use JWT tokens in `figma.clientStorage` |
-| **Same-origin policy** | Cannot use OAuth callback to same iframe | Use `window.opener.postMessage()` to communicate back |
-| **Token storage limit** | `figma.clientStorage` has 5MB limit | JWT tokens are small (~500 bytes) ✅ |
-| **CORS restrictions** | Backend blocks non-browser requests | Add middleware for `/api/plugin/*` routes |
+| Constraint               | Problem                                  | Solution                                              |
+| ------------------------ | ---------------------------------------- | ----------------------------------------------------- |
+| **Figma iframe sandbox** | Cannot handle OAuth redirects directly   | Open new browser window with `window.open()`          |
+| **Plugin isolation**     | No access to browser cookies             | Use JWT tokens in `figma.clientStorage`               |
+| **Same-origin policy**   | Cannot use OAuth callback to same iframe | Use `window.opener.postMessage()` to communicate back |
+| **Token storage limit**  | `figma.clientStorage` has 5MB limit      | JWT tokens are small (~500 bytes) ✅                  |
+| **CORS restrictions**    | Backend blocks non-browser requests      | Add middleware for `/api/plugin/*` routes             |
 
 ---
 
@@ -329,11 +339,12 @@ const planLimits = {
   free: { resizesPerDay: 2, batchSize: 1, isDaily: false },
   basic: { resizesPerDay: 4, batchSize: 5, isDaily: true },
   pro: { resizesPerDay: 6, batchSize: 20, isDaily: true },
-  enterprise: { resizesPerDay: -1, batchSize: -1, isDaily: false }
+  enterprise: { resizesPerDay: -1, batchSize: -1, isDaily: false },
 };
 ```
 
 **Issues:**
+
 - ❌ Cannot change pricing without deploying code
 - ❌ No connection to Stripe product configuration
 - ❌ Cannot A/B test different tier limits
@@ -343,6 +354,7 @@ const planLimits = {
 ### Solution: Database-Driven Limits + Stripe Webhook Sync
 
 **Key Changes:**
+
 1. **Create `subscription_plans` table** - Master list of plans with limits from Stripe
 2. **Add `limits` JSONB column** to `user_subscriptions` - Store dynamic limits per user
 3. **Create `daily_usage_summary` table** - Efficient daily usage tracking with atomic counters
@@ -532,6 +544,7 @@ STRIPE_WEBHOOK_SECRET=whsec_your_webhook_secret_here
 ```
 
 Add to GitHub Actions secrets:
+
 ```
 PROD_PLUGIN_JWT_SECRET=<production-secret>
 PROD_STRIPE_WEBHOOK_SECRET=<production-webhook-secret>
@@ -559,7 +572,7 @@ export async function generatePluginToken(userId) {
     {
       userId,
       type: 'plugin',
-      iat: Math.floor(Date.now() / 1000)
+      iat: Math.floor(Date.now() / 1000),
     },
     PLUGIN_JWT_SECRET,
     { expiresIn: TOKEN_EXPIRY }
@@ -568,13 +581,13 @@ export async function generatePluginToken(userId) {
   // Store token in database for audit & revocation
   const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
 
-  const { error } = await supabaseAdmin
-    .from('plugin_tokens')
-    .insert([{
+  const { error } = await supabaseAdmin.from('plugin_tokens').insert([
+    {
       user_id: userId,
       token,
-      expires_at: expiresAt.toISOString()
-    }]);
+      expires_at: expiresAt.toISOString(),
+    },
+  ]);
 
   if (error) {
     throw new Error('Failed to store plugin token');
@@ -619,7 +632,7 @@ export async function validatePluginToken(token) {
     return {
       valid: true,
       userId: tokenData.user_id,
-      tokenId: tokenData.id
+      tokenId: tokenData.id,
     };
   } catch (error) {
     return { valid: false, error: error.message };
@@ -666,14 +679,14 @@ export async function getUserSubscription(userId) {
     if (planError || !freePlan) {
       throw new Error(
         'Failed to load free tier configuration from subscription_plans table. ' +
-        'Ensure database seed data is initialized via setup-database.js'
+          'Ensure database seed data is initialized via setup-database.js'
       );
     }
 
     return {
       plan: 'free',
       status: 'active',
-      limits: freePlan.limits  // ✅ Always fetched from database, never hardcoded
+      limits: freePlan.limits, // ✅ Always fetched from database, never hardcoded
     };
   }
 
@@ -681,9 +694,9 @@ export async function getUserSubscription(userId) {
   return {
     plan: subscription.plan,
     status: subscription.status,
-    limits: subscription.limits,  // ✅ Fetched from DB, NOT hardcoded
+    limits: subscription.limits, // ✅ Fetched from DB, NOT hardcoded
     currentPeriodEnd: subscription.current_period_end,
-    stripeSubscriptionId: subscription.stripe_subscription_id
+    stripeSubscriptionId: subscription.stripe_subscription_id,
   };
 }
 
@@ -694,13 +707,13 @@ export async function getUserSubscription(userId) {
  * @param {object} metadata - Additional data
  */
 export async function trackPluginUsage(userId, action, metadata = {}) {
-  await supabaseAdmin
-    .from('plugin_usage')
-    .insert([{
+  await supabaseAdmin.from('plugin_usage').insert([
+    {
       user_id: userId,
       action,
-      metadata
-    }]);
+      metadata,
+    },
+  ]);
 }
 
 /**
@@ -754,14 +767,14 @@ export async function GET(request) {
       return NextResponse.json(
         {
           authenticated: false,
-          loginUrl: `${process.env.NEXTAUTH_URL}/auth/signin?callbackUrl=/plugin/auth-success`
+          loginUrl: `${process.env.NEXTAUTH_URL}/auth/signin?callbackUrl=/plugin/auth-success`,
         },
         {
           status: 200,
           headers: {
             'Access-Control-Allow-Origin': 'https://www.figma.com',
-            'Access-Control-Allow-Credentials': 'true'
-          }
+            'Access-Control-Allow-Credentials': 'true',
+          },
         }
       );
     }
@@ -774,10 +787,7 @@ export async function GET(request) {
       .single();
 
     if (error || !user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Generate plugin token
@@ -791,23 +801,20 @@ export async function GET(request) {
           id: user.id,
           name: session.user.name,
           email: session.user.email,
-          image: session.user.image
-        }
+          image: session.user.image,
+        },
       },
       {
         status: 200,
         headers: {
           'Access-Control-Allow-Origin': 'https://www.figma.com',
-          'Access-Control-Allow-Credentials': 'true'
-        }
+          'Access-Control-Allow-Credentials': 'true',
+        },
       }
     );
   } catch (error) {
     console.error('Plugin auth error:', error);
-    return NextResponse.json(
-      { error: 'Authentication failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Authentication failed' }, { status: 500 });
   }
 }
 
@@ -849,10 +856,7 @@ export async function GET(request) {
     // Validate token
     const validation = await validatePluginToken(token);
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: validation.error || 'Invalid token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: validation.error || 'Invalid token' }, { status: 401 });
     }
 
     // Get user data
@@ -863,10 +867,7 @@ export async function GET(request) {
       .single();
 
     if (error || !user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Get subscription info
@@ -878,24 +879,21 @@ export async function GET(request) {
           id: user.id,
           name: user.name,
           email: user.email,
-          image: user.image
+          image: user.image,
         },
-        subscription
+        subscription,
       },
       {
         status: 200,
         headers: {
           'Access-Control-Allow-Origin': 'https://www.figma.com',
-          'Access-Control-Allow-Credentials': 'true'
-        }
+          'Access-Control-Allow-Credentials': 'true',
+        },
       }
     );
   } catch (error) {
     console.error('Plugin user-info error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch user info' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch user info' }, { status: 500 });
   }
 }
 
@@ -918,27 +916,26 @@ Track usage and enforce limits:
 
 ```javascript
 import { NextResponse } from 'next/server';
-import { validatePluginToken, trackPluginUsage, getUserSubscription, checkDailyLimit } from '@/lib/plugin-auth';
+import {
+  validatePluginToken,
+  trackPluginUsage,
+  getUserSubscription,
+  checkDailyLimit,
+} from '@/lib/plugin-auth';
 
 export async function POST(request) {
   try {
     // Validate token
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Missing authorization' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Missing authorization' }, { status: 401 });
     }
 
     const token = authHeader.substring(7);
     const validation = await validatePluginToken(token);
 
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: 'Invalid token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
     }
 
     // Parse request body
@@ -963,7 +960,7 @@ export async function POST(request) {
             error: 'Daily limit exceeded',
             limit: dailyLimit,
             used,
-            remaining: 0
+            remaining: 0,
           },
           { status: 429 }
         );
@@ -978,16 +975,13 @@ export async function POST(request) {
       {
         status: 200,
         headers: {
-          'Access-Control-Allow-Origin': 'https://www.figma.com'
-        }
+          'Access-Control-Allow-Origin': 'https://www.figma.com',
+        },
       }
     );
   } catch (error) {
     console.error('Track usage error:', error);
-    return NextResponse.json(
-      { error: 'Failed to track usage' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to track usage' }, { status: 500 });
   }
 }
 
@@ -1087,10 +1081,7 @@ export async function POST(req: NextRequest) {
   const sig = req.headers.get('stripe-signature');
 
   if (!sig) {
-    return NextResponse.json(
-      { error: 'Missing stripe-signature header' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Missing stripe-signature header' }, { status: 400 });
   }
 
   let event: Stripe.Event;
@@ -1101,10 +1092,7 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     const error = err instanceof Error ? err.message : 'Unknown error';
     console.error('Webhook signature verification failed:', error);
-    return NextResponse.json(
-      { error: `Webhook Error: ${error}` },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: `Webhook Error: ${error}` }, { status: 400 });
   }
 
   console.log(`Processing Stripe event: ${event.type}`);
@@ -1136,10 +1124,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ received: true }, { status: 200 });
   } catch (error) {
     console.error('Webhook processing error:', error);
-    return NextResponse.json(
-      { error: 'Webhook processing failed' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }
 
@@ -1186,7 +1171,7 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
           limits,
           current_period_start: new Date(subscription.current_period_start * 1000),
           current_period_end: new Date(subscription.current_period_end * 1000),
-          updated_at: new Date()
+          updated_at: new Date(),
         })
         .eq('stripe_customer_id', customerId);
 
@@ -1213,18 +1198,16 @@ async function handleSubscriptionUpdate(subscription: Stripe.Subscription) {
       }
 
       // Create new subscription
-      const { error } = await supabaseAdmin
-        .from('user_subscriptions')
-        .insert({
-          user_id: user.id,
-          plan: planSlug,
-          stripe_customer_id: customerId,
-          stripe_subscription_id: subscription.id,
-          status: subscription.status,
-          limits,
-          current_period_start: new Date(subscription.current_period_start * 1000),
-          current_period_end: new Date(subscription.current_period_end * 1000)
-        });
+      const { error } = await supabaseAdmin.from('user_subscriptions').insert({
+        user_id: user.id,
+        plan: planSlug,
+        stripe_customer_id: customerId,
+        stripe_subscription_id: subscription.id,
+        status: subscription.status,
+        limits,
+        current_period_start: new Date(subscription.current_period_start * 1000),
+        current_period_end: new Date(subscription.current_period_end * 1000),
+      });
 
       if (error) throw error;
       console.log(`Created subscription for user: ${user.id}`);
@@ -1261,8 +1244,8 @@ async function handleSubscriptionCanceled(subscription: Stripe.Subscription) {
         plan: 'free',
         status: 'canceled',
         stripe_subscription_id: subscription.id,
-        limits: freePlan.limits,  // ✅ From database, not hardcoded
-        updated_at: new Date()
+        limits: freePlan.limits, // ✅ From database, not hardcoded
+        updated_at: new Date(),
       })
       .eq('stripe_customer_id', customerId);
 
@@ -1286,7 +1269,7 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice) {
       .update({
         status: 'active',
         payment_failed_at: null,
-        updated_at: new Date()
+        updated_at: new Date(),
       })
       .eq('stripe_customer_id', customerId);
 
@@ -1311,7 +1294,7 @@ async function handlePaymentFailed(invoice: Stripe.Invoice) {
       .update({
         status: 'past_due',
         payment_failed_at: new Date(),
-        updated_at: new Date()
+        updated_at: new Date(),
       })
       .eq('stripe_customer_id', customerId);
 
@@ -1339,6 +1322,7 @@ This implementation stores **only `plan_slug` in Stripe metadata** and fetches a
 - ✅ **Better architecture**: Billing system (Stripe) separate from feature configuration (Supabase)
 
 **Why only `plan_slug` in Stripe?**
+
 - Identifies which plan the customer purchased
 - Maps Stripe product to your plan system
 - Webhook uses it to look up limits from `subscription_plans` table
@@ -1353,6 +1337,7 @@ Go to: https://dashboard.stripe.com/products
 **Important**: Only store `plan_slug` in Stripe metadata. All limits are fetched from the `subscription_plans` table in Supabase (single source of truth).
 
 For the **Free** product, add metadata:
+
 ```json
 {
   "plan_slug": "free"
@@ -1360,6 +1345,7 @@ For the **Free** product, add metadata:
 ```
 
 For the **Basic** product, add metadata:
+
 ```json
 {
   "plan_slug": "basic"
@@ -1367,6 +1353,7 @@ For the **Basic** product, add metadata:
 ```
 
 For the **Pro** product, add metadata:
+
 ```json
 {
   "plan_slug": "pro"
@@ -1374,6 +1361,7 @@ For the **Pro** product, add metadata:
 ```
 
 For the **Enterprise** product, add metadata:
+
 ```json
 {
   "plan_slug": "enterprise"
@@ -1518,6 +1506,7 @@ backfillSubscriptions();
 ```
 
 Run it:
+
 ```bash
 node scripts/backfill-subscriptions.js
 ```
@@ -1555,9 +1544,8 @@ Create `/plugins/image-resizer/src/lib/auth.ts`:
 ```typescript
 const STORAGE_KEY_TOKEN = 'xpto_auth_token';
 const STORAGE_KEY_USER = 'xpto_user_data';
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://xpto.app'
-  : 'http://localhost:3000';
+const API_BASE_URL =
+  process.env.NODE_ENV === 'production' ? 'https://xpto.app' : 'http://localhost:3000';
 
 export interface User {
   id: string;
@@ -1598,9 +1586,9 @@ export async function checkAuthentication(): Promise<AuthState> {
     // Validate token with backend
     const response = await fetch(`${API_BASE_URL}/api/plugin/user-info`, {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json',
+      },
     });
 
     if (!response.ok) {
@@ -1619,7 +1607,7 @@ export async function checkAuthentication(): Promise<AuthState> {
       token,
       user: data.user,
       subscription: data.subscription,
-      loading: false
+      loading: false,
     };
   } catch (error) {
     console.error('Auth check failed:', error);
@@ -1657,10 +1645,13 @@ export async function startAuthentication(): Promise<string | null> {
       window.addEventListener('message', messageHandler);
 
       // Timeout after 5 minutes
-      const timeout = setTimeout(() => {
-        window.removeEventListener('message', messageHandler);
-        reject(new Error('Authentication timeout'));
-      }, 5 * 60 * 1000);
+      const timeout = setTimeout(
+        () => {
+          window.removeEventListener('message', messageHandler);
+          reject(new Error('Authentication timeout'));
+        },
+        5 * 60 * 1000
+      );
 
       // Close timer if window closes
       const closeCheckInterval = setInterval(() => {
@@ -1730,22 +1721,18 @@ Create `/plugins/image-resizer/src/lib/api.ts`:
 ```typescript
 import { getAuthToken } from './auth';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production'
-  ? 'https://xpto.app'
-  : 'http://localhost:3000';
+const API_BASE_URL =
+  process.env.NODE_ENV === 'production' ? 'https://xpto.app' : 'http://localhost:3000';
 
 /**
  * Make authenticated API request
  */
-export async function apiRequest(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<Response> {
+export async function apiRequest(endpoint: string, options: RequestInit = {}): Promise<Response> {
   const token = await getAuthToken();
 
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
-    ...(options.headers || {})
+    ...(options.headers || {}),
   };
 
   if (token) {
@@ -1754,7 +1741,7 @@ export async function apiRequest(
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
-    headers
+    headers,
   });
 
   return response;
@@ -1770,7 +1757,7 @@ export async function trackUsage(
   try {
     const response = await apiRequest('/api/plugin/track-usage', {
       method: 'POST',
-      body: JSON.stringify({ action, metadata })
+      body: JSON.stringify({ action, metadata }),
     });
 
     if (!response.ok) {
@@ -2201,6 +2188,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ### Token Format
 
 **JWT Claims**:
+
 ```json
 {
   "userId": "user-uuid",
@@ -2217,6 +2205,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ### API Response Formats
 
 **GET /api/plugin/auth** (Token Generation):
+
 ```json
 {
   "authenticated": true,
@@ -2231,6 +2220,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ```
 
 **GET /api/plugin/user-info** (User + Subscription):
+
 ```json
 {
   "user": {
@@ -2252,6 +2242,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ```
 
 **POST /api/plugin/track-usage** (Usage Tracking):
+
 ```json
 {
   "success": true
@@ -2259,6 +2250,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ```
 
 **Error Response** (Daily limit exceeded):
+
 ```json
 {
   "error": "Daily limit exceeded",
@@ -2270,15 +2262,16 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 
 ### Database Schema Quick Reference
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `subscription_plans` | Master list of plans and limits | `plan_slug`, `limits` (JSONB), `features` |
-| `plugin_tokens` | JWT token storage for audit/revocation | `user_id`, `token`, `expires_at`, `revoked` |
-| `plugin_usage` | Detailed event tracking for analytics | `user_id`, `action`, `metadata`, `created_at` |
-| `daily_usage_summary` | Efficient daily tracking with atomic counters | `user_id`, `action`, `usage_date`, `count` |
-| `user_subscriptions` | User subscription + Stripe sync | `user_id`, `plan`, `limits` (from DB), `stripe_*` |
+| Table                 | Purpose                                       | Key Columns                                       |
+| --------------------- | --------------------------------------------- | ------------------------------------------------- |
+| `subscription_plans`  | Master list of plans and limits               | `plan_slug`, `limits` (JSONB), `features`         |
+| `plugin_tokens`       | JWT token storage for audit/revocation        | `user_id`, `token`, `expires_at`, `revoked`       |
+| `plugin_usage`        | Detailed event tracking for analytics         | `user_id`, `action`, `metadata`, `created_at`     |
+| `daily_usage_summary` | Efficient daily tracking with atomic counters | `user_id`, `action`, `usage_date`, `count`        |
+| `user_subscriptions`  | User subscription + Stripe sync               | `user_id`, `plan`, `limits` (from DB), `stripe_*` |
 
 **Key Indexes**:
+
 - `plugin_tokens(user_id)` - Token lookup by user
 - `plugin_tokens(token)` - Token validation
 - `plugin_usage(user_id, created_at)` - Usage queries
@@ -2286,6 +2279,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 - `user_subscriptions(user_id, stripe_customer_id)` - Subscription lookup
 
 **PostgreSQL Function**:
+
 - `increment_daily_usage(p_user_id, p_action, p_date)` - Atomic increment for daily counters
 
 ---
@@ -2293,6 +2287,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ## Security Considerations
 
 ### Authentication & Token Management
+
 - ✅ Use HTTPS everywhere (enforced by Vercel + Figma)
 - ✅ Validate JWT signature with secret key on every request
 - ✅ Check token expiration on every request (7-day window)
@@ -2301,6 +2296,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 - ✅ Implement token revocation on logout (set `revoked = true` in database)
 
 ### CORS & Network Security
+
 - ✅ Only allow `https://www.figma.com` origin for plugin API endpoints (`/api/plugin/*`)
 - ✅ Handle preflight OPTIONS requests for browser CORS validation
 - ✅ Set `Access-Control-Allow-Origin: https://www.figma.com` header on all responses
@@ -2308,6 +2304,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 - ✅ Reject requests without proper origin/headers with 401/403 status
 
 ### Data Protection & Input Validation
+
 - ✅ Never expose secrets or tokens in client-side code or logs
 - ✅ Validate all inputs on backend (token, action, metadata)
 - ✅ Use parameterized queries to prevent SQL injection
@@ -2315,6 +2312,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 - ✅ Clear tokens from storage on logout via `figma.clientStorage.deleteAsync()`
 
 ### Rate Limiting & Quota Enforcement
+
 - ✅ Existing rate limiter in `/src/lib/rate-limiting.js` applies to all API endpoints
 - ✅ Daily limits enforced per user based on subscription tier (checked before action)
 - ✅ Return 429 (Too Many Requests) when limit exceeded
@@ -2322,6 +2320,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 - ✅ Unlimited tiers (-1 limit) supported for enterprise plans
 
 ### Logging & Audit Trail
+
 - ✅ All token generation logged to `plugin_tokens` table (user_id, creation time, expiry)
 - ✅ All actions tracked in `plugin_usage` table (user_id, action, subscription tier, timestamp)
 - ✅ Token validation attempts logged via `last_used_at` timestamp update
@@ -2337,6 +2336,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 **Symptoms**: User logs in, then after 7 days cannot use plugin
 
 **Solution**:
+
 1. Implement token refresh on auth check failure
 2. Or prompt user to sign in again
 3. Consider longer expiry (30 days) for better UX
@@ -2346,6 +2346,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 **Symptoms**: "Access to fetch at 'https://...' has been blocked by CORS policy"
 
 **Solution**:
+
 1. Verify API route has OPTIONS handler
 2. Verify `Access-Control-Allow-Origin` header set
 3. Check request includes `Authorization` header
@@ -2356,6 +2357,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 **Symptoms**: Auth window closes but plugin doesn't get token
 
 **Solution**:
+
 1. Verify auth-success page calls `window.opener.postMessage()`
 2. Verify target origin is correct: `'https://www.figma.com'`
 3. Add console.logs to debug message flow
@@ -2366,6 +2368,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 **Symptoms**: User exceeds daily limit but can still resize
 
 **Solution**:
+
 1. Verify `checkDailyLimit` query filters by current day
 2. Verify `current_period_end` is set correctly in subscription
 3. Check timezone handling (UTC vs local)
@@ -2376,6 +2379,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 **Symptoms**: Plugin loads but UI doesn't appear
 
 **Solution**:
+
 1. Check browser console for errors
 2. Verify manifest.json syntax is valid
 3. Run `npm run build` in plugin directory
@@ -2387,6 +2391,7 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 ## Implementation Checklist
 
 ### Pre-Implementation
+
 - [ ] Review plan with team
 - [ ] Allocate 2-3 weeks of development time
 - [ ] Set up separate branch: `feature/plugin-auth`
@@ -2394,9 +2399,11 @@ SELECT * FROM plugin_tokens WHERE revoked = true;
 - [ ] Obtain `STRIPE_WEBHOOK_SECRET` from Stripe Dashboard
 
 ### Phase 1: Backend Database & API
+
 See detailed database schema in [Phase 1: Backend Infrastructure](#phase-1-backend-infrastructure) section.
 
 **Database**:
+
 - [ ] Create tables: `subscription_plans`, `plugin_tokens`, `plugin_usage`, `daily_usage_summary`
 - [ ] Create PostgreSQL function: `increment_daily_usage()`
 - [ ] Add `limits` JSONB column to `user_subscriptions`
@@ -2405,6 +2412,7 @@ See detailed database schema in [Phase 1: Backend Infrastructure](#phase-1-backe
 - [ ] Test schema locally and verify queries
 
 **Backend Library** (`/src/lib/plugin-auth.js`):
+
 - [ ] `generatePluginToken()` - Generate 7-day JWT
 - [ ] `validatePluginToken()` - Verify JWT + database record
 - [ ] `revokePluginToken()` - Logout functionality
@@ -2413,6 +2421,7 @@ See detailed database schema in [Phase 1: Backend Infrastructure](#phase-1-backe
 - [ ] `trackPluginUsage()` - Record actions with subscription info
 
 **API Routes**:
+
 - [ ] `GET /api/plugin/auth` - Generate plugin token for authenticated user
 - [ ] `GET /api/plugin/user-info` - Return user + subscription with DB-fetched limits
 - [ ] `POST /api/plugin/track-usage` - Track actions, enforce daily limits (429 on exceed)
@@ -2420,14 +2429,17 @@ See detailed database schema in [Phase 1: Backend Infrastructure](#phase-1-backe
 - [ ] Create `/src/app/plugin/auth-success/page.tsx` for auth completion
 
 **Environment Setup**:
+
 - [ ] Add `PLUGIN_JWT_SECRET` to `.env.local` and `.env.production.local`
 - [ ] Add `STRIPE_WEBHOOK_SECRET` to `.env.local` and `.env.production.local`
 - [ ] Add GitHub Actions secrets: `PROD_PLUGIN_JWT_SECRET`, `PROD_STRIPE_WEBHOOK_SECRET`
 
 ### Phase 1B: Stripe Webhook Integration
+
 See detailed webhook implementation in [Phase 1B: Stripe Webhook Integration](#phase-1b-stripe-webhook-integration) section.
 
 **Webhook Handler** (`/src/app/api/stripe/webhook/route.ts`):
+
 - [ ] Create webhook endpoint with signature verification
 - [ ] Implement 5 event handlers:
   - `customer.subscription.created` → Create `user_subscriptions` record
@@ -2438,21 +2450,25 @@ See detailed webhook implementation in [Phase 1B: Stripe Webhook Integration](#p
 - [ ] Add error handling and logging
 
 **Stripe Configuration**:
+
 - [ ] Add `plan_slug` metadata to all 4 Stripe products (Free, Basic, Pro, Enterprise)
 - [ ] Create webhook endpoint in Stripe Dashboard pointing to `/api/stripe/webhook`
 - [ ] Select the 5 events listed above
 - [ ] Copy webhook signing secret to environment variables
 
 **Testing & Backfill**:
+
 - [ ] Test webhook locally: `stripe listen --forward-to localhost:3000/api/stripe/webhook`
 - [ ] Trigger test events: `stripe trigger customer.subscription.created`
 - [ ] Create `/scripts/backfill-subscriptions.js` to sync existing subscriptions
 - [ ] Run backfill script in production
 
 ### Phase 2: Plugin Frontend
+
 See detailed implementation in [Phase 2: Plugin Frontend](#phase-2-plugin-frontend) section.
 
 **Plugin Auth Module** (`/plugins/image-resizer/src/lib/auth.ts`):
+
 - [ ] `checkAuthentication()` - Validate stored token via API
 - [ ] `startAuthentication()` - Open auth window with `window.open()`
 - [ ] `completeAuthentication()` - Listen for `postMessage` from auth window
@@ -2461,10 +2477,12 @@ See detailed implementation in [Phase 2: Plugin Frontend](#phase-2-plugin-fronte
 - [ ] `getCachedUser()` - Fetch cached user data for offline access
 
 **Plugin API Module** (`/plugins/image-resizer/src/lib/api.ts`):
+
 - [ ] `apiRequest()` - Authenticated fetch wrapper with Bearer token
 - [ ] `trackUsage()` - POST to `/api/plugin/track-usage`
 
 **Plugin UI** (`/plugins/image-resizer/src/ui.tsx`):
+
 - [ ] Add "Sign in with Google" button when unauthenticated
 - [ ] Display user info (name, avatar, plan tier) when authenticated
 - [ ] Show daily usage limits and remaining count
@@ -2473,6 +2491,7 @@ See detailed implementation in [Phase 2: Plugin Frontend](#phase-2-plugin-fronte
 - [ ] Add error handling for network failures
 
 **Testing**:
+
 - [ ] Test token storage in `figma.clientStorage`
 - [ ] Test `window.open()` flow and `postMessage` communication
 - [ ] Test OAuth redirect and callback
@@ -2480,9 +2499,11 @@ See detailed implementation in [Phase 2: Plugin Frontend](#phase-2-plugin-fronte
 - [ ] Test offline access with cached data
 
 ### Phase 3: Testing & Deployment
+
 See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deployment) section.
 
 **Local Testing**:
+
 - [ ] Backend API tests (401 on unauthenticated, 200 on valid token, 429 on limit exceeded)
 - [ ] Plugin authentication flow (window.open → OAuth → postMessage → storage)
 - [ ] User info display (name, email, avatar, subscription tier)
@@ -2491,6 +2512,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - [ ] CORS & security (Figma origin allowed, other origins blocked)
 
 **Deployment**:
+
 - [ ] Run `npm run build` and `npm run lint` (must pass)
 - [ ] Deploy to staging environment
 - [ ] Test complete flow in Figma staging environment
@@ -2500,6 +2522,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - [ ] Update plugin in Figma Community
 
 **Post-Deployment**:
+
 - [ ] Document API endpoints for developers
 - [ ] Create user guide (how to sign in, manage subscription)
 - [ ] Set up monitoring alerts for webhook failures
@@ -2512,32 +2535,32 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 
 ### Summary Table
 
-| File | Type | Phase | Purpose |
-|------|------|-------|---------|
-| `/setup-database.js` | Modify | 1 | Add 5 tables + 1 function + seed data |
-| `/setup-production-db.js` | Modify | 1 | Same schema as development |
-| `/src/lib/plugin-auth.js` | Create | 1 | 6 core auth functions (280 lines) |
-| `/src/app/api/plugin/auth/route.js` | Create | 1 | Token generation endpoint (60 lines) |
-| `/src/app/api/plugin/user-info/route.js` | Create | 1 | User + subscription endpoint (70 lines) |
-| `/src/app/api/plugin/track-usage/route.js` | Create | 1 | Usage tracking + limit enforcement (80 lines) |
-| `/src/app/api/stripe/webhook/route.ts` | Create | 1B | Stripe event handler (250 lines) |
-| `/src/app/plugin/auth-success/page.tsx` | Create | 1 | Auth window completion page (70 lines) |
-| `/src/middleware.ts` | Create/Modify | 1 | CORS middleware for `/api/plugin/*` (50 lines) |
-| `/scripts/backfill-subscriptions.js` | Create | 1B | One-time migration script (100 lines) |
-| `/plugins/image-resizer/src/lib/auth.ts` | Create | 2 | Plugin auth library (190 lines) |
-| `/plugins/image-resizer/src/lib/api.ts` | Create | 2 | Plugin API client (60 lines) |
-| `/plugins/image-resizer/src/ui.tsx` | Modify | 2 | Add auth UI components |
-| `/.env.local` | Modify | 1 | Add `PLUGIN_JWT_SECRET` + `STRIPE_WEBHOOK_SECRET` |
-| `/.env.production.local` | Modify | 1 | Same env vars as `.env.local` |
-| `/plugins/image-resizer/manifest.json` | Review | 2 | Verify/update `networkAccess.allowedDomains` |
+| File                                       | Type          | Phase | Purpose                                           |
+| ------------------------------------------ | ------------- | ----- | ------------------------------------------------- |
+| `/setup-database.js`                       | Modify        | 1     | Add 5 tables + 1 function + seed data             |
+| `/setup-production-db.js`                  | Modify        | 1     | Same schema as development                        |
+| `/src/lib/plugin-auth.js`                  | Create        | 1     | 6 core auth functions (280 lines)                 |
+| `/src/app/api/plugin/auth/route.js`        | Create        | 1     | Token generation endpoint (60 lines)              |
+| `/src/app/api/plugin/user-info/route.js`   | Create        | 1     | User + subscription endpoint (70 lines)           |
+| `/src/app/api/plugin/track-usage/route.js` | Create        | 1     | Usage tracking + limit enforcement (80 lines)     |
+| `/src/app/api/stripe/webhook/route.ts`     | Create        | 1B    | Stripe event handler (250 lines)                  |
+| `/src/app/plugin/auth-success/page.tsx`    | Create        | 1     | Auth window completion page (70 lines)            |
+| `/src/middleware.ts`                       | Create/Modify | 1     | CORS middleware for `/api/plugin/*` (50 lines)    |
+| `/scripts/backfill-subscriptions.js`       | Create        | 1B    | One-time migration script (100 lines)             |
+| `/plugins/image-resizer/src/lib/auth.ts`   | Create        | 2     | Plugin auth library (190 lines)                   |
+| `/plugins/image-resizer/src/lib/api.ts`    | Create        | 2     | Plugin API client (60 lines)                      |
+| `/plugins/image-resizer/src/ui.tsx`        | Modify        | 2     | Add auth UI components                            |
+| `/.env.local`                              | Modify        | 1     | Add `PLUGIN_JWT_SECRET` + `STRIPE_WEBHOOK_SECRET` |
+| `/.env.production.local`                   | Modify        | 1     | Same env vars as `.env.local`                     |
+| `/plugins/image-resizer/manifest.json`     | Review        | 2     | Verify/update `networkAccess.allowedDomains`      |
 
 ### Files to Review (No Changes Needed)
 
-| File | Reason |
-|------|--------|
-| `/src/lib/rate-limiting.js` | Already applies to all API endpoints |
-| `/src/lib/auth.js` | NextAuth config unaffected |
-| `/src/contexts/auth-context.tsx` | App-level auth unaffected |
+| File                             | Reason                               |
+| -------------------------------- | ------------------------------------ |
+| `/src/lib/rate-limiting.js`      | Already applies to all API endpoints |
+| `/src/lib/auth.js`               | NextAuth config unaffected           |
+| `/src/contexts/auth-context.tsx` | App-level auth unaffected            |
 
 ---
 
@@ -2545,50 +2568,51 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 
 ### Week 1: Backend Database Schema & Stripe Webhook
 
-| Day | Task | Owner | Hours |
-|-----|------|-------|-------|
-| 1 | Database schema design & SQL | Backend | 4 |
-| 1 | Create subscription_plans, plugin_tokens, plugin_usage tables | Backend | 3 |
-| 2 | Create daily_usage_summary + increment_daily_usage() function | Backend | 3 |
-| 2 | Add limits JSONB column + indexes | Backend | 2 |
-| 3 | Create plugin-auth.js module (updated with dynamic limits) | Backend | 6 |
-| 3 | Create /api/plugin routes (auth, user-info, track-usage) | Backend | 6 |
-| 4 | Create Stripe webhook handler (/api/stripe/webhook/route.ts) | Backend | 8 |
-| 4 | Add Stripe product metadata + configure webhook | Backend | 3 |
-| **Week 1 Total** | | | **35 hours** |
+| Day              | Task                                                          | Owner   | Hours        |
+| ---------------- | ------------------------------------------------------------- | ------- | ------------ |
+| 1                | Database schema design & SQL                                  | Backend | 4            |
+| 1                | Create subscription_plans, plugin_tokens, plugin_usage tables | Backend | 3            |
+| 2                | Create daily_usage_summary + increment_daily_usage() function | Backend | 3            |
+| 2                | Add limits JSONB column + indexes                             | Backend | 2            |
+| 3                | Create plugin-auth.js module (updated with dynamic limits)    | Backend | 6            |
+| 3                | Create /api/plugin routes (auth, user-info, track-usage)      | Backend | 6            |
+| 4                | Create Stripe webhook handler (/api/stripe/webhook/route.ts)  | Backend | 8            |
+| 4                | Add Stripe product metadata + configure webhook               | Backend | 3            |
+| **Week 1 Total** |                                                               |         | **35 hours** |
 
 ### Week 2: Plugin Frontend & Testing
 
-| Day | Task | Owner | Hours |
-|-----|------|-------|-------|
-| 5 | Create auth.ts + api.ts modules (with caching) | Frontend | 6 |
-| 5 | Add CORS middleware + auth success page | Backend | 4 |
-| 6 | Update plugin UI component with auth UI | Frontend | 8 |
-| 6 | Test webhook locally with Stripe CLI | Backend | 4 |
-| 7 | postMessage flow + token storage testing | Frontend | 4 |
-| 7 | Create backfill script for existing subscriptions | Backend | 3 |
-| 8 | Local end-to-end testing (auth → limits → usage) | Both | 6 |
-| 8 | Error handling & edge cases | Frontend | 3 |
-| **Week 2 Total** | | | **38 hours** |
+| Day              | Task                                              | Owner    | Hours        |
+| ---------------- | ------------------------------------------------- | -------- | ------------ |
+| 5                | Create auth.ts + api.ts modules (with caching)    | Frontend | 6            |
+| 5                | Add CORS middleware + auth success page           | Backend  | 4            |
+| 6                | Update plugin UI component with auth UI           | Frontend | 8            |
+| 6                | Test webhook locally with Stripe CLI              | Backend  | 4            |
+| 7                | postMessage flow + token storage testing          | Frontend | 4            |
+| 7                | Create backfill script for existing subscriptions | Backend  | 3            |
+| 8                | Local end-to-end testing (auth → limits → usage)  | Both     | 6            |
+| 8                | Error handling & edge cases                       | Frontend | 3            |
+| **Week 2 Total** |                                                   |          | **38 hours** |
 
 ### Week 3: Deployment & Monitoring
 
-| Day | Task | Owner | Hours |
-|-----|------|-------|-------|
-| 9 | Staging deployment + environment setup | DevOps | 4 |
-| 9 | Run backfill script on staging | Backend | 2 |
-| 9 | End-to-end testing on staging | QA | 6 |
-| 10 | Test complete subscription lifecycle | QA | 4 |
-| 10 | Webhook testing with real Stripe events | Backend | 3 |
-| 11 | Production deployment + secrets setup | DevOps | 4 |
-| 11 | Run backfill script on production | Backend | 2 |
-| 12 | Monitor webhook logs + limit enforcement | DevOps | 3 |
-| 12 | Documentation + runbook creation | All | 3 |
-| **Week 3 Total** | | | **31 hours** |
+| Day              | Task                                     | Owner   | Hours        |
+| ---------------- | ---------------------------------------- | ------- | ------------ |
+| 9                | Staging deployment + environment setup   | DevOps  | 4            |
+| 9                | Run backfill script on staging           | Backend | 2            |
+| 9                | End-to-end testing on staging            | QA      | 6            |
+| 10               | Test complete subscription lifecycle     | QA      | 4            |
+| 10               | Webhook testing with real Stripe events  | Backend | 3            |
+| 11               | Production deployment + secrets setup    | DevOps  | 4            |
+| 11               | Run backfill script on production        | Backend | 2            |
+| 12               | Monitor webhook logs + limit enforcement | DevOps  | 3            |
+| 12               | Documentation + runbook creation         | All     | 3            |
+| **Week 3 Total** |                                          |         | **31 hours** |
 
 ### **Total Estimate: 104 hours (~3-4 weeks FTE with dynamic subscription sync)**
 
 **Note**: Includes Stripe webhook integration (Phase 1B) which replaces hardcoded limits with database-driven configuration. Additional time vs. original plan accounts for:
+
 - Database schema design and PostgreSQL functions
 - Stripe webhook handler and event processing
 - Backfill script for migration
@@ -2600,6 +2624,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 ## Success Criteria
 
 ### Authentication & Authorization
+
 - ✅ Plugin users can sign in with Google OAuth
 - ✅ Authentication persists across plugin sessions via JWT tokens
 - ✅ Tokens stored securely in figma.clientStorage
@@ -2607,6 +2632,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - ✅ Logout clears tokens and user data
 
 ### Dynamic Subscription Management
+
 - ✅ Subscription limits fetched from database (NOT hardcoded)
 - ✅ Stripe webhook syncs subscription changes to Supabase in real-time
 - ✅ Plan upgrades/downgrades reflected immediately in plugin
@@ -2615,6 +2641,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - ✅ Can change pricing without code deployment
 
 ### Usage Tracking & Limits
+
 - ✅ Daily usage tracked in daily_usage_summary table
 - ✅ Atomic increment function prevents race conditions
 - ✅ Daily limits enforced correctly based on subscription tier
@@ -2623,6 +2650,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - ✅ Plugin displays "X of Y resizes remaining today"
 
 ### Stripe Integration
+
 - ✅ Webhook handler correctly processes subscription events
 - ✅ Webhook signature verification prevents spoofing
 - ✅ Subscription created → user_subscriptions record created
@@ -2632,6 +2660,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - ✅ Payment succeeded → status returned to active
 
 ### UI & User Experience
+
 - ✅ Plugin displays user info (name, email, avatar)
 - ✅ Plugin shows current plan tier
 - ✅ Plugin shows daily usage stats dynamically
@@ -2640,6 +2669,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - ✅ Auth window opens and closes properly
 
 ### Code Quality & Testing
+
 - ✅ All API routes tested with curl/Stripe CLI
 - ✅ Database schema tested locally
 - ✅ Webhook tested with Stripe CLI
@@ -2648,6 +2678,7 @@ See detailed testing in [Phase 3: Testing & Deployment](#phase-3-testing--deploy
 - ✅ Documentation complete and accurate
 
 ### Deployment & Reliability
+
 - ✅ Backward compatible (existing free users unaffected)
 - ✅ Zero downtime deployment
 - ✅ Backfill script successfully migrates existing subscriptions
@@ -2703,21 +2734,23 @@ npx @create-figma-plugin/build --help
 
 ## Change Log
 
-| Date | Version | Changes |
-|------|---------|---------|
-| November 13, 2024 | 2.0 | Consolidated multi-agent implementation plan with full technical specifications and all phases |
-| 2024 | 1.0 | Initial plan document |
+| Date              | Version | Changes                                                                                        |
+| ----------------- | ------- | ---------------------------------------------------------------------------------------------- |
+| November 13, 2024 | 2.0     | Consolidated multi-agent implementation plan with full technical specifications and all phases |
+| 2024              | 1.0     | Initial plan document                                                                          |
 
 ---
 
 ## Appendix: Quick Reference
 
 ### Single Command to Start
+
 ```bash
 /implement-figma-plugin-auth --execute-all
 ```
 
 ### Phase-by-Phase Commands
+
 ```bash
 /implement-figma-plugin-auth --phase=database-foundation
 /implement-figma-plugin-auth --phase=backend-api
@@ -2727,6 +2760,7 @@ npx @create-figma-plugin/build --help
 ```
 
 ### Individual Agent Commands
+
 ```bash
 Task(backend-database-engineer)
 Task(backend-api-developer)
@@ -2736,6 +2770,7 @@ Task(qa-integration-tester)
 ```
 
 ### 30-Second Setup
+
 ```bash
 # 1. Generate JWT secret
 openssl rand -base64 32
@@ -2749,22 +2784,25 @@ STRIPE_WEBHOOK_SECRET=<from-stripe>
 ```
 
 ### Agent Timeline
-| Phase | Agent | Days | Depends On |
-|-------|-------|------|------------|
-| 1 | Database Engineer | 2 | None |
-| 2A | API Developer | 5 | Phase 1 |
-| 2B | Stripe Specialist | 4 | Phase 1 (parallel) |
-| 3 | Frontend Developer | 5 | Phase 2A + 2B |
-| 4 | QA Tester | 2 | All phases |
-| **Total** | **5 Agents** | **~14 days** | **Parallelized** |
+
+| Phase     | Agent              | Days         | Depends On         |
+| --------- | ------------------ | ------------ | ------------------ |
+| 1         | Database Engineer  | 2            | None               |
+| 2A        | API Developer      | 5            | Phase 1            |
+| 2B        | Stripe Specialist  | 4            | Phase 1 (parallel) |
+| 3         | Frontend Developer | 5            | Phase 2A + 2B      |
+| 4         | QA Tester          | 2            | All phases         |
+| **Total** | **5 Agents**       | **~14 days** | **Parallelized**   |
 
 ### Key Files Created by Each Agent
 
 **Phase 1: Database**
+
 - `setup-database.js` (updated)
 - `setup-production-db.js` (updated)
 
 **Phase 2A: Backend APIs**
+
 - `/src/lib/plugin-auth.js`
 - `/src/app/api/plugin/auth/route.js`
 - `/src/app/api/plugin/user-info/route.js`
@@ -2773,19 +2811,24 @@ STRIPE_WEBHOOK_SECRET=<from-stripe>
 - `/src/middleware.ts` (updated)
 
 **Phase 2B: Stripe**
+
 - `/src/app/api/stripe/webhook/route.ts`
 - `/scripts/backfill-subscriptions.js`
 
 **Phase 3: Plugin**
+
 - `/plugins/image-resizer/src/lib/auth.ts`
 - `/plugins/image-resizer/src/lib/api.ts`
 - `/plugins/image-resizer/src/ui.tsx` (updated)
 
 **Phase 4: Testing**
+
 - Test report: `/docs/test-reports/plugin-auth-test-report-*.md`
 
 ### Agent Specifications
+
 For detailed implementation specs, see:
+
 - `/.claude/agents/backend-database-engineer.md`
 - `/.claude/agents/backend-api-developer.md`
 - `/.claude/agents/stripe-integration-specialist.md`

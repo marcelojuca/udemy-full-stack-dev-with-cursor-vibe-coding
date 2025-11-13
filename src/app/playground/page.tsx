@@ -20,7 +20,7 @@ export default function Playground() {
   const { sidebarVisible, toggleSidebar } = useSidebar();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
     setError(null);
     setResponseData(null);
@@ -73,12 +73,12 @@ export default function Playground() {
     <div className="min-h-screen bg-background flex">
       {/* Mobile Backdrop */}
       {sidebarVisible && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => toggleSidebar()}
         />
       )}
-      
+
       {/* Sidebar */}
       {sidebarVisible && (
         <div className="fixed md:relative z-50 md:z-auto">
@@ -96,11 +96,23 @@ export default function Playground() {
             <div className="bg-card rounded-xl shadow-sm border border-border p-8">
               <div className="text-center mb-8">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  <svg
+                    className="w-8 h-8 text-primary"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                    />
                   </svg>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-2">Analyze a GitHub Repository</h2>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  Analyze a GitHub Repository
+                </h2>
                 <p className="text-muted-foreground">
                   Enter a GitHub repository URL and your API key to get a JSON summary.
                 </p>
@@ -108,7 +120,10 @@ export default function Playground() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="githubUrl" className="block text-sm font-medium text-foreground mb-2">
+                  <label
+                    htmlFor="githubUrl"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
                     GitHub Repository URL
                   </label>
                   <input
@@ -123,7 +138,10 @@ export default function Playground() {
                 </div>
 
                 <div>
-                  <label htmlFor="apiKey" className="block text-sm font-medium text-foreground mb-2">
+                  <label
+                    htmlFor="apiKey"
+                    className="block text-sm font-medium text-foreground mb-2"
+                  >
                     API Key
                   </label>
                   <input
@@ -149,8 +167,18 @@ export default function Playground() {
                     </>
                   ) : (
                     <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      <svg
+                        className="w-5 h-5"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
                       </svg>
                       <span>Summarize Repository</span>
                     </>
@@ -161,13 +189,24 @@ export default function Playground() {
               <div className="mt-8 pt-6 border-t border-border">
                 <div className="bg-primary/10 rounded-lg p-4">
                   <div className="flex items-start space-x-3">
-                    <svg className="w-5 h-5 text-primary mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-5 h-5 text-primary mt-0.5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
                     <div>
                       <h3 className="text-sm font-medium text-foreground mb-1">How it works</h3>
                       <p className="text-sm text-foreground/80">
-                        Provide a GitHub URL like <code>https://github.com/owner/repo</code> and your API key. We&apos;ll fetch the README and return a JSON analysis.
+                        Provide a GitHub URL like <code>https://github.com/owner/repo</code> and
+                        your API key. We&apos;ll fetch the README and return a JSON analysis.
                       </p>
                     </div>
                   </div>
@@ -183,7 +222,7 @@ export default function Playground() {
                   <div className="mt-6">
                     <h4 className="text-sm font-semibold text-foreground mb-2">Response</h4>
                     <pre className="w-full text-left text-xs md:text-sm bg-muted text-foreground p-4 rounded-lg overflow-auto">
-{JSON.stringify(responseData, null, 2)}
+                      {JSON.stringify(responseData, null, 2)}
                     </pre>
                   </div>
                 )}

@@ -1,42 +1,39 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
-import { Providers } from "./providers";
-import { Analytics } from "@vercel/analytics/next";
+import type React from 'react';
+import type { Metadata } from 'next';
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import { Providers } from './providers';
+import { Analytics } from '@vercel/analytics/next';
 
 const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
 });
 
 const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
 });
 
 export const metadata: Metadata = {
-  title: "Xpto GitHub Analyzer - Unlock Insights from Your GitHub Repositories",
-  description: "Get comprehensive insights, summaries, stars tracking, cool facts, and latest pull requests from any GitHub repository with Xpto GitHub Analyzer.",
-  generator: "v0.app",
+  title: 'Xpto GitHub Analyzer - Unlock Insights from Your GitHub Repositories',
+  description:
+    'Get comprehensive insights, summaries, stars tracking, cool facts, and latest pull requests from any GitHub repository with Xpto GitHub Analyzer.',
+  generator: 'v0.app',
 };
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
     <html lang="en">
       <head>
         <script async src="https://js.stripe.com/v3/pricing-table.js"></script>
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>
-          {children}
-        </Providers>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers>{children}</Providers>
         <Analytics />
       </body>
     </html>

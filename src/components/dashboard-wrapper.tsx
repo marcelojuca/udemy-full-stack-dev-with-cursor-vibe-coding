@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Link from 'next/link';
 import Sidebar from './sidebar';
@@ -11,7 +11,6 @@ import ContactSection from './contact-section';
 import Footer from './footer';
 import LoadingSpinner from './loading-spinner';
 import GoogleLoginButton from './google-login-button';
-import UserProfile from './user-profile';
 import { useApiKeys } from '../hooks/use-api-keys';
 import { useFormData } from '../hooks/use-form-data';
 import { useModalState } from '../hooks/use-modal-state';
@@ -20,30 +19,31 @@ import { useAuth } from '../contexts/auth-context';
 import { validateApiKeyForm } from '../utils/validation';
 
 export default function DashboardWrapper() {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const { apiKeys, loading, createApiKey, updateApiKey, deleteApiKey } = useApiKeys();
-  const { formData, updateFormData, resetFormData, populateFormData, togglePermission } = useFormData();
-  const { 
-    showCreateForm, 
-    editingKey, 
-    viewingKey, 
-    isModalOpen, 
-    openCreateModal, 
-    openEditModal, 
-    openViewModal, 
-    closeAllModals 
+  const { formData, updateFormData, resetFormData, populateFormData, togglePermission } =
+    useFormData();
+  const {
+    showCreateForm,
+    editingKey,
+    viewingKey,
+    isModalOpen,
+    openCreateModal,
+    openEditModal,
+    openViewModal,
+    closeAllModals,
   } = useModalState();
   const { sidebarVisible, toggleSidebar } = useSidebar();
 
-  const handleCreate = async (e) => {
+  const handleCreate = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    
+
     const validationErrors = validateApiKeyForm(formData);
     if (validationErrors.length > 0) {
       window.showToastNotification(validationErrors.join(', '), 'error');
       return;
     }
-    
+
     const result = await createApiKey(formData);
     if (result.success) {
       closeAllModals();
@@ -54,15 +54,20 @@ export default function DashboardWrapper() {
     }
   };
 
-  const handleUpdate = async (e) => {
+  const handleUpdate = async (e: React.FormEvent): Promise<void> => {
     e.preventDefault();
-    
+
     const validationErrors = validateApiKeyForm(formData);
     if (validationErrors.length > 0) {
       window.showToastNotification(validationErrors.join(', '), 'error');
       return;
     }
-    
+
+    if (!editingKey?.id) {
+      window.showToastNotification('Error: No key selected', 'error');
+      return;
+    }
+
     const result = await updateApiKey(editingKey.id, formData);
     if (result.success) {
       closeAllModals();
@@ -73,23 +78,23 @@ export default function DashboardWrapper() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string): Promise<void> => {
     if (confirm('Are you sure you want to delete this API key?')) {
       const result = await deleteApiKey(id);
       if (result.success) {
         window.showToastNotification('API key deleted successfully!', 'success');
       } else {
-        window.showToastNotification(result.error, 'error');
+        window.showToastNotification(result.error || 'Failed to delete API key', 'error');
       }
     }
   };
 
-  const handleEdit = (key) => {
+  const handleEdit = (key: any): void => {
     populateFormData(key);
     openEditModal(key);
   };
 
-  const handleView = (key) => {
+  const handleView = (key: any): void => {
     populateFormData(key);
     openViewModal(key);
   };
@@ -116,10 +121,10 @@ export default function DashboardWrapper() {
               Sign in with your Google account to access the dashboard
             </p>
           </div>
-          
+
           <div className="mt-8 space-y-6">
             <GoogleLoginButton className="w-full" />
-            
+
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 By signing in, you agree to our terms of service and privacy policy.
@@ -135,12 +140,12 @@ export default function DashboardWrapper() {
     <div className="min-h-screen bg-background flex">
       {/* Mobile Backdrop */}
       {sidebarVisible && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => toggleSidebar()}
         />
       )}
-      
+
       {/* Sidebar */}
       {sidebarVisible && (
         <div className="fixed lg:relative z-50 lg:z-auto w-64">
@@ -169,11 +174,15 @@ export default function DashboardWrapper() {
                 </button>
               </div>
               <p className="text-muted-foreground mt-2">
-                The key is used to authenticate your requests to the Research API. To learn more, see the{' '}
-                <Link href="/docs" className="text-primary hover:underline">documentation page</Link>.
+                The key is used to authenticate your requests to the Research API. To learn more,
+                see the{' '}
+                <Link href="/docs" className="text-primary hover:underline">
+                  documentation page
+                </Link>
+                .
               </p>
             </div>
-            <APIKeyTable 
+            <APIKeyTable
               apiKeys={apiKeys}
               onView={handleView}
               onEdit={handleEdit}
@@ -189,7 +198,7 @@ export default function DashboardWrapper() {
 
       {/* Create/Edit/View Modal */}
       <APIKeyModal
-        isOpen={isModalOpen}
+        isOpen={!!isModalOpen}
         showCreateForm={showCreateForm}
         editingKey={editingKey}
         viewingKey={viewingKey}

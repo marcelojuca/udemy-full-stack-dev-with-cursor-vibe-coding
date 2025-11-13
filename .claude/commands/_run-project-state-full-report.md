@@ -3,6 +3,7 @@ allowed-tools: Task, Read, Write, TodoWrite
 description: Run a full report of the project state including dependencies, architecture, components and etc.
 required-agents: orchestrator, dependency-auditor, architectural-analyzer, component-deep-analyzer
 ---
+
 # Project State Full Report
 
 ## Description
@@ -11,7 +12,7 @@ Produce a complete and auditable snapshot of the project by coordinating special
 
 1. A README file named README-YYYY-MM-DD-HH:MM:SS.md with the CURRENT timestamp placed inside the orchestrator agent directory that contains a short project description and an index linking to every report produced by the agents
 
-When creating the README index, list only the title for each report and link directly to the file using an absolute path that begins at the repository root with a single leading slash. Example link format: 
+When creating the README index, list only the title for each report and link directly to the file using an absolute path that begins at the repository root with a single leading slash. Example link format:
 
 ```
 [Project Architecture](/<link-to-the-report>)
@@ -55,10 +56,10 @@ Generated on: YYYY-MM-DD HH:MM:SS
 
 ### MANDATORY AGENT SEPARATION
 
-* Each agent MUST be invoked with a separate Task tool call
-* The orchestrator MUST NOT be asked to spawn sub-agents itself
-* YOU (Claude Code) are the coordinator, NOT the orchestrator agent
-* All communication flows through YOU as the coordinator. YOU decide which new agents to start. After any agent finishes, YOU MUST trigger the orchestrator to update MANIFEST.md. In practice, this means calling Task(orchestrator) once per completed agent task so it can append the entry (title, absolute path rooted at /, agent, timestamp). Example: when Task(architectural-analyzer) completes, immediately invoke Task(orchestrator) to record the Architecture Report in MANIFEST.md.
+- Each agent MUST be invoked with a separate Task tool call
+- The orchestrator MUST NOT be asked to spawn sub-agents itself
+- YOU (Claude Code) are the coordinator, NOT the orchestrator agent
+- All communication flows through YOU as the coordinator. YOU decide which new agents to start. After any agent finishes, YOU MUST trigger the orchestrator to update MANIFEST.md. In practice, this means calling Task(orchestrator) once per completed agent task so it can append the entry (title, absolute path rooted at /, agent, timestamp). Example: when Task(architectural-analyzer) completes, immediately invoke Task(orchestrator) to record the Architecture Report in MANIFEST.md.
 
 ## Execution Workflow
 
@@ -86,7 +87,7 @@ Generated on: YYYY-MM-DD HH:MM:SS
 
 4. Coverage requirement and example: if the **Architecture Report** lists 10 components, YOU MUST launch 10 parallel Task(component-deep-analyzer) executions and produce 10 corresponding component reports. No component may be skipped. 
 
-5. After all Task(component-deep-analyzer) executions complete, YOU MUST verify that every component has a corresponding report. Reopen the **Architecture Report** and review its component sections line by line. If any component lacks a report, launch additional Task(component-deep-analyzer) executions for the missing components until coverage is 100%. 
+5. After all Task(component-deep-analyzer) executions complete, YOU MUST verify that every component has a corresponding report. Reopen the **Architecture Report** and review its component sections line by line. If any component lacks a report, launch additional Task(component-deep-analyzer) executions for the missing components until coverage is 100%.
 
 IMPORTANT: Make sure to DO NOT duplicate any report, so, **ultrathink** if the report already exists before create a new one with a different or similar name, timestamp, etc. YOU MUST BE extremely precise with this verification.
 
@@ -103,9 +104,9 @@ IMPORTANT: Make sure to DO NOT duplicate any report, so, **ultrathink** if the r
 
 **REMEMBER:** The orchestrator agent is just another specialist that:
 
-* Sets up project structure (Phase 1)
-* Synthesizes outputs (Phase 4)
-* It DOES NOT coordinate other agents - that's YOUR job (YOU, Claude Code)
+- Sets up project structure (Phase 1)
+- Synthesizes outputs (Phase 4)
+- It DOES NOT coordinate other agents - that's YOUR job (YOU, Claude Code)
 
 ## Usage Examples
 
@@ -134,37 +135,37 @@ FOLLOW EXACTLY the output pattern defined below.
 ## Negative Instructions
 
 1. NEVER modify or suggest edits to the codebase.
-   * Examples: DO NOT open pull requests, rename files, refactor functions, change configuration defaults, or alter build scripts.
-   * Allowed: Summarize findings only and reference the specific agent report where the issue is documented.
+   - Examples: DO NOT open pull requests, rename files, refactor functions, change configuration defaults, or alter build scripts.
+   - Allowed: Summarize findings only and reference the specific agent report where the issue is documented.
 
 2. DO NOT run upgrades or prescribe migrations.
-   * Forbidden examples: "npm update", "go get -u", "helm upgrade", "apply database migrations".
-   * This command is descriptive, not prescriptive. Keep outputs informational.
+   - Forbidden examples: "npm update", "go get -u", "helm upgrade", "apply database migrations".
+   - This command is descriptive, not prescriptive. Keep outputs informational.
 
 3. DO NOT invent CVEs or assume vulnerabilities without explicit evidence from the dependency-auditor or MCP validation.
-   * Forbidden: "probably vulnerable", "likely CVE-2023-XXXXX", or unverified security claims.
-   * Allowed: Quote exact package names and versions and cite the findings produced by the dependency-auditor.
+   - Forbidden: "probably vulnerable", "likely CVE-2023-XXXXX", or unverified security claims.
+   - Allowed: Quote exact package names and versions and cite the findings produced by the dependency-auditor.
 
 4. DO NOT use vague language.
-   * Avoid phrases like "probably safe", "should be fine", "seems OK", "looks stable".
-   * Use neutral, factual wording lifted from the agents' reports.
+   - Avoid phrases like "probably safe", "should be fine", "seems OK", "looks stable".
+   - Use neutral, factual wording lifted from the agents' reports.
 
 5. DO NOT use emojis or stylized characters.
 
 6. DO NOT provide time estimates.
-   * Forbidden: "in 2 hours", "by tomorrow", "within X days", or any duration claims.
-   * If timing is requested, state that estimates are out of scope for this command.
+   - Forbidden: "in 2 hours", "by tomorrow", "within X days", or any duration claims.
+   - If timing is requested, state that estimates are out of scope for this command.
 
 7. NEVER create agent folders in the repository root.
-   * Forbidden: "/agents", "/architectural-analyzer" at the repository root.
-   * Allowed: Only use the paths specified by each agent or by the orchestrator, for example `docs/agents/orchestrator`.
+   - Forbidden: "/agents", "/architectural-analyzer" at the repository root.
+   - Allowed: Only use the paths specified by each agent or by the orchestrator, for example `docs/agents/orchestrator`.
 
 8. NEVER create files or folders that are not specified by the agent or orchestrator specifications.
-   * Forbidden: ad-hoc directories like "reports", "output", "tmp" unless they are explicitly defined.
-   * All outputs must follow `<output-folder>/<agent-name>/<file-name-provided-by-agent>.md` or be stored in the orchestrator directory as specified.
+   - Forbidden: ad-hoc directories like "reports", "output", "tmp" unless they are explicitly defined.
+   - All outputs must follow `<output-folder>/<agent-name>/<file-name-provided-by-agent>.md` or be stored in the orchestrator directory as specified.
 
-8. NEVER duplicate a report. If you have to make any chances, edit the report that already exists instead of create a new one
-    * Forbidden: duplicate a "component-analysis" report during the review if all reports exists.
+9. NEVER duplicate a report. If you have to make any chances, edit the report that already exists instead of create a new one
+   - Forbidden: duplicate a "component-analysis" report during the review if all reports exists.
 
 ## Observations
 

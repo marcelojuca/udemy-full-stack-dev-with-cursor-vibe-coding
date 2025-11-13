@@ -11,20 +11,20 @@
  * Then copy and paste the SQL from setup-production-db.sql file
  */
 
-require('dotenv').config({ path: '.env.production.local' })
-const fs = require('fs')
-const path = require('path')
+require('dotenv').config({ path: '.env.production.local' });
+const fs = require('fs');
+const path = require('path');
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('❌ Missing Supabase environment variables')
-  console.error('Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY')
-  process.exit(1)
+  console.error('❌ Missing Supabase environment variables');
+  console.error('Required: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
 }
 
-console.log(`📍 Production database: ${supabaseUrl}\n`)
+console.log(`📍 Production database: ${supabaseUrl}\n`);
 
 // SQL statements to create all tables
 const SQL_STATEMENTS = `-- Production Database Schema Setup
@@ -103,50 +103,49 @@ CREATE INDEX IF NOT EXISTS idx_sessions_token ON public.sessions(session_token);
 CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON public.verification_tokens(token);
 CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON public.api_keys(user_id);
 CREATE INDEX IF NOT EXISTS idx_api_keys_key ON public.api_keys(key);
-`
+`;
 
 async function setupProductionDatabase() {
   try {
-    console.log('⚙️  Preparing production database schema...\n')
+    console.log('⚙️  Preparing production database schema...\n');
 
     // Save SQL to a file for easy copying
-    const sqlFilePath = path.join(__dirname, 'setup-production-db.sql')
-    fs.writeFileSync(sqlFilePath, SQL_STATEMENTS)
-    console.log(`✅ SQL statements saved to: setup-production-db.sql\n`)
+    const sqlFilePath = path.join(__dirname, 'setup-production-db.sql');
+    fs.writeFileSync(sqlFilePath, SQL_STATEMENTS);
+    console.log(`✅ SQL statements saved to: setup-production-db.sql\n`);
 
-    console.log('📋 Database tables to create:')
-    console.log('  1. public.users - User accounts')
-    console.log('  2. public.accounts - OAuth account connections')
-    console.log('  3. public.sessions - User sessions')
-    console.log('  4. public.verification_tokens - Email verification tokens')
-    console.log('  5. public.api_keys - API keys for programmatic access')
-    console.log('  + Indexes for performance optimization\n')
+    console.log('📋 Database tables to create:');
+    console.log('  1. public.users - User accounts');
+    console.log('  2. public.accounts - OAuth account connections');
+    console.log('  3. public.sessions - User sessions');
+    console.log('  4. public.verification_tokens - Email verification tokens');
+    console.log('  5. public.api_keys - API keys for programmatic access');
+    console.log('  + Indexes for performance optimization\n');
 
-    console.log('🔑 NEXT STEPS - Execute the SQL in your production database:\n')
+    console.log('🔑 NEXT STEPS - Execute the SQL in your production database:\n');
 
-    console.log('OPTION 1: Supabase Dashboard (Easiest)')
-    console.log('  1. Go to: https://supabase.com/dashboard')
-    console.log('  2. Select your project')
-    console.log('  3. Go to: SQL Editor')
-    console.log('  4. Create a new query')
-    console.log('  5. Copy & paste contents of setup-production-db.sql')
-    console.log('  6. Click "Run"\n')
+    console.log('OPTION 1: Supabase Dashboard (Easiest)');
+    console.log('  1. Go to: https://supabase.com/dashboard');
+    console.log('  2. Select your project');
+    console.log('  3. Go to: SQL Editor');
+    console.log('  4. Create a new query');
+    console.log('  5. Copy & paste contents of setup-production-db.sql');
+    console.log('  6. Click "Run"\n');
 
-    console.log('OPTION 2: psql command (Terminal)')
-    console.log('  psql "your-supabase-connection-string" < setup-production-db.sql\n')
+    console.log('OPTION 2: psql command (Terminal)');
+    console.log('  psql "your-supabase-connection-string" < setup-production-db.sql\n');
 
-    console.log('OPTION 3: This script in CI/CD')
-    console.log('  Once you execute the SQL manually, this script will verify')
-    console.log('  and maintain the schema on future deployments.\n')
+    console.log('OPTION 3: This script in CI/CD');
+    console.log('  Once you execute the SQL manually, this script will verify');
+    console.log('  and maintain the schema on future deployments.\n');
 
-    console.log('🎉 Schema preparation complete!')
-    console.log(`📍 Database: ${supabaseUrl}`)
-    console.log(`📄 SQL file: ${sqlFilePath}\n`)
-
+    console.log('🎉 Schema preparation complete!');
+    console.log(`📍 Database: ${supabaseUrl}`);
+    console.log(`📄 SQL file: ${sqlFilePath}\n`);
   } catch (error) {
-    console.error('\n❌ Error:', error.message)
-    process.exit(1)
+    console.error('\n❌ Error:', error.message);
+    process.exit(1);
   }
 }
 
-setupProductionDatabase()
+setupProductionDatabase();

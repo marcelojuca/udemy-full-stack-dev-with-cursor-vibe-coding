@@ -17,50 +17,32 @@ export async function GET(request: NextRequest) {
 
   // 400 - Bad Request (invalid input format)
   if (!email || !email.includes('@')) {
-    return NextResponse.json(
-      { error: 'Invalid email format' },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: 'Invalid email format' }, { status: 400 });
   }
 
   // 401 - Unauthorized (missing/invalid token)
   if (!token || !isValidToken(token)) {
-    return NextResponse.json(
-      { error: 'Missing or invalid authorization' },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Missing or invalid authorization' }, { status: 401 });
   }
 
   // 403 - Forbidden (authenticated but lacks permission)
   if (user.role !== 'admin') {
-    return NextResponse.json(
-      { error: 'Insufficient permissions' },
-      { status: 403 }
-    );
+    return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
   }
 
   // 404 - Not Found (resource doesn't exist)
   const user = await findUser(id);
   if (!user) {
-    return NextResponse.json(
-      { error: 'User not found' },
-      { status: 404 }
-    );
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
   }
 
   // 429 - Too Many Requests (rate limited)
   if (isRateLimited(userId)) {
-    return NextResponse.json(
-      { error: 'Rate limit exceeded', retryAfter: 60 },
-      { status: 429 }
-    );
+    return NextResponse.json({ error: 'Rate limit exceeded', retryAfter: 60 }, { status: 429 });
   }
 
   // 500 - Internal Server Error (unexpected error)
-  return NextResponse.json(
-    { error: 'Internal server error' },
-    { status: 500 }
-  );
+  return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
 }
 ```
 
@@ -78,39 +60,26 @@ export async function GET(request: NextRequest) {
     const id = searchParams.get('id');
 
     if (!id) {
-      return NextResponse.json(
-        { error: 'Missing required parameter: id' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Missing required parameter: id' }, { status: 400 });
     }
 
     // 2. Authentication
     const auth = await getServerSession(authOptions);
     if (!auth?.user?.email) {
-      return NextResponse.json(
-        { error: 'Not authenticated' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
     // 3. Main logic
     const data = await fetchData(id);
     if (!data) {
-      return NextResponse.json(
-        { error: 'Data not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'Data not found' }, { status: 404 });
     }
 
     // 4. Success response
     return NextResponse.json({ data }, { status: 200 });
-
   } catch (error) {
     console.error('Error in GET /api/route:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 ```
@@ -124,10 +93,7 @@ Always add OPTIONS handler for CORS preflight requests:
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
 
-const ALLOWED_ORIGINS = [
-  'https://www.figma.com',
-  'http://localhost:3000',
-];
+const ALLOWED_ORIGINS = ['https://www.figma.com', 'http://localhost:3000'];
 
 function getCorsHeaders(origin: string): Record<string, string> {
   const isAllowed = ALLOWED_ORIGINS.includes(origin);
@@ -154,10 +120,7 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error('Error in GET:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -201,7 +164,6 @@ export async function POST(request: NextRequest) {
     const token = await generateToken(validatedData);
 
     return NextResponse.json({ token }, { status: 200 });
-
   } catch (error) {
     // Zod validation error
     if (error instanceof z.ZodError) {
@@ -216,18 +178,12 @@ export async function POST(request: NextRequest) {
 
     // JSON parse error
     if (error instanceof SyntaxError) {
-      return NextResponse.json(
-        { error: 'Invalid JSON' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
     // Other errors
     console.error('Error in POST:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 ```
@@ -245,49 +201,33 @@ export async function GET(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
 
     if (!authHeader) {
-      return NextResponse.json(
-        { error: 'Missing authorization header' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Missing authorization header' }, { status: 401 });
     }
 
     // Validate Bearer format
     if (!authHeader.startsWith('Bearer ')) {
-      return NextResponse.json(
-        { error: 'Invalid authorization header format' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Invalid authorization header format' }, { status: 401 });
     }
 
     // Extract token
     const token = authHeader.substring(7); // Remove 'Bearer '
 
     if (!token) {
-      return NextResponse.json(
-        { error: 'Empty token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: 'Empty token' }, { status: 401 });
     }
 
     // Validate token
     const validation = await validateToken(token);
     if (!validation.valid) {
-      return NextResponse.json(
-        { error: validation.error || 'Invalid token' },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: validation.error || 'Invalid token' }, { status: 401 });
     }
 
     // Proceed with request
     const data = await fetchUserData(validation.userId);
     return NextResponse.json({ data }, { status: 200 });
-
   } catch (error) {
     console.error('Error in GET:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 ```
@@ -317,17 +257,22 @@ export async function GET(request: NextRequest) {
   try {
     const data = await fetchData();
 
-    return NextResponse.json({
-      data,
-      timestamp: new Date().toISOString(),
-    }, { status: 200 });
-
+    return NextResponse.json(
+      {
+        data,
+        timestamp: new Date().toISOString(),
+      },
+      { status: 200 }
+    );
   } catch (error) {
-    return NextResponse.json({
-      error: 'Failed to fetch data',
-      code: 'FETCH_ERROR',
-      timestamp: new Date().toISOString(),
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Failed to fetch data',
+        code: 'FETCH_ERROR',
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 }
+    );
   }
 }
 ```
@@ -389,19 +334,13 @@ export async function POST(request: NextRequest) {
       timestamp: new Date().toISOString(),
     });
 
-    return NextResponse.json(
-      { error: 'Failed to create token' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to create token' }, { status: 500 });
   }
 }
 
 // ❌ Bad: Expose internal error details
 console.error('Error in POST /api/tokens:', error);
-return NextResponse.json(
-  { error: error.message || 'Something went wrong' },
-  { status: 500 }
-);
+return NextResponse.json({ error: error.message || 'Something went wrong' }, { status: 500 });
 ```
 
 ---
@@ -424,8 +363,8 @@ export async function GET(request: NextRequest) {
 // ❌ Bad
 export function GET(request: NextRequest) {
   return fetchData()
-    .then(data => NextResponse.json({ data }))
-    .catch(error => NextResponse.json({ error: 'Failed' }, { status: 500 }));
+    .then((data) => NextResponse.json({ data }))
+    .catch((error) => NextResponse.json({ error: 'Failed' }, { status: 500 }));
 }
 ```
 

@@ -20,7 +20,7 @@ export const useApiKeys = () => {
     }
   };
 
-  const createApiKey = async (formData) => {
+  const createApiKey = async (formData: Record<string, any>) => {
     try {
       const response = await fetch('/api/api-keys', {
         method: 'POST',
@@ -44,7 +44,7 @@ export const useApiKeys = () => {
     }
   };
 
-  const updateApiKey = async (id, formData) => {
+  const updateApiKey = async (id: string, formData: Record<string, any>) => {
     try {
       const response = await fetch(`/api/api-keys/${id}`, {
         method: 'PUT',
@@ -68,7 +68,7 @@ export const useApiKeys = () => {
     }
   };
 
-  const deleteApiKey = async (id) => {
+  const deleteApiKey = async (id: string) => {
     try {
       const response = await fetch(`/api/api-keys/${id}`, {
         method: 'DELETE',
@@ -99,6 +99,6 @@ export const useApiKeys = () => {
     createApiKey,
     updateApiKey,
     deleteApiKey,
-    refetch: fetchApiKeys
+    refetch: fetchApiKeys,
   };
 };

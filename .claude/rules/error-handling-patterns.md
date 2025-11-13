@@ -94,11 +94,7 @@ Always wrap async calls in try-catch:
 // ✅ Good: Proper try-catch structure
 async function fetchUser(userId: string): Promise<User | null> {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('id', userId)
-      .single();
+    const { data, error } = await supabase.from('users').select('*').eq('id', userId).single();
 
     // Check Supabase-specific errors
     if (error) {
@@ -110,7 +106,6 @@ async function fetchUser(userId: string): Promise<User | null> {
     }
 
     return data as User;
-
   } catch (error) {
     // Catch unexpected errors
     console.error('Unexpected error fetching user:', {
@@ -123,11 +118,7 @@ async function fetchUser(userId: string): Promise<User | null> {
 
 // ❌ Bad: Missing error handling
 async function fetchUser(userId: string): Promise<User> {
-  const { data } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', userId)
-    .single();
+  const { data } = await supabase.from('users').select('*').eq('id', userId).single();
 
   return data as User; // Will crash if data is null or error occurs
 }
@@ -151,11 +142,10 @@ async function processData() {
 // ❌ Bad: Promise chains (harder to read)
 function processData() {
   return fetchUser('123')
-    .then(user => {
-      return fetchUserSettings(user.id)
-        .then(settings => ({ user, settings }));
+    .then((user) => {
+      return fetchUserSettings(user.id).then((settings) => ({ user, settings }));
     })
-    .catch(error => {
+    .catch((error) => {
       console.error('Error processing data:', error);
       return null;
     });
@@ -173,10 +163,7 @@ Make error messages specific and actionable:
 const authHeader = request.headers.get('authorization');
 
 if (!authHeader) {
-  return NextResponse.json(
-    { error: 'Missing authorization header' },
-    { status: 401 }
-  );
+  return NextResponse.json({ error: 'Missing authorization header' }, { status: 401 });
 }
 
 if (!authHeader.startsWith('Bearer ')) {
@@ -189,18 +176,12 @@ if (!authHeader.startsWith('Bearer ')) {
 const token = authHeader.substring(7);
 
 if (!token) {
-  return NextResponse.json(
-    { error: 'Empty token provided' },
-    { status: 401 }
-  );
+  return NextResponse.json({ error: 'Empty token provided' }, { status: 401 });
 }
 
 // ❌ Bad: Generic error messages
 if (!authHeader || !authHeader.startsWith('Bearer ') || !authHeader.substring(7)) {
-  return NextResponse.json(
-    { error: 'Unauthorized' },
-    { status: 401 }
-  );
+  return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 }
 ```
 
@@ -208,25 +189,31 @@ if (!authHeader || !authHeader.startsWith('Bearer ') || !authHeader.substring(7)
 
 ```typescript
 interface ApiError {
-  error: string;           // User-friendly message
-  code?: string;           // Machine-readable code
-  details?: unknown;       // Additional context (development only)
-  timestamp: string;       // When error occurred
+  error: string; // User-friendly message
+  code?: string; // Machine-readable code
+  details?: unknown; // Additional context (development only)
+  timestamp: string; // When error occurred
 }
 
 // ✅ Correct error responses
-return NextResponse.json({
-  error: 'User not found',
-  code: 'USER_NOT_FOUND',
-  timestamp: new Date().toISOString(),
-}, { status: 404 });
+return NextResponse.json(
+  {
+    error: 'User not found',
+    code: 'USER_NOT_FOUND',
+    timestamp: new Date().toISOString(),
+  },
+  { status: 404 }
+);
 
-return NextResponse.json({
-  error: 'Daily limit exceeded',
-  code: 'RATE_LIMIT_EXCEEDED',
-  details: { limit: 10, used: 10, resetAt: '2025-11-14' },
-  timestamp: new Date().toISOString(),
-}, { status: 429 });
+return NextResponse.json(
+  {
+    error: 'Daily limit exceeded',
+    code: 'RATE_LIMIT_EXCEEDED',
+    details: { limit: 10, used: 10, resetAt: '2025-11-14' },
+    timestamp: new Date().toISOString(),
+  },
+  { status: 429 }
+);
 
 // ❌ Vague error responses
 return NextResponse.json({ error: 'Error' }, { status: 400 });
@@ -246,8 +233,8 @@ if (!email) {
   return { error: 'User has no email address' };
 }
 
-const name = user?.name || 'Anonymous';  // Fallback value
-const age = user?.age ?? 0;              // Only if truly null/undefined
+const name = user?.name || 'Anonymous'; // Fallback value
+const age = user?.age ?? 0; // Only if truly null/undefined
 
 // ❌ Bad: Implicit falsy checks
 const name = user && user.name ? user.name : 'Anonymous'; // Too verbose
@@ -278,35 +265,43 @@ export async function POST(request: NextRequest) {
 
     // Process valid data
     return NextResponse.json({ success: true, data: validatedData });
-
   } catch (error) {
     // ✅ Good: Return validation details
     if (error instanceof z.ZodError) {
-      return NextResponse.json({
-        error: 'Validation failed',
-        code: 'VALIDATION_ERROR',
-        details: error.errors.map(e => ({
-          field: e.path.join('.'),
-          message: e.message,
-          code: e.code,
-        })),
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Validation failed',
+          code: 'VALIDATION_ERROR',
+          details: error.errors.map((e) => ({
+            field: e.path.join('.'),
+            message: e.message,
+            code: e.code,
+          })),
+        },
+        { status: 400 }
+      );
     }
 
     // Handle JSON parse errors
     if (error instanceof SyntaxError) {
-      return NextResponse.json({
-        error: 'Invalid JSON',
-        code: 'JSON_PARSE_ERROR',
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'Invalid JSON',
+          code: 'JSON_PARSE_ERROR',
+        },
+        { status: 400 }
+      );
     }
 
     // Handle unexpected errors
     console.error('Unexpected error in POST:', error);
-    return NextResponse.json({
-      error: 'Internal server error',
-      code: 'INTERNAL_SERVER_ERROR',
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'Internal server error',
+        code: 'INTERNAL_SERVER_ERROR',
+      },
+      { status: 500 }
+    );
   }
 }
 ```
@@ -346,7 +341,6 @@ async function createUser(email: string, name: string): Promise<User | null> {
     }
 
     return data as User;
-
   } catch (error) {
     console.error('Unexpected error creating user:', {
       email,
@@ -357,11 +351,7 @@ async function createUser(email: string, name: string): Promise<User | null> {
 }
 
 // ❌ Bad: Ignoring error
-const { data } = await supabase
-  .from('users')
-  .insert([{ email, name }])
-  .select()
-  .single();
+const { data } = await supabase.from('users').insert([{ email, name }]).select().single();
 
 return data as User;
 ```
@@ -429,12 +419,10 @@ const handleLogin = async () => {
 
     const data = await response.json();
     setUser(data.user);
-
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     setError(message);
     console.error('Login error:', message);
-
   } finally {
     setLoading(false);
   }
