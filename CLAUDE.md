@@ -598,156 +598,143 @@ When making database schema changes:
 6. Push to trigger build validation (TypeScript + ESLint)
 7. If database schema changed, GitHub Actions deploys to production on merge to main
 
----
+## Pre-Deployment Best Practices & Automation
 
-## Pre-Deployment Best Practices & Quality Assurance
+### Automated Checks (Git Hooks)
 
-### ⚠️ IMPORTANT: Always Run QA Checks Before Deploying
+This project uses **Git hooks** to automatically enforce best practices before commits and pushes:
 
-**Before committing, pushing, or deploying**, ensure all quality checks pass:
+#### Pre-Commit Hook (`.husky/pre-commit`)
 
-### Quick Commands (Choose One)
+**Runs automatically** before every commit:
+
+- ✅ Format check (ensures code is properly formatted)
+- ✅ Lint check (ensures code quality standards)
+
+**What happens:**
+
+- If checks fail, commit is **blocked** until fixed
+- Run `npm run format` and `npm run lint:fix` to fix issues
+
+#### Pre-Push Hook (`.husky/pre-push`)
+
+**Runs automatically** before every push:
+
+- ✅ Type check (TypeScript validation)
+- ✅ Test suite (ensures all tests pass)
+
+**What happens:**
+
+- If checks fail, push is **blocked** until fixed
+- Fix TypeScript errors and test failures before pushing
+
+### Manual Pre-Deployment Checklist
+
+Before deploying to **production**, run the comprehensive pre-deployment check:
 
 ```bash
-# Option 1: Use Justfile (Recommended)
-just qa              # Run all QA checks with auto-fixes
-just pre-deploy      # Full pre-deployment check (includes build)
+# For development/staging
+npm run pre-deploy:check
 
-# Option 2: Use npm scripts
-npm run qa           # Run all QA checks with auto-fixes
-npm run pre-deploy   # Full pre-deployment check (includes build)
-
-# Option 3: Use pre-deploy check script (Most comprehensive)
-npm run pre-deploy-check   # Interactive check with detailed output
+# For production
+npm run pre-deploy:prod
 ```
 
-### Automated Git Hooks (Already Configured)
-
-**Pre-commit hook** (runs automatically on `git commit`):
-
-- ✅ Formats staged files with Prettier
-- ✅ Lints staged files with ESLint (auto-fixes)
-- ✅ Type checks TypeScript files
-- ⚠️ **Blocks commit if checks fail**
-
-**Pre-push hook** (runs automatically on `git push` for feature branches):
-
-- ✅ Format check
-- ✅ Lint check
-- ✅ Type check
-- ✅ Test suite
-- ⚠️ **Blocks push if checks fail**
-- ℹ️ **Skipped for `main` and `staging` branches** (CI/CD handles these)
-
-### Manual QA Checklist
-
-Before deploying, verify:
-
-- [ ] **Formatting**: `npm run format:check` passes
-- [ ] **Linting**: `npm run lint` passes
-- [ ] **Types**: `npm run type-check` passes
-- [ ] **Tests**: `npm run test:coverage` passes
-- [ ] **Build**: `npm run build` succeeds
-- [ ] **Environment**: `node validate-env.js` passes (if env vars are set)
-
-### For AI Agents / Automated Tools
-
-**Before making any changes that will be deployed:**
-
-1. **Run pre-deployment check**:
-
-   ```bash
-   npm run pre-deploy-check
-   ```
-
-2. **If checks fail**, fix issues before proceeding:
-
-   ```bash
-   npm run format        # Fix formatting
-   npm run lint:fix      # Fix linting
-   # Fix TypeScript errors manually
-   # Fix failing tests
-   ```
-
-3. **After making changes**, run checks again:
-
-   ```bash
-   just qa              # Quick check
-   # OR
-   npm run pre-deploy-check   # Comprehensive check
-   ```
-
-4. **Only commit/push when all checks pass**
-
-### GitHub Actions Enforcement
-
-The QA workflow (`.github/workflows/qa.yml`) automatically runs on:
-
-- ✅ Pull requests to `main`, `staging`, `develop`
-- ✅ Pushes to `main`, `staging`, `develop`
-
-**Workflow checks:**
-
-- Format check
-- Lint check
-- Type check
-- Test suite
-- Build verification
-
-**⚠️ Important**: The workflow will **fail** if any check fails, blocking merges when branch protection is enabled.
-
-### Bypassing Hooks (Not Recommended)
-
-If you absolutely must bypass hooks (e.g., for emergency fixes):
+Or use the script directly:
 
 ```bash
-# Skip pre-commit hook
-git commit --no-verify -m "emergency fix"
+# Development
+./scripts/pre-deploy-check.sh
 
-# Skip pre-push hook
-git push --no-verify
+# Production
+./scripts/pre-deploy-check.sh production
 ```
 
-**⚠️ Warning**: Only use `--no-verify` in emergencies. CI/CD will still catch issues.
+**What it checks:**
 
-### Troubleshooting Failed Checks
+1. ✅ Code formatting (Prettier)
+2. ✅ Code quality (ESLint)
+3. ✅ Type checking (TypeScript)
+4. ✅ Test suite (Jest with coverage)
+5. ✅ Production build (Next.js build)
+6. ✅ Environment variables validation
+7. ✅ Database schema files present
 
-**If pre-commit hook fails:**
+### Using Just Commands
 
-```bash
-# Fix formatting
-npm run format
-
-# Fix linting
-npm run lint:fix
-
-# Fix types (check error messages)
-npm run type-check
-
-# Then commit again
-git add .
-git commit -m "your message"
-```
-
-**If pre-push hook fails:**
+The project includes a `justfile` with convenient commands:
 
 ```bash
-# Run full QA check locally
+# Run all QA checks (format → lint → types → test)
 just qa
 
-# Or use the comprehensive check
-npm run pre-deploy-check
+# Full pre-deployment check (includes build)
+just pre-deploy
 
-# Fix any issues, then push again
-git push
+# Individual checks
+just format          # Format code
+just lintfix         # Fix linting issues
+just type-check      # Type checking
+just test            # Run tests
+just build           # Build for production
 ```
 
-### Best Practices Summary
+### Best Practices Checklist for Agents
 
-1. ✅ **Always run `just qa` or `npm run pre-deploy-check` before deploying**
-2. ✅ **Let git hooks catch issues early** (pre-commit and pre-push)
-3. ✅ **Fix issues locally** before pushing to avoid CI/CD failures
-4. ✅ **Never skip hooks** unless it's a true emergency
-5. ✅ **Review GitHub Actions results** before merging PRs
-6. ✅ **Keep code formatted** (Prettier runs automatically on commit)
-7. ✅ **Follow TypeScript best practices** (type checking is enforced)
+**Before committing:**
+
+- [ ] Run `npm run format` to ensure consistent formatting
+- [ ] Run `npm run lint:fix` to fix linting issues
+- [ ] Pre-commit hook will run automatically (format + lint checks)
+
+**Before pushing:**
+
+- [ ] Run `npm run type-check` to verify TypeScript types
+- [ ] Run `npm run test:coverage` to ensure tests pass
+- [ ] Pre-push hook will run automatically (type-check + tests)
+
+**Before deploying to production:**
+
+- [ ] Run `npm run pre-deploy:prod` or `just pre-deploy`
+- [ ] Verify all GitHub Secrets are configured (for production)
+- [ ] Review CLAUDE.md → Deployment & CI/CD section
+- [ ] Ensure database schema changes are in both `setup-database.js` and `setup-production-db.js`
+- [ ] Create Pull Request and wait for GitHub Actions to pass
+- [ ] Only merge after all checks pass
+
+### Quick Reference Commands
+
+| Task             | Command                    | When to Use                  |
+| ---------------- | -------------------------- | ---------------------------- |
+| Format code      | `npm run format`           | Before committing            |
+| Check format     | `npm run format:check`     | CI/CD or manual check        |
+| Fix linting      | `npm run lint:fix`         | Before committing            |
+| Check linting    | `npm run lint`             | CI/CD or manual check        |
+| Type check       | `npm run type-check`       | Before pushing               |
+| Run tests        | `npm run test:coverage`    | Before pushing               |
+| Full QA          | `just qa`                  | Before pushing               |
+| Pre-deploy       | `just pre-deploy`          | Before production deployment |
+| Pre-deploy check | `npm run pre-deploy:check` | Manual validation            |
+
+### What Happens If Checks Fail?
+
+**Pre-commit hook fails:**
+
+- Commit is blocked
+- Fix formatting: `npm run format`
+- Fix linting: `npm run lint:fix`
+- Try committing again
+
+**Pre-push hook fails:**
+
+- Push is blocked
+- Fix TypeScript errors: `npm run type-check`
+- Fix test failures: `npm run test:coverage`
+- Try pushing again
+
+**Pre-deploy check fails:**
+
+- Review the error message
+- Fix the specific issue
+- Re-run the check
+- Do not deploy until all checks pass
