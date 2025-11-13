@@ -1,12 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
 import Stripe from 'stripe';
+import { validateStripeEnv } from '@/lib/env-validation';
 
-const stripe = new Stripe(
-  process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder_key_for_build_time_only'
-);
+// Use placeholder during build time, but validate at runtime
+const stripeSecretKey =
+  process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder_key_for_build_time_only';
+const stripe = new Stripe(stripeSecretKey);
 
 export async function POST(req: NextRequest) {
+  // Validate environment variables at runtime before use
+  validateStripeEnv();
+  
   try {
     const session = await getServerSession();
 

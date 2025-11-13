@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '../../../lib/auth-helpers';
-import { supabaseAdmin } from '../../../lib/supabase';
+import { supabaseAdmin, ensureSupabaseEnv } from '../../../lib/supabase';
 
 // GET /api/api-keys - Fetch all API keys for authenticated user
 export async function GET(request) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+  
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -28,6 +31,9 @@ export async function GET(request) {
 
 // POST /api/api-keys - Create a new API key for authenticated user
 export async function POST(request) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+  
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;

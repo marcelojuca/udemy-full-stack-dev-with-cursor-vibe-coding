@@ -1,5 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
+import { validateSupabaseEnv } from './env-validation';
 
+// Use placeholders during build time, but validate at runtime
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
@@ -11,6 +13,9 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * @returns {Promise<{valid: boolean, data?: object, error?: string}>}
  */
 export async function validateApiKey(apiKey) {
+  // Validate environment variables at runtime before use
+  validateSupabaseEnv();
+  
   try {
     if (!apiKey) {
       return {

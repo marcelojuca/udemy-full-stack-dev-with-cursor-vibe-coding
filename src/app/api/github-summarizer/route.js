@@ -3,13 +3,18 @@ import { createClient } from '@supabase/supabase-js';
 import { analyzeReadme } from '../../../lib/chain';
 import { checkAndIncrementUsage } from '../../../lib/rate-limiting';
 import { getBasicRepoInfo } from '../../../lib/get-repo-info';
+import { validateSupabaseEnv } from '@/lib/env-validation';
 
+// Use placeholders during build time, but validate at runtime
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request) {
+  // Validate environment variables at runtime before use
+  validateSupabaseEnv();
+  
   try {
     const { githubUrl } = await request.json();
     const apiKey = request.headers.get('x-api-key');

@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '../../../../lib/auth-helpers';
-import { supabaseAdmin } from '../../../../lib/supabase';
+import { supabaseAdmin, ensureSupabaseEnv } from '../../../../lib/supabase';
 
 // GET /api/api-keys/[id] - Fetch a specific API key for authenticated user
 export async function GET(request, { params }) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+  
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -33,6 +36,9 @@ export async function GET(request, { params }) {
 
 // PUT /api/api-keys/[id] - Update a specific API key for authenticated user
 export async function PUT(request, { params }) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+  
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -94,6 +100,9 @@ export async function PUT(request, { params }) {
 
 // DELETE /api/api-keys/[id] - Delete a specific API key for authenticated user
 export async function DELETE(request, { params }) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+  
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;

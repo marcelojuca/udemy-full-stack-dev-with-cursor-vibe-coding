@@ -29,6 +29,15 @@ export async function POST(request) {
     });
   } catch (error) {
     console.error('Validation error:', error);
+    
+    // Check if it's an environment variable error
+    if (error.message && error.message.includes('Missing required environment variable')) {
+      return NextResponse.json(
+        { valid: false, error: 'Server configuration error: ' + error.message },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json({ valid: false, error: 'Internal server error' }, { status: 500 });
   }
 }
