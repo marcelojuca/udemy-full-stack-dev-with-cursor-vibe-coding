@@ -2,10 +2,10 @@ name: QA Checks (Format, Lint, Types, Tests)
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, staging, develop]
     types: [opened, synchronize, reopened]
   push:
-    branches: [main, develop]
+    branches: [main, staging, develop]
 
 jobs:
   qa:
