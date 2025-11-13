@@ -1,0 +1,93 @@
+---
+alwaysApply: true
+---
+
+# Pre-Push Hook Guidelines
+
+## Overview
+
+The pre-push hook runs comprehensive QA checks before code is pushed to a remote repository. This ensures code quality, type safety, and test coverage before sharing code with the team.
+
+## What It Does
+
+When you push code, the pre-push hook automatically runs:
+
+1. **Format check** - Verifies all files are properly formatted
+2. **Lint check** - Verifies code quality and style
+3. **Type check** - Verifies TypeScript types are correct
+4. **Tests** - Runs the test suite to ensure nothing is broken
+
+## For AI Agents
+
+**CRITICAL**: Always let the pre-push hook run. Do NOT bypass it with `--no-verify` flag.
+
+### Best Practices
+
+- **Run checks locally first**: Use `just qa` or `npm run qa` before pushing
+- **Fix issues before pushing**: Address any failures locally
+- **Let hooks run**: The hook validates your code before it reaches the remote
+- **Review failures**: If the hook fails, read the error messages and fix issues
+
+### What Happens
+
+1. You push: `git push origin branch-name`
+2. Pre-push hook runs automatically
+3. All QA checks execute (format, lint, type-check, tests)
+4. If all checks pass, push proceeds
+5. If any check fails, push is blocked
+
+### If Hook Fails
+
+If the pre-push hook fails:
+
+1. **Read the error output** - it will show which check failed
+2. **Fix the issues**:
+   - Format: `npm run format`
+   - Lint: `npm run lint:fix`
+   - Types: `npm run type-check` (fix TypeScript errors)
+   - Tests: `npm run test` (fix failing tests)
+3. **Re-run checks**: `just qa` or `npm run qa`
+4. **Push again**: `git push origin branch-name`
+
+### Never Bypass
+
+**DO NOT** use `git push --no-verify` to bypass the hook. This defeats the purpose of quality assurance and can lead to:
+
+- Broken builds in CI/CD
+- Type errors in production
+- Failing tests in the repository
+- Code review delays
+- Deployment failures
+
+## Protection Layers
+
+The pre-push hook is one of four protection layers:
+
+1. **Pre-commit** - Format/lint staged files (fast, local)
+2. **Pre-push** - Full QA checks before remote push (this hook)
+3. **GitHub Actions** - CI/CD validation on PRs/pushes
+4. **Manual check** - `npm run pre-deploy-check` for comprehensive validation
+
+## Technical Details
+
+- **Runs on**: ALL branches (main, staging, develop, feature branches)
+- **Execution time**: Typically 1-3 minutes
+- **Can be skipped**: `git push --no-verify` (NOT recommended for agents)
+- **Hook location**: `.husky/pre-push`
+
+## Related Commands
+
+- `just qa` - Run all QA checks locally
+- `npm run qa` - Run all QA checks (same as just qa)
+- `npm run pre-deploy-check` - Comprehensive pre-deployment validation
+- `just pre-deploy` - Full pre-deployment check including build
+
+## Branch-Specific Behavior
+
+The hook runs on **all branches** to ensure consistent code quality across:
+- Feature branches
+- Development branches
+- Staging branch
+- Main branch
+
+This ensures no branch gets special treatment and all code meets quality standards.

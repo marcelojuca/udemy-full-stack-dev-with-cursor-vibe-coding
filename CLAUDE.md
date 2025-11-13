@@ -588,153 +588,328 @@ When making database schema changes:
 
 ---
 
+## Pre-Deployment Quality Assurance System
+
+This project implements a **multi-layer QA system** that ensures code quality before commits, pushes, and deployments. This system protects the codebase from formatting issues, linting errors, type errors, and broken tests.
+
+### Protection Layers
+
+The QA system consists of four protection layers:
+
+1. **Pre-Commit Hook** - Formats and lints staged files before commit
+2. **Pre-Push Hook** - Runs full QA checks before pushing to remote
+3. **GitHub Actions** - CI/CD validation on PRs and pushes
+4. **Manual Check** - Comprehensive pre-deployment validation script
+
+### Layer 1: Pre-Commit Hook (via Husky + lint-staged)
+
+**Location**: `.husky/pre-commit`
+
+**When it runs**: Automatically before every `git commit`
+
+**What it does**:
+
+- Formats staged files with Prettier (`.js`, `.jsx`, `.ts`, `.tsx`, `.json`, `.md`, `.css`)
+- Lints staged files with ESLint (`.js`, `.jsx`, `.ts`, `.tsx`)
+- Auto-fixes formatting and linting issues when possible
+
+**Configuration**: `.lintstagedrc.js`
+
+**Execution time**: < 10 seconds (only processes staged files)
+
+**How it works**:
+
+1. You stage files: `git add file1.ts file2.tsx`
+2. You commit: `git commit -m "your message"`
+3. Pre-commit hook runs automatically
+4. Files are formatted and linted
+5. If fixes are applied, files are re-staged
+6. Commit proceeds with clean code
+
+**Bypass**: `git commit --no-verify` (NOT recommended - defeats QA purpose)
+
+**For AI agents**: Always let the hook run. Never bypass it.
+
+### Layer 2: Pre-Push Hook (via Husky)
+
+**Location**: `.husky/pre-push`
+
+**When it runs**: Automatically before every `git push` to remote repository
+
+**What it does**:
+
+1. Format check - Verifies all files are properly formatted
+2. Lint check - Verifies code quality and style
+3. Type check - Verifies TypeScript types are correct
+4. Tests - Runs the test suite to ensure nothing is broken
+
+**Runs on**: ALL branches (main, staging, develop, feature branches)
+
+**Execution time**: 1-3 minutes
+
+**How it works**:
+
+1. You push: `git push origin branch-name`
+2. Pre-push hook runs automatically
+3. All QA checks execute
+4. If all checks pass, push proceeds
+5. If any check fails, push is blocked
+
+**Bypass**: `git push --no-verify` (NOT recommended - defeats QA purpose)
+
+**For AI agents**: Always let the hook run. Never bypass it.
+
+### Layer 3: GitHub Actions (CI/CD)
+
+**Location**: `.github/workflows/qa.yml`
+
+**When it runs**: On pull requests and pushes to `main`, `staging`, `develop` branches
+
+**What it does**:
+
+- Format check
+- Lint check
+- Type check
+- Tests with coverage
+- Build verification
+
+**Execution time**: 2-5 minutes
+
+**Bypass**: Cannot be bypassed (runs on remote repository)
+
+### Layer 4: Manual Pre-Deployment Check
+
+**Location**: `scripts/pre-deploy-check.sh`
+
+**When to run**: Before deploying to production
+
+**Command**: `npm run pre-deploy-check` or `bash scripts/pre-deploy-check.sh`
+
+**What it validates**:
+
+1. Code formatting
+2. Code quality (linting)
+3. Type checking
+4. Tests
+5. Production build
+6. Environment variables
+7. Database schema files
+
+**Usage**:
+
+```bash
+# For development environment
+npm run pre-deploy-check
+
+# For production environment
+bash scripts/pre-deploy-check.sh production
+```
+
+### Git Hooks Setup
+
+This project uses **Husky** (v9+) to manage Git hooks.
+
+**Installation**: Automatically runs via `npm install` (via `prepare` script in package.json)
+
+**Dependencies**:
+
+- `husky` - Git hooks manager
+- `lint-staged` - Run linters on staged files only
+
+**Hook files**:
+
+- `.husky/pre-commit` - Pre-commit hook script
+- `.husky/pre-push` - Pre-push hook script
+
+### lint-staged Configuration
+
+**Location**: `.lintstagedrc.js`
+
+**Purpose**: Efficiently format and lint only staged files (not entire codebase)
+
+**Configuration**:
+
+- Formats: `*.{js,jsx,ts,tsx,json,md,css}` with Prettier
+- Lints: `*.{js,jsx,ts,tsx}` with ESLint
+
+**Why it's fast**: Only processes files you're actually committing
+
+### QA Commands Reference
+
+#### Quick Checks (via justfile)
+
+- `just qa` - Run all QA checks (format, lint, type-check, tests)
+- `just format` - Format all files
+- `just lintfix` - Fix linting issues
+- `just type-check` - Check TypeScript types
+- `just test` - Run tests
+
+#### Comprehensive Checks
+
+- `just pre-deploy` - Full pre-deployment check (includes build)
+- `npm run pre-deploy-check` - Interactive pre-deployment validation
+
+#### Individual Checks (via npm)
+
+- `npm run format` - Format all files
+- `npm run format:check` - Check formatting without fixing
+- `npm run lint` - Check linting without fixing
+- `npm run lint:fix` - Fix linting issues
+- `npm run type-check` - TypeScript type checking
+- `npm run test` - Run tests
+- `npm run test:coverage` - Run tests with coverage
+
+### Workflow for Developers
+
+#### Normal Development Flow
+
+1. **Make changes** to code
+2. **Test locally**: `npm run dev`
+3. **Run QA checks**: `just qa` (optional, hooks will catch issues)
+4. **Stage files**: `git add file1.ts file2.tsx`
+5. **Commit**: `git commit -m "descriptive message"`
+   - Pre-commit hook runs automatically
+   - Files are formatted/linted
+   - Commit proceeds with clean code
+6. **Push**: `git push origin branch-name`
+   - Pre-push hook runs automatically
+   - Full QA checks execute
+   - Push proceeds if all checks pass
+7. **Create PR**: GitHub Actions validates again
+8. **Deploy**: After all checks pass
+
+#### If Pre-Commit Hook Fails
+
+**Issue**: Formatting or linting errors
+
+**Solution**:
+
+```bash
+npm run format        # Format all files
+npm run lint:fix      # Fix linting issues
+git add .             # Re-stage fixed files
+git commit -m "your message"  # Commit again
+```
+
+#### If Pre-Push Hook Fails
+
+**Issue**: Format, lint, type, or test failures
+
+**Solution**:
+
+```bash
+just qa               # Run all checks locally
+# Fix any issues shown
+git add .
+git commit -m "fix: resolve QA issues"
+git push origin branch-name
+```
+
+### Workflow for AI Agents
+
+**CRITICAL**: AI agents must follow these guidelines:
+
+1. **Never bypass hooks**: Do NOT use `--no-verify` flags
+2. **Let hooks run**: Always allow pre-commit and pre-push hooks to execute
+3. **Fix issues**: If hooks fail, fix the issues before proceeding
+4. **Review auto-fixes**: After hooks run, review any auto-fixes
+5. **Run checks locally**: Use `just qa` before pushing to catch issues early
+
+**Before Committing**:
+
+- Stage files intentionally
+- Let pre-commit hook run (it will auto-fix formatting/linting)
+- Review auto-fixes if files were modified
+- Commit completes with clean code
+
+**Before Pushing**:
+
+- Run `just qa` locally first (optional but recommended)
+- Push normally: `git push origin branch-name`
+- Let pre-push hook run (validates everything)
+- If hook fails, fix issues and push again
+- Never bypass with `--no-verify`
+
+**Before Deploying**:
+
+- Run `npm run pre-deploy-check` for comprehensive validation
+- Verify all checks pass
+- Create/update Pull Request
+- Wait for GitHub Actions to pass
+- Merge to staging/main
+
+### Emergency Situations
+
+In rare emergency situations, hooks can be bypassed:
+
+- **Pre-commit**: `git commit --no-verify -m "message"`
+- **Pre-push**: `git push --no-verify origin branch`
+
+**However**:
+
+- AI agents should NEVER bypass hooks
+- Only human developers should do this in true emergencies
+- Issues must be fixed immediately after bypassing
+
+### Integration with Justfile
+
+The project uses `just` (a command runner) for QA workflows. See `justfile` for all available commands:
+
+- `just qa` - Run all QA checks
+- `just pre-deploy` - Full pre-deployment check
+- `just format` - Format code
+- `just lintfix` - Fix linting
+- `just type-check` - Type checking
+- `just test` - Run tests
+
+Run `just help` or `just --list` to see all commands.
+
+### Cursor Rules for AI Agents
+
+AI agents should refer to these Cursor rules files:
+
+- `.cursor/rules/pre-commit.mdc` - Pre-commit hook guidelines
+- `.cursor/rules/pre-push.mdc` - Pre-push hook guidelines
+- `.cursor/rules/qa-workflow.mdc` - General QA workflow guidelines
+
+These files provide detailed guidance for AI agents on how to work with the QA system.
+
+### Troubleshooting
+
+#### Hook Not Running
+
+If hooks aren't running:
+
+1. **Check Husky installation**: Run `npm install` (triggers `prepare` script)
+2. **Verify hook files exist**: Check `.husky/pre-commit` and `.husky/pre-push`
+3. **Check file permissions**: Hooks should be executable
+4. **Verify Git hooks path**: Run `git config core.hooksPath` (should be `.husky`)
+
+#### Hook Failing Unexpectedly
+
+If hooks fail unexpectedly:
+
+1. **Check dependencies**: Ensure `husky` and `lint-staged` are installed
+2. **Verify configuration**: Check `.lintstagedrc.js` syntax
+3. **Run commands manually**: Test individual commands (`npm run format`, `npm run lint`, etc.)
+4. **Check Node version**: Ensure Node.js version matches project requirements
+
+#### Performance Issues
+
+If hooks are slow:
+
+1. **Pre-commit**: Should be fast (< 10s) - only processes staged files
+2. **Pre-push**: May take 1-3 minutes - runs full QA checks
+3. **If too slow**: Consider running `just qa` locally before pushing
+
+---
+
 ## Development Workflow
 
 1. Start dev server: `npm run dev`
 2. Make changes to components/pages
 3. Test in browser at http://localhost:3000
-4. Check linting: `eslint` (or it will catch errors on build)
-5. Commit changes with clear messages
-6. Push to trigger build validation (TypeScript + ESLint)
+4. Run QA checks: `just qa` (or hooks will catch issues automatically)
+5. Commit changes with clear messages (pre-commit hook runs automatically)
+6. Push to trigger pre-push hook and GitHub Actions validation
 7. If database schema changed, GitHub Actions deploys to production on merge to main
-
-## Pre-Deployment Best Practices & Automation
-
-### Automated Checks (Git Hooks)
-
-This project uses **Git hooks** to automatically enforce best practices before commits and pushes:
-
-#### Pre-Commit Hook (`.husky/pre-commit`)
-
-**Runs automatically** before every commit:
-
-- ✅ Format check (ensures code is properly formatted)
-- ✅ Lint check (ensures code quality standards)
-
-**What happens:**
-
-- If checks fail, commit is **blocked** until fixed
-- Run `npm run format` and `npm run lint:fix` to fix issues
-
-#### Pre-Push Hook (`.husky/pre-push`)
-
-**Runs automatically** before every push:
-
-- ✅ Type check (TypeScript validation)
-- ✅ Test suite (ensures all tests pass)
-
-**What happens:**
-
-- If checks fail, push is **blocked** until fixed
-- Fix TypeScript errors and test failures before pushing
-
-### Manual Pre-Deployment Checklist
-
-Before deploying to **production**, run the comprehensive pre-deployment check:
-
-```bash
-# For development/staging
-npm run pre-deploy:check
-
-# For production
-npm run pre-deploy:prod
-```
-
-Or use the script directly:
-
-```bash
-# Development
-./scripts/pre-deploy-check.sh
-
-# Production
-./scripts/pre-deploy-check.sh production
-```
-
-**What it checks:**
-
-1. ✅ Code formatting (Prettier)
-2. ✅ Code quality (ESLint)
-3. ✅ Type checking (TypeScript)
-4. ✅ Test suite (Jest with coverage)
-5. ✅ Production build (Next.js build)
-6. ✅ Environment variables validation
-7. ✅ Database schema files present
-
-### Using Just Commands
-
-The project includes a `justfile` with convenient commands:
-
-```bash
-# Run all QA checks (format → lint → types → test)
-just qa
-
-# Full pre-deployment check (includes build)
-just pre-deploy
-
-# Individual checks
-just format          # Format code
-just lintfix         # Fix linting issues
-just type-check      # Type checking
-just test            # Run tests
-just build           # Build for production
-```
-
-### Best Practices Checklist for Agents
-
-**Before committing:**
-
-- [ ] Run `npm run format` to ensure consistent formatting
-- [ ] Run `npm run lint:fix` to fix linting issues
-- [ ] Pre-commit hook will run automatically (format + lint checks)
-
-**Before pushing:**
-
-- [ ] Run `npm run type-check` to verify TypeScript types
-- [ ] Run `npm run test:coverage` to ensure tests pass
-- [ ] Pre-push hook will run automatically (type-check + tests)
-
-**Before deploying to production:**
-
-- [ ] Run `npm run pre-deploy:prod` or `just pre-deploy`
-- [ ] Verify all GitHub Secrets are configured (for production)
-- [ ] Review CLAUDE.md → Deployment & CI/CD section
-- [ ] Ensure database schema changes are in both `setup-database.js` and `setup-production-db.js`
-- [ ] Create Pull Request and wait for GitHub Actions to pass
-- [ ] Only merge after all checks pass
-
-### Quick Reference Commands
-
-| Task             | Command                    | When to Use                  |
-| ---------------- | -------------------------- | ---------------------------- |
-| Format code      | `npm run format`           | Before committing            |
-| Check format     | `npm run format:check`     | CI/CD or manual check        |
-| Fix linting      | `npm run lint:fix`         | Before committing            |
-| Check linting    | `npm run lint`             | CI/CD or manual check        |
-| Type check       | `npm run type-check`       | Before pushing               |
-| Run tests        | `npm run test:coverage`    | Before pushing               |
-| Full QA          | `just qa`                  | Before pushing               |
-| Pre-deploy       | `just pre-deploy`          | Before production deployment |
-| Pre-deploy check | `npm run pre-deploy:check` | Manual validation            |
-
-### What Happens If Checks Fail?
-
-**Pre-commit hook fails:**
-
-- Commit is blocked
-- Fix formatting: `npm run format`
-- Fix linting: `npm run lint:fix`
-- Try committing again
-
-**Pre-push hook fails:**
-
-- Push is blocked
-- Fix TypeScript errors: `npm run type-check`
-- Fix test failures: `npm run test:coverage`
-- Try pushing again
-
-**Pre-deploy check fails:**
-
-- Review the error message
-- Fix the specific issue
-- Re-run the check
-- Do not deploy until all checks pass

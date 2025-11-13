@@ -1,0 +1,169 @@
+---
+alwaysApply: true
+---
+
+# QA Workflow Guidelines
+
+## Overview
+
+This project uses a multi-layer Quality Assurance (QA) system to ensure code quality before commits, pushes, and deployments. AI agents must follow these guidelines to maintain code quality.
+
+## Protection Layers
+
+### Layer 1: Pre-Commit Hook
+- **When**: Before creating a commit
+- **What**: Formats and lints staged files only
+- **Speed**: Fast (< 10 seconds)
+- **Tool**: lint-staged
+- **Bypass**: `--no-verify` (DO NOT use)
+
+### Layer 2: Pre-Push Hook
+- **When**: Before pushing to remote repository
+- **What**: Full QA checks (format, lint, type-check, tests)
+- **Speed**: Moderate (1-3 minutes)
+- **Runs on**: ALL branches
+- **Bypass**: `--no-verify` (DO NOT use)
+
+### Layer 3: GitHub Actions
+- **When**: On pull requests and pushes to main/staging/develop
+- **What**: CI/CD validation (format, lint, type-check, tests, build)
+- **Speed**: Moderate (2-5 minutes)
+- **Runs on**: Remote repository
+- **Bypass**: Cannot be bypassed
+
+### Layer 4: Manual Pre-Deployment Check
+- **When**: Before deploying to production
+- **What**: Comprehensive validation including environment variables
+- **Command**: `npm run pre-deploy-check` or `bash scripts/pre-deploy-check.sh`
+- **Bypass**: Optional (but recommended)
+
+## For AI Agents
+
+### Before Committing
+
+1. **Make your changes**
+2. **Stage files**: `git add file1.ts file2.tsx`
+3. **Commit**: `git commit -m "descriptive message"`
+4. **Let pre-commit hook run** - it will auto-fix formatting/linting
+5. **Review auto-fixes** - if files were modified, they're re-staged
+6. **Commit completes** - with clean, formatted code
+
+### Before Pushing
+
+1. **Run QA checks locally**: `just qa` or `npm run qa`
+2. **Fix any issues** that come up
+3. **Push**: `git push origin branch-name`
+4. **Let pre-push hook run** - it validates everything
+5. **If hook fails**: Fix issues and push again
+6. **Never bypass**: Do NOT use `--no-verify`
+
+### Before Deploying
+
+1. **Run pre-deployment check**: `npm run pre-deploy-check`
+2. **Verify all checks pass**:
+   - Formatting
+   - Linting
+   - Type checking
+   - Tests
+   - Build
+   - Environment variables
+3. **Create/update Pull Request**
+4. **Wait for GitHub Actions** to pass
+5. **Merge to staging/main**
+
+## QA Commands Reference
+
+### Quick Checks
+- `just qa` - Run all QA checks (format, lint, type-check, tests)
+- `just format` - Format all files
+- `just lintfix` - Fix linting issues
+- `just type-check` - Check TypeScript types
+- `just test` - Run tests
+
+### Comprehensive Checks
+- `just pre-deploy` - Full pre-deployment check (includes build)
+- `npm run pre-deploy-check` - Interactive pre-deployment validation
+
+### Individual Checks
+- `npm run format:check` - Check formatting without fixing
+- `npm run lint` - Check linting without fixing
+- `npm run type-check` - TypeScript type checking
+- `npm run test:coverage` - Run tests with coverage
+
+## Workflow Best Practices
+
+### Development Workflow
+
+1. **Make changes** to code
+2. **Test locally**: `npm run dev`
+3. **Run QA checks**: `just qa`
+4. **Fix any issues**
+5. **Stage and commit**: Git hooks will run automatically
+6. **Push**: Pre-push hook validates everything
+7. **Create PR**: GitHub Actions validates again
+8. **Deploy**: After all checks pass
+
+### Emergency Situations
+
+In rare emergency situations, hooks can be bypassed:
+
+- **Pre-commit**: `git commit --no-verify -m "message"`
+- **Pre-push**: `git push --no-verify origin branch`
+
+**However**: AI agents should NEVER bypass hooks. Only human developers should do this in true emergencies, and they must fix issues immediately after.
+
+## Common Issues and Solutions
+
+### Pre-Commit Hook Fails
+
+**Issue**: Formatting or linting errors
+**Solution**: 
+```bash
+npm run format
+npm run lint:fix
+git add .
+git commit -m "your message"
+```
+
+### Pre-Push Hook Fails
+
+**Issue**: Format, lint, type, or test failures
+**Solution**:
+```bash
+just qa  # Run all checks
+# Fix any issues shown
+git add .
+git commit -m "fix: resolve QA issues"
+git push origin branch-name
+```
+
+### GitHub Actions Fails
+
+**Issue**: CI/CD validation failed
+**Solution**:
+1. Check the GitHub Actions logs
+2. Fix issues locally
+3. Run `just qa` to verify
+4. Commit and push again
+
+## Integration with Justfile
+
+The project uses `just` (a command runner) for QA workflows:
+
+- `just qa` - Equivalent to `npm run qa`
+- `just pre-deploy` - Full pre-deployment check
+- `just format` - Format code
+- `just lintfix` - Fix linting
+- `just type-check` - Type checking
+- `just test` - Run tests
+
+See `justfile` for all available commands.
+
+## Documentation
+
+For more details, see:
+- `CLAUDE.md` - Comprehensive project documentation
+- `justfile` - Available QA commands
+- `.lintstagedrc.js` - lint-staged configuration
+- `.husky/pre-commit` - Pre-commit hook script
+- `.husky/pre-push` - Pre-push hook script
