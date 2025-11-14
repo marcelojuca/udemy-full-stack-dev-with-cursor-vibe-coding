@@ -12,13 +12,30 @@ on:
     #   - "src/**/*.jsx"
 
 jobs:
-  claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has-non-workflow-changes: ${{ steps.filter.outputs.has-non-workflow-changes }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for non-workflow file changes
+        id: filter
+        run: |
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          non_workflow_files=$(echo "$changed_files" | grep -v "^\.github/workflows/" || true)
+          if [ -n "$non_workflow_files" ]; then
+            echo "has-non-workflow-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-non-workflow-changes=false" >> $GITHUB_OUTPUT
+          fi
 
+  claude-review:
+    # Skip review if only workflow files are changed (avoids validation errors)
+    needs: check-changes
+    if: needs.check-changes.outputs.has-non-workflow-changes == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: read
