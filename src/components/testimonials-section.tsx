@@ -3,7 +3,7 @@ import { Star } from 'lucide-react';
 
 const testimonials = [
   {
-    name: 'Sarah Jim Xu',
+    name: 'Sarah Jim Xu Lu',
     role: 'Open Source Maintainer',
     content:
       'Xpto has completely changed how I track and understand the repositories I maintain. The insights are incredibly valuable.',
