@@ -1,24 +1,30 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export const useApiKeys = () => {
   const [apiKeys, setApiKeys] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchApiKeys = async () => {
+  const fetchApiKeys = useCallback(async () => {
     try {
       const response = await fetch('/api/api-keys', {
         credentials: 'include', // Include session cookies for authentication
       });
       if (response.ok) {
         const data = await response.json();
-        setApiKeys(data);
+        setApiKeys(data || []);
+      } else {
+        // If API fails, set empty array so UI can still render
+        console.error('Failed to fetch API keys:', response.status, response.statusText);
+        setApiKeys([]);
       }
     } catch (error) {
       console.error('Error fetching API keys:', error);
+      // Set empty array on error so UI can still render
+      setApiKeys([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   const createApiKey = async (formData: Record<string, any>) => {
     try {
@@ -91,7 +97,7 @@ export const useApiKeys = () => {
 
   useEffect(() => {
     fetchApiKeys();
-  }, []);
+  }, [fetchApiKeys]);
 
   return {
     apiKeys,

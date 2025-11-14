@@ -23,6 +23,20 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: false,
   },
+  // Headers for security and permissions
+  async headers() {
+    return [
+      {
+        source: '/:path*',
+        headers: [
+          {
+            key: 'Permissions-Policy',
+            value: 'payment=(self "https://js.stripe.com" "https://hooks.stripe.com")',
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
