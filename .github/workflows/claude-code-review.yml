@@ -2,6 +2,7 @@ name: Claude Code Review
 
 on:
   pull_request:
+    branches: [main, staging]
     types: [opened, synchronize]
     # Optional: Only run on specific file changes
     # paths:
@@ -11,13 +12,31 @@ on:
     #   - "src/**/*.jsx"
 
 jobs:
-  claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+  check-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      has-workflow-changes: ${{ steps.filter.outputs.has-workflow-changes }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check for workflow file changes
+        id: filter
+        run: |
+          changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
+          workflow_files=$(echo "$changed_files" | grep "^\.github/workflows/" || true)
+          if [ -n "$workflow_files" ]; then
+            echo "has-workflow-changes=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-workflow-changes=false" >> $GITHUB_OUTPUT
+          fi
 
+  claude-review:
+    # Skip review if workflow files are changed (avoids GitHub token validation errors)
+    # GitHub requires workflow files to match the base branch for OIDC token exchange
+    needs: check-changes
+    if: needs.check-changes.outputs.has-workflow-changes == 'false'
     runs-on: ubuntu-latest
     permissions:
       contents: read
