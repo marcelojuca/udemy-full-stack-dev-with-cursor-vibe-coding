@@ -1,7 +1,7 @@
 name: Database Schema Validation & Deployment
 
-# Validates and deploys database schema to all environments
-# Required for: main, staging, develop branches
+# Validates and deploys database schema to staging and production environments
+# Required for: main, staging branches
 # Blocks deployment if validation fails on main
 
 on:
@@ -9,7 +9,6 @@ on:
     branches:
       - main
       - staging
-      - develop
 
 concurrency:
   group: db-deployment-${{ github.ref }}
