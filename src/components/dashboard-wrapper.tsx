@@ -41,7 +41,7 @@ export default function DashboardWrapper() {
 
     const validationErrors = validateApiKeyForm(formData);
     if (validationErrors.length > 0) {
-      window?.showToastNotification?.(validationErrors.join(', '), 'error');
+      window.showToastNotification(validationErrors.join(', '), 'error');
       return;
     }
 
@@ -49,9 +49,9 @@ export default function DashboardWrapper() {
     if (result.success) {
       closeAllModals();
       resetFormData();
-      window?.showToastNotification?.('API key created successfully!', 'success');
+      window.showToastNotification('API key created successfully!', 'success');
     } else {
-      window?.showToastNotification?.(result.error, 'error');
+      window.showToastNotification(result.error, 'error');
     }
   };
 
@@ -60,7 +60,7 @@ export default function DashboardWrapper() {
 
     const validationErrors = validateApiKeyForm(formData);
     if (validationErrors.length > 0) {
-      window?.showToastNotification?.(validationErrors.join(', '), 'error');
+      window.showToastNotification(validationErrors.join(', '), 'error');
       return;
     }
 
@@ -68,9 +68,9 @@ export default function DashboardWrapper() {
     if (result.success) {
       closeAllModals();
       resetFormData();
-      window?.showToastNotification?.('API key updated successfully!', 'success');
+      window.showToastNotification('API key updated successfully!', 'success');
     } else {
-      window?.showToastNotification?.(result.error, 'error');
+      window.showToastNotification(result.error, 'error');
     }
   };
 
@@ -78,9 +78,9 @@ export default function DashboardWrapper() {
     if (confirm('Are you sure you want to delete this API key?')) {
       const result = await deleteApiKey(id);
       if (result.success) {
-        window?.showToastNotification?.('API key deleted successfully!', 'success');
+        window.showToastNotification('API key deleted successfully!', 'success');
       } else {
-        window?.showToastNotification?.(result.error, 'error');
+        window.showToastNotification(result.error, 'error');
       }
     }
   };
@@ -100,9 +100,7 @@ export default function DashboardWrapper() {
     resetFormData();
   };
 
-  // Show loading spinner only if both are loading
-  // If API keys fail to load, still show the UI with empty state
-  if (authLoading) {
+  if (loading || authLoading) {
     return <LoadingSpinner />;
   }
 
@@ -136,27 +134,27 @@ export default function DashboardWrapper() {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Mobile Backdrop - Only show on mobile when sidebar is visible */}
+      {/* Mobile Backdrop */}
       {sidebarVisible && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
           onClick={() => toggleSidebar()}
         />
       )}
 
       {/* Sidebar */}
       {sidebarVisible && (
-        <div className="fixed md:relative z-50 md:z-auto w-64 h-screen md:h-auto">
+        <div className="fixed lg:relative z-50 lg:z-auto w-64">
           <Sidebar />
         </div>
       )}
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0 bg-background w-full md:w-auto relative z-30">
+      <div className="flex-1 flex flex-col min-w-0">
         <TopBar sidebarVisible={sidebarVisible} toggleSidebar={toggleSidebar} />
 
         {/* Main Content Area */}
-        <main className="flex-1 p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-x-auto bg-background min-h-0">
+        <div className="flex-1 p-4 sm:p-6 space-y-4 sm:space-y-6 overflow-x-auto">
           <PlanCard />
 
           {/* API Keys Section */}
@@ -189,7 +187,7 @@ export default function DashboardWrapper() {
           </div>
 
           <ContactSection />
-        </main>
+        </div>
 
         <Footer />
       </div>
