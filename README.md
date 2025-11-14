@@ -24,6 +24,7 @@
 ## Tech Stack
 
 ### Frontend
+
 - **Next.js 15** - React framework with App Router
 - **TypeScript** - Type safety and better developer experience
 - **Tailwind CSS 4** - Utility-first CSS framework with PostCSS
@@ -33,6 +34,7 @@
 - **Next Themes** - Dark mode support
 
 ### Backend & Services
+
 - **NextAuth 4** - Authentication with Supabase adapter
 - **Supabase** - PostgreSQL database and session management
 - **LangChain 0.3** - AI chain orchestration
@@ -40,6 +42,7 @@
 - **GitHub API** - Repository metadata and README retrieval
 
 ### Infrastructure
+
 - **Vercel** - Production deployment
 - **GitHub Actions** - CI/CD and automatic database schema deployment
 - **Zod** - Runtime validation and type-safe schemas
@@ -97,15 +100,15 @@ OPENAI_API_KEY=sk-your-openai-api-key
 
 **Where to find each variable:**
 
-| Variable | Source |
-|----------|--------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Dashboard → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API → Anon Key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Project Settings → API → Service Role Key |
-| `NEXTAUTH_SECRET` | Generate: `openssl rand -base64 32` |
-| `GOOGLE_CLIENT_ID` | Google Cloud Console → Credentials → OAuth 2.0 Client ID |
-| `GOOGLE_CLIENT_SECRET` | Google Cloud Console → Credentials → OAuth 2.0 Client Secret |
-| `OPENAI_API_KEY` | OpenAI Platform → API Keys → Create new key |
+| Variable                        | Source                                                         |
+| ------------------------------- | -------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase Dashboard → Project Settings → API → Project URL      |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API → Anon Key         |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase Dashboard → Project Settings → API → Service Role Key |
+| `NEXTAUTH_SECRET`               | Generate: `openssl rand -base64 32`                            |
+| `GOOGLE_CLIENT_ID`              | Google Cloud Console → Credentials → OAuth 2.0 Client ID       |
+| `GOOGLE_CLIENT_SECRET`          | Google Cloud Console → Credentials → OAuth 2.0 Client Secret   |
+| `OPENAI_API_KEY`                | OpenAI Platform → API Keys → Create new key                    |
 
 ### 4. Setup Development Database
 
@@ -126,6 +129,7 @@ node validate-env.js
 ```
 
 Expected output:
+
 ```
 ✨ All validations passed! Your environment is ready.
 You can now run: npm run dev
@@ -247,13 +251,13 @@ User Input (Repo URL)
 
 All tables include `created_at` and `updated_at` timestamps. Foreign keys are set to CASCADE DELETE for referential integrity.
 
-| Table | Purpose | Key Fields |
-|-------|---------|-----------|
-| `users` | User accounts (NextAuth) | id, email, name, image |
-| `accounts` | OAuth provider data (NextAuth) | user_id, provider, access_token |
-| `sessions` | User sessions (NextAuth) | user_id, session_token, expires |
-| `verification_tokens` | Email verification (NextAuth) | token, expires |
-| `user_api_keys` | Stored API keys | user_id, key_name, api_key (hashed), created_at |
+| Table                 | Purpose                        | Key Fields                                      |
+| --------------------- | ------------------------------ | ----------------------------------------------- |
+| `users`               | User accounts (NextAuth)       | id, email, name, image                          |
+| `accounts`            | OAuth provider data (NextAuth) | user_id, provider, access_token                 |
+| `sessions`            | User sessions (NextAuth)       | user_id, session_token, expires                 |
+| `verification_tokens` | Email verification (NextAuth)  | token, expires                                  |
+| `user_api_keys`       | Stored API keys                | user_id, key_name, api_key (hashed), created_at |
 
 ## Multi-Environment Setup
 
@@ -269,44 +273,55 @@ Production (xpto.space)
 
 ### Git Branch Strategy
 
-| Branch | Environment | URL | Auto-Deploy |
-|--------|-------------|-----|-------------|
-| `main` | Production | https://xpto.space | ✅ Yes (to Production) |
-| `staging` | Staging/QA | https://dandi.lat | ✅ Yes (to Preview) |
-| `develop` | Local Dev | localhost:3000 | ❌ No |
-| `feature/*` | Local Dev | localhost:3000 | ❌ No |
+| Branch      | Environment | URL                | Auto-Deploy            |
+| ----------- | ----------- | ------------------ | ---------------------- |
+| `main`      | Production  | https://xpto.space | ✅ Yes (to Production) |
+| `staging`   | Staging/QA  | https://dandi.lat  | ✅ Yes (to Preview)    |
+| `develop`   | Local Dev   | localhost:3000     | ❌ No                  |
+| `feature/*` | Local Dev   | localhost:3000     | ❌ No                  |
 
 ### Deployment Workflow
 
 **1. Feature Development**
+
 ```bash
 git checkout -b feature/xyz
 # Make changes, test locally with: npm run dev
 git push -u origin feature/xyz
 ```
+
 - ✅ Test locally only
 - ✅ No preview deployment
 
 **2. Code Review & Staging**
+
 ```bash
 # Create PR: feature/xyz → staging
+# Sequential validation runs automatically:
+# 1. QA Checks (Format, Lint, Types, Tests) → ✅ Success
+# 2. DB Validation (Environment vars, Schema files) → ✅ Success
 # After approval, merge to staging
 git checkout staging
 git merge feature/xyz
 git push origin staging
 ```
-- ✅ Vercel auto-deploys to dandi.lat
-- ✅ QA tests on staging
+
+- ✅ Sequential deployment runs automatically:
+  1. DB Deployment (Database schema updated)
+  2. Code Deployment (Vercel auto-deploys to dandi.lat)
 
 **3. Production Promotion**
+
 ```bash
 # After staging approval
 git checkout main
 git merge staging
 git push origin main
 ```
-- ✅ Vercel auto-deploys to xpto.space
-- ✅ GitHub Actions updates database schema
+
+- ✅ Sequential deployment runs automatically:
+  1. DB Deployment (Database schema updated)
+  2. Code Deployment (Vercel auto-deploys to xpto.space)
 - ✅ Production is live
 
 ### Vercel Configuration
@@ -314,6 +329,7 @@ git push origin main
 **Location:** Vercel Dashboard → xpto-saas project → Settings → Git
 
 **Recommended Settings:**
+
 - Production Branch: `main`
 - Preview Branches: `staging` only
 - Deploy Previews: Enabled
@@ -322,18 +338,18 @@ git push origin main
 
 Add these to **Vercel → Settings → Environment Variables** with different values per environment:
 
-| Variable | Production | Preview (Staging) | Development |
-|----------|-----------|----------|----------|
-| `NEXT_PUBLIC_SUPABASE_URL` | prod-url | staging-url | dev-url |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | prod-key | staging-key | dev-key |
-| `SUPABASE_SERVICE_ROLE_KEY` | prod-role | staging-role | dev-role |
-| `NEXTAUTH_SECRET` | prod-secret | staging-secret | dev-secret |
-| `NEXTAUTH_URL` | `https://xpto.space` | `https://dandi.lat` | `http://localhost:3000` |
-| `GOOGLE_CLIENT_ID` | prod-id | staging-id | dev-id |
-| `GOOGLE_CLIENT_SECRET` | prod-secret | staging-secret | dev-secret |
-| `OPENAI_API_KEY` | shared | shared | shared |
-| `STRIPE_SECRET_KEY` | live-key | test-key | test-key |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | live-pub | test-pub | test-pub |
+| Variable                             | Production           | Preview (Staging)   | Development             |
+| ------------------------------------ | -------------------- | ------------------- | ----------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | prod-url             | staging-url         | dev-url                 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | prod-key             | staging-key         | dev-key                 |
+| `SUPABASE_SERVICE_ROLE_KEY`          | prod-role            | staging-role        | dev-role                |
+| `NEXTAUTH_SECRET`                    | prod-secret          | staging-secret      | dev-secret              |
+| `NEXTAUTH_URL`                       | `https://xpto.space` | `https://dandi.lat` | `http://localhost:3000` |
+| `GOOGLE_CLIENT_ID`                   | prod-id              | staging-id          | dev-id                  |
+| `GOOGLE_CLIENT_SECRET`               | prod-secret          | staging-secret      | dev-secret              |
+| `OPENAI_API_KEY`                     | shared               | shared              | shared                  |
+| `STRIPE_SECRET_KEY`                  | live-key             | test-key            | test-key                |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | live-pub             | test-pub            | test-pub                |
 
 **Tip:** Each environment uses **separate Supabase projects** for data isolation.
 
@@ -375,13 +391,29 @@ OPENAI_API_KEY=sk-your-openai-api-key
 
 The project includes automated CI/CD via GitHub Actions:
 
-**Workflow**: `validate-and-deploy-db.yml`
+**Workflows**:
 
-**Triggers on**: Every push to `main` branch
+- `validate-db.yml` - Validates database schema on PRs (before merge)
+- `deploy-db.yml` - Deploys database schema after merge (on push)
 
-**What it does**:
-1. Validates production environment variables
-2. Executes database schema setup on production Supabase
+**Triggers**:
+
+- Validation: Runs on PRs targeting `main` or `staging`
+- Deployment: Runs on push to `main` or `staging` branches
+
+**What they do**:
+
+**Validation (PR)**:
+
+1. Validates environment variables
+2. Checks database schema files exist
+3. Validates SQL syntax
+4. Blocks merge if validation fails
+
+**Deployment (Push)**:
+
+1. Validates production/staging environment variables
+2. Executes database schema setup on Supabase
 3. Blocks Vercel deployment if database setup fails
 4. Ensures database is ready before app deployment
 
@@ -400,7 +432,7 @@ The project includes automated CI/CD via GitHub Actions:
 2. Configure branch protection on `main`:
    - Go to Settings → Branches
    - Add rule for `main`
-   - Require status check: `validate-and-deploy-db`
+   - Require status check: `Validate Database Schema` (from validate-db.yml workflow)
    - Enable "Require pull request before merging"
 
 ### Production Deployment Checklist

@@ -9,12 +9,14 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 ## Common Commands
 
 ### Development
+
 - **Start dev server**: `npm run dev` (runs on http://localhost:3000)
 - **Build for production**: `npm run build`
 - **Run production build locally**: `npm start`
 - **Lint code**: `eslint` (configured in eslint.config.mjs)
 
 ### Database
+
 - **Setup development database**: `node setup-database.js` (initializes Supabase tables locally)
 - **Setup production database**: Automated via GitHub Actions on merge to `main` (see Deployment section)
 - **Validate environment**: `node validate-env.js` (checks all services are configured)
@@ -22,6 +24,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 ## Architecture & Key Systems
 
 ### 1. Authentication (NextAuth + Supabase)
+
 - **Location**: `src/lib/auth.js`, `src/app/api/auth/[...nextauth]/route.js`, `src/contexts/auth-context.tsx`
 - **Key Features**:
   - Google OAuth login via NextAuth v4
@@ -32,6 +35,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Protected pages**: `/dashboards` and `/protected` require authentication
 
 ### 2. API Keys Management
+
 - **Location**: `src/lib/api-keys-service.js`, `src/lib/api-keys-store-supabase.js`
 - **Database**: Supabase table `user_api_keys` (id, user_id, key_name, api_key, created_at)
 - **Endpoints**:
@@ -42,6 +46,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Security**: API keys are hashed before storage; user_id tied to each key
 
 ### 3. GitHub Analysis (LangChain + OpenAI)
+
 - **Location**: `src/lib/chain.js`, `src/app/api/github-summarizer/route.js`
 - **Flow**:
   1. User provides GitHub repo URL
@@ -52,6 +57,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Model**: gpt-4-1-nano (cost-effective for analysis)
 
 ### 4. Stripe Payment Integration
+
 - **Location**: `src/app/api/stripe/billing-portal/route.ts`, `src/components/plan-card.tsx`
 - **Key Features**:
   - Stripe pricing table embedded in pricing section
@@ -63,10 +69,12 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Payment Processing**: All handled securely by Stripe
 
 ### 5. Rate Limiting
+
 - **Location**: `src/lib/rate-limiting.js`
 - **Prevents API abuse** by limiting requests per user/IP
 
 ### 6. UI Framework
+
 - **Next.js App Router** with TypeScript support
 - **Shadcn/ui components** (from `@radix-ui/*`) for consistent, accessible UI
 - **Tailwind CSS 4** for styling (configured in `tailwind.config.js` via `@tailwindcss/postcss`)
@@ -75,6 +83,7 @@ This is a **Next.js 15 full-stack application** (Xpto - GitHub Analyzer) that an
 - **Responsive layout**: Sidebar + main content area pattern
 
 ### 6. Providers & Context
+
 - **Location**: `src/app/providers.tsx`
 - **Wraps entire app with**:
   - NextAuth SessionProvider (handles auth state)
@@ -190,6 +199,7 @@ node validate-env.js
 ```
 
 This script checks:
+
 - ✅ All required environment variables are set
 - ✅ Supabase connection works
 - ✅ Google OAuth credentials are valid
@@ -197,6 +207,7 @@ This script checks:
 - ✅ NextAuth configuration is correct
 
 **Output example:**
+
 ```
 ✨ All validations passed! Your environment is ready.
 You can now run: npm run dev
@@ -204,17 +215,17 @@ You can now run: npm run dev
 
 ### Environment Variable Sources
 
-| Variable | Where to Find |
-|----------|--------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase Dashboard → Project Settings → API → Project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase Dashboard → Project Settings → API → Anon Key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase Dashboard → Project Settings → API → Service Role Key |
-| `NEXTAUTH_SECRET` | Generate: `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | `http://localhost:3000` (dev) or your deployment URL (prod) |
-| `GOOGLE_CLIENT_ID` | Google Cloud Console → Credentials → OAuth 2.0 Client ID |
-| `GOOGLE_CLIENT_SECRET` | Google Cloud Console → Credentials → OAuth 2.0 Client Secret |
-| `OPENAI_API_KEY` | OpenAI Dashboard → API Keys → Create new key |
-| `STRIPE_SECRET_KEY` | Stripe Dashboard → Developers → API Keys → Secret Key (test/live) |
+| Variable                             | Where to Find                                                          |
+| ------------------------------------ | ---------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Supabase Dashboard → Project Settings → API → Project URL              |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Supabase Dashboard → Project Settings → API → Anon Key                 |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Supabase Dashboard → Project Settings → API → Service Role Key         |
+| `NEXTAUTH_SECRET`                    | Generate: `openssl rand -base64 32`                                    |
+| `NEXTAUTH_URL`                       | `http://localhost:3000` (dev) or your deployment URL (prod)            |
+| `GOOGLE_CLIENT_ID`                   | Google Cloud Console → Credentials → OAuth 2.0 Client ID               |
+| `GOOGLE_CLIENT_SECRET`               | Google Cloud Console → Credentials → OAuth 2.0 Client Secret           |
+| `OPENAI_API_KEY`                     | OpenAI Dashboard → API Keys → Create new key                           |
+| `STRIPE_SECRET_KEY`                  | Stripe Dashboard → Developers → API Keys → Secret Key (test/live)      |
 | `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe Dashboard → Developers → API Keys → Publishable Key (test/live) |
 
 ### Setup Checklist
@@ -268,13 +279,13 @@ This project uses **separate Supabase projects** for development and production:
 
 The application uses these tables:
 
-| Table | Purpose | Key Fields |
-|-------|---------|-----------|
-| `users` | User accounts (NextAuth) | id, email, name, image |
-| `accounts` | OAuth provider data (NextAuth) | user_id, provider, access_token |
-| `sessions` | User sessions (NextAuth) | user_id, session_token, expires |
-| `verification_tokens` | Email verification (NextAuth) | token, expires |
-| `api_keys` | User API keys for GitHub/OpenAI | user_id, key, name, usage tracking |
+| Table                 | Purpose                         | Key Fields                         |
+| --------------------- | ------------------------------- | ---------------------------------- |
+| `users`               | User accounts (NextAuth)        | id, email, name, image             |
+| `accounts`            | OAuth provider data (NextAuth)  | user_id, provider, access_token    |
+| `sessions`            | User sessions (NextAuth)        | user_id, session_token, expires    |
+| `verification_tokens` | Email verification (NextAuth)   | token, expires                     |
+| `api_keys`            | User API keys for GitHub/OpenAI | user_id, key, name, usage tracking |
 
 All tables include `created_at` and `updated_at` timestamps.
 Foreign keys are set to CASCADE DELETE on user deletion.
@@ -329,6 +340,7 @@ ENV_FILE=.env.production.local node validate-env.js
 ```
 
 Expected output:
+
 ```
 ✨ All validations passed! Your environment is ready.
 ```
@@ -366,12 +378,12 @@ Expected output:
 
 ### Services Status
 
-| Service | Development | Production | Notes |
-|---------|-------------|-----------|-------|
-| Supabase | ✅ Configured | ⚠️ Needs setup | Separate projects (safer) |
-| Google OAuth | ✅ Configured | ✅ Configured | Need redirect URI in Cloud Console |
-| OpenAI | ✅ Working | ✅ Working | Same key in both environments |
-| NextAuth | ✅ Configured | ❌ Missing | Add NEXTAUTH_SECRET and NEXTAUTH_URL |
+| Service      | Development   | Production     | Notes                                |
+| ------------ | ------------- | -------------- | ------------------------------------ |
+| Supabase     | ✅ Configured | ⚠️ Needs setup | Separate projects (safer)            |
+| Google OAuth | ✅ Configured | ✅ Configured  | Need redirect URI in Cloud Console   |
+| OpenAI       | ✅ Working    | ✅ Working     | Same key in both environments        |
+| NextAuth     | ✅ Configured | ❌ Missing     | Add NEXTAUTH_SECRET and NEXTAUTH_URL |
 
 ---
 
@@ -381,22 +393,42 @@ Expected output:
 
 This project uses **GitHub Actions** to automatically deploy database schema changes to production with **branch protection** to prevent broken deployments.
 
-#### Workflow: `validate-and-deploy-db.yml`
+#### Workflows: `validate-db.yml` and `deploy-db.yml`
 
-**Location**: `.github/workflows/validate-and-deploy-db.yml`
+**Locations**:
 
-**Trigger**: Automatically runs on every push to `main` branch
+- `.github/workflows/validate-db.yml` - Validates on PRs
+- `.github/workflows/deploy-db.yml` - Deploys on push
 
-**What it does**:
+**Triggers**:
+
+- Validation: Runs on PRs targeting `main` or `staging`
+- Deployment: Automatically runs on every push to `main` or `staging` branch
+
+**What they do**:
+
+**Validation Workflow (PR)**:
+
 1. Checks out the code
 2. Sets up Node.js environment
 3. Installs dependencies
-4. **Validates** all production environment variables
-5. Executes `setup-production-db.js` with production credentials
-6. Creates/verifies all database tables and indexes in production
+4. **Validates** environment variables
+5. Checks database schema files exist
+6. Validates SQL syntax
+7. **Blocks merge** if validation fails
+
+**Deployment Workflow (Push)**:
+
+1. Checks out the code
+2. Sets up Node.js environment
+3. Installs dependencies
+4. **Validates** all production/staging environment variables
+5. Executes `setup-production-db.js` with production/staging credentials
+6. Creates/verifies all database tables and indexes
 7. **Fails explicitly** if any schema issues occur (blocks Vercel deployment)
 
 **Safety Features**:
+
 - ✅ Validates environment before deployment
 - ✅ Fails fast on Supabase connection errors
 - ✅ Prevents app deployment if database setup fails
@@ -411,43 +443,46 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 2. Navigate to **Settings → Secrets and variables → Actions**
 3. Click **New repository secret** and add these secrets:
 
-| Secret Name | Value | Source |
-|-------------|-------|--------|
-| `PROD_SUPABASE_URL` | Production Supabase project URL | `.env.production.local` |
-| `PROD_SUPABASE_ANON_KEY` | Production Supabase anon key | `.env.production.local` |
+| Secret Name                      | Value                                | Source                  |
+| -------------------------------- | ------------------------------------ | ----------------------- |
+| `PROD_SUPABASE_URL`              | Production Supabase project URL      | `.env.production.local` |
+| `PROD_SUPABASE_ANON_KEY`         | Production Supabase anon key         | `.env.production.local` |
 | `PROD_SUPABASE_SERVICE_ROLE_KEY` | Production Supabase service role key | `.env.production.local` |
-| `PROD_NEXTAUTH_SECRET` | Production NextAuth secret | `.env.production.local` |
-| `PROD_NEXTAUTH_URL` | Production NextAuth URL | `.env.production.local` |
-| `PROD_GOOGLE_CLIENT_ID` | Google OAuth client ID | `.env.production.local` |
-| `PROD_GOOGLE_CLIENT_SECRET` | Google OAuth client secret | `.env.production.local` |
-| `PROD_OPENAI_API_KEY` | OpenAI API key | `.env.production.local` |
+| `PROD_NEXTAUTH_SECRET`           | Production NextAuth secret           | `.env.production.local` |
+| `PROD_NEXTAUTH_URL`              | Production NextAuth URL              | `.env.production.local` |
+| `PROD_GOOGLE_CLIENT_ID`          | Google OAuth client ID               | `.env.production.local` |
+| `PROD_GOOGLE_CLIENT_SECRET`      | Google OAuth client secret           | `.env.production.local` |
+| `PROD_OPENAI_API_KEY`            | OpenAI API key                       | `.env.production.local` |
 
 **Step 2: Configure GitHub Branch Protection** ⚠️ CRITICAL
 
 This ensures GA failure **blocks** Vercel deployment:
 
 1. Go to **Settings → Branches**
-2. Click **Add rule** (or edit existing `main` branch rule)
-3. Enter branch name pattern: `main`
+2. Click **Add rule** (or edit existing `main`/`staging` branch rule)
+3. Enter branch name pattern: `main` or `staging`
 4. Enable these options:
    - ✅ **Require a pull request before merging**
      - Require approvals: 1 (or your preference)
      - Dismiss stale pull request approvals
    - ✅ **Require status checks to pass before merging**
-     - Search for: `validate-and-deploy-db` (the GA job name)
-     - Select it from the dropdown
+     - Search for: `Validate Database Schema` (the validation job name)
+     - Also require: `Quality Assurance Checks`
+     - Select them from the dropdown
    - ✅ **Require branches to be up to date before merging**
 5. Click **Create** or **Save changes**
 
 **Result**:
-- ✅ GA must pass before merge button appears
-- ✅ If GA fails, merge is **BLOCKED**
-- ✅ Vercel only deploys after GA succeeds
+
+- ✅ QA checks must pass before merge button appears
+- ✅ DB validation must pass before merge button appears
+- ✅ If any check fails, merge is **BLOCKED**
+- ✅ Vercel only deploys after merge succeeds
 - ✅ Database schema guaranteed to be ready
 
-#### Workflow in Action (With Safety)
+#### Workflow in Action (Sequential Validation)
 
-**Safe Deployment Flow with Branch Protection:**
+**Safe Deployment Flow with Sequential Validation:**
 
 ```
 1. Developer creates feature branch
@@ -457,40 +492,42 @@ This ensures GA failure **blocks** Vercel deployment:
 
 2. Creates Pull Request
    └─ Code review happens
-   └─ GA runs validation on feature branch
+   └─ Sequential validation runs:
+       ├─ Step 1: QA Checks (Format, Lint, Types, Tests) → ✅ Success
+       └─ Step 2: DB Validation (Env vars, Schema files) → ✅ Success
 
-3. Developer tries to merge to main
+3. Developer tries to merge to staging/main
    ├─ Branch protection rule triggers
-   └─ GA job status checked: validate-and-deploy-db
-       ├─ If GA FAILED ❌
-       │  └─ Merge button is DISABLED ✅
-       └─ If GA PASSED ✅
-          └─ Merge button is ENABLED ✅
+   └─ Required checks status checked:
+       ├─ If QA FAILED ❌ → Merge button DISABLED ✅
+       ├─ If DB Validation FAILED ❌ → Merge button DISABLED ✅
+       └─ If BOTH PASSED ✅ → Merge button ENABLED ✅
 
-4. If GA passed, merge to main
-   └─ GA runs again on main branch
-   └─ Database schema created/verified ✅
-   └─ Workflow completes successfully
+4. If checks passed, PR approved and merged
+   └─ Merge triggers push event to target branch
+   └─ Sequential deployment runs:
+       ├─ Step 1: DB Deployment (Actual database update) → ✅ Success
+       └─ Step 2: Code Deployment (Vercel) → ✅ Success
 
-5. Vercel deployment starts (parallel)
-   ├─ Database schema already created ✅
-   └─ App deployed to production ✅
-
-6. If GA failed (database issue)
-   ├─ Cannot merge to main (blocked) ✅
+5. If any validation failed
+   ├─ Cannot merge (blocked) ✅
    ├─ Vercel does NOT deploy ✅
-   └─ Production stays safe
+   └─ Production/staging stays safe ✅
 ```
 
 **Safety Guarantees:**
-- ❌ Cannot have broken database in production
-- ✅ Must have GA passing before merge allowed
-- ✅ Database schema guaranteed ready before app deploys
-- ✅ Vercel deployment only after GA succeeds
+
+- ❌ Cannot have broken database in production/staging
+- ✅ Must have QA checks passing before merge allowed
+- ✅ Must have DB validation passing before merge allowed
+- ✅ Database schema validated before merge, deployed after merge
+- ✅ Vercel deployment only after DB deployment succeeds
+- ✅ Sequential flow: QA → DB Validation → Approval → DB Deploy → Code Deploy
 
 #### Idempotent Operations
 
 The workflow is safe to run repeatedly because:
+
 - All `CREATE TABLE` statements use `IF NOT EXISTS`
 - All `CREATE INDEX` statements use `IF NOT EXISTS`
 - All `ALTER TABLE ADD COLUMN` statements use `IF NOT EXISTS`
@@ -509,22 +546,38 @@ node setup-production-db.js
 
 #### Troubleshooting GitHub Actions Failures
 
-**If GA job fails and blocks your merge:**
+**If validation checks fail and block your merge:**
 
 1. **Check the error logs**
-   - Go to your PR → Click "Actions" tab
-   - Click the failed `validate-and-deploy-db` job
-   - Read the error output
+   - Go to your PR → Click "Checks" tab
+   - Check which job failed:
+     - `Quality Assurance Checks` → Fix code quality issues
+     - `Validate Database Schema` → Fix database validation issues
+   - Read the error output in the failed job
 
 2. **Common issues**
-   - ❌ Supabase connection failed
-     - Verify `PROD_SUPABASE_*` secrets in GitHub
-     - Test: `ENV_FILE=.env.production.local node validate-env.js`
 
+   **QA Checks Failures:**
+   - ❌ Formatting errors → Run `npm run format`
+   - ❌ Linting errors → Run `npm run lint:fix`
+   - ❌ Type errors → Fix TypeScript issues
+   - ❌ Test failures → Fix failing tests
+
+   **DB Validation Failures:**
+   - ❌ Missing environment variables
+     - Verify secrets exist in GitHub (e.g., `STAGING_SUPABASE_*` for staging PRs)
+     - Test locally: `ENV_FILE=.env.staging.local node validate-env.js`
+   - ❌ Missing schema files
+     - Ensure `setup-production-db.js` exists
+     - Ensure SQL syntax is valid
+   - ❌ Supabase connection failed
+     - Verify Supabase secrets in GitHub
+     - Check network connectivity
+
+   **DB Deployment Failures (after merge):**
    - ❌ Table already exists error
      - This is OK! Idempotent operations handle this
      - But if it's blocking, check database schema manually
-
    - ❌ Timeout connecting to Supabase
      - Check network connectivity
      - Verify Supabase project is active
@@ -533,13 +586,13 @@ node setup-production-db.js
 3. **Fix and retry**
    - Fix the issue in code or GitHub Secrets
    - Commit and push again
-   - GA runs automatically
-   - Once GA passes, merge is enabled
+   - Validation runs automatically on PR
+   - Once all checks pass, merge is enabled
 
 4. **Get help**
    - Check CLAUDE.md sections: Environment Setup, Database Setup
    - Review GitHub Actions logs for detailed errors
-   - Run validation locally: `ENV_FILE=.env.production.local node validate-env.js`
+   - Run validation locally: `ENV_FILE=.env.staging.local node validate-env.js`
 
 ### Best Practices for Schema Changes
 
@@ -571,12 +624,328 @@ When making database schema changes:
 
 ---
 
+## Pre-Deployment Quality Assurance System
+
+This project implements a **multi-layer QA system** that ensures code quality before commits, pushes, and deployments. This system protects the codebase from formatting issues, linting errors, type errors, and broken tests.
+
+### Protection Layers
+
+The QA system consists of four protection layers:
+
+1. **Pre-Commit Hook** - Formats and lints staged files before commit
+2. **Pre-Push Hook** - Runs full QA checks before pushing to remote
+3. **GitHub Actions** - CI/CD validation on PRs and pushes
+4. **Manual Check** - Comprehensive pre-deployment validation script
+
+### Layer 1: Pre-Commit Hook (via Husky + lint-staged)
+
+**Location**: `.husky/pre-commit`
+
+**When it runs**: Automatically before every `git commit`
+
+**What it does**:
+
+- Formats staged files with Prettier (`.js`, `.jsx`, `.ts`, `.tsx`, `.json`, `.md`, `.css`)
+- Lints staged files with ESLint (`.js`, `.jsx`, `.ts`, `.tsx`)
+- Auto-fixes formatting and linting issues when possible
+
+**Configuration**: `.lintstagedrc.js`
+
+**Execution time**: < 10 seconds (only processes staged files)
+
+**How it works**:
+
+1. You stage files: `git add file1.ts file2.tsx`
+2. You commit: `git commit -m "your message"`
+3. Pre-commit hook runs automatically
+4. Files are formatted and linted
+5. If fixes are applied, files are re-staged
+6. Commit proceeds with clean code
+
+**Bypass**: `git commit --no-verify` (NOT recommended - defeats QA purpose)
+
+**For AI agents**: Always let the hook run. Never bypass it.
+
+### Layer 2: Pre-Push Hook (via Husky)
+
+**Location**: `.husky/pre-push`
+
+**When it runs**: Automatically before every `git push` to remote repository
+
+**What it does**:
+
+1. Format check - Verifies all files are properly formatted
+2. Lint check - Verifies code quality and style
+3. Type check - Verifies TypeScript types are correct
+4. Tests - Runs the test suite to ensure nothing is broken
+
+**Runs on**: ALL branches (main, staging, develop, feature branches)
+
+**Execution time**: 1-3 minutes
+
+**How it works**:
+
+1. You push: `git push origin branch-name`
+2. Pre-push hook runs automatically
+3. All QA checks execute
+4. If all checks pass, push proceeds
+5. If any check fails, push is blocked
+
+**Bypass**: `git push --no-verify` (NOT recommended - defeats QA purpose)
+
+**For AI agents**: Always let the hook run. Never bypass it.
+
+### Layer 3: GitHub Actions (CI/CD)
+
+**Location**: `.github/workflows/qa.yml`
+
+**When it runs**: On pull requests and pushes to `main`, `staging`, `develop` branches
+
+**What it does**:
+
+- Format check
+- Lint check
+- Type check
+- Tests with coverage
+- Build verification
+
+**Execution time**: 2-5 minutes
+
+**Bypass**: Cannot be bypassed (runs on remote repository)
+
+### Layer 4: Manual Pre-Deployment Check
+
+**Location**: `scripts/pre-deploy-check.sh`
+
+**When to run**: Before deploying to production
+
+**Command**: `npm run pre-deploy-check` or `bash scripts/pre-deploy-check.sh`
+
+**What it validates**:
+
+1. Code formatting
+2. Code quality (linting)
+3. Type checking
+4. Tests
+5. Production build
+6. Environment variables
+7. Database schema files
+
+**Usage**:
+
+```bash
+# For development environment
+npm run pre-deploy-check
+
+# For production environment
+bash scripts/pre-deploy-check.sh production
+```
+
+### Git Hooks Setup
+
+This project uses **Husky** (v9+) to manage Git hooks.
+
+**Installation**: Automatically runs via `npm install` (via `prepare` script in package.json)
+
+**Dependencies**:
+
+- `husky` - Git hooks manager
+- `lint-staged` - Run linters on staged files only
+
+**Hook files**:
+
+- `.husky/pre-commit` - Pre-commit hook script
+- `.husky/pre-push` - Pre-push hook script
+
+### lint-staged Configuration
+
+**Location**: `.lintstagedrc.js`
+
+**Purpose**: Efficiently format and lint only staged files (not entire codebase)
+
+**Configuration**:
+
+- Formats: `*.{js,jsx,ts,tsx,json,md,css}` with Prettier
+- Lints: `*.{js,jsx,ts,tsx}` with ESLint
+
+**Why it's fast**: Only processes files you're actually committing
+
+### QA Commands Reference
+
+#### Quick Checks (via justfile)
+
+- `just qa` - Run all QA checks (format, lint, type-check, tests)
+- `just format` - Format all files
+- `just lintfix` - Fix linting issues
+- `just type-check` - Check TypeScript types
+- `just test` - Run tests
+
+#### Comprehensive Checks
+
+- `just pre-deploy` - Full pre-deployment check (includes build)
+- `npm run pre-deploy-check` - Interactive pre-deployment validation
+
+#### Individual Checks (via npm)
+
+- `npm run format` - Format all files
+- `npm run format:check` - Check formatting without fixing
+- `npm run lint` - Check linting without fixing
+- `npm run lint:fix` - Fix linting issues
+- `npm run type-check` - TypeScript type checking
+- `npm run test` - Run tests
+- `npm run test:coverage` - Run tests with coverage
+
+### Workflow for Developers
+
+#### Normal Development Flow
+
+1. **Make changes** to code
+2. **Test locally**: `npm run dev`
+3. **Run QA checks**: `just qa` (optional, hooks will catch issues)
+4. **Stage files**: `git add file1.ts file2.tsx`
+5. **Commit**: `git commit -m "descriptive message"`
+   - Pre-commit hook runs automatically
+   - Files are formatted/linted
+   - Commit proceeds with clean code
+6. **Push**: `git push origin branch-name`
+   - Pre-push hook runs automatically
+   - Full QA checks execute
+   - Push proceeds if all checks pass
+7. **Create PR**: GitHub Actions validates again
+8. **Deploy**: After all checks pass
+
+#### If Pre-Commit Hook Fails
+
+**Issue**: Formatting or linting errors
+
+**Solution**:
+
+```bash
+npm run format        # Format all files
+npm run lint:fix      # Fix linting issues
+git add .             # Re-stage fixed files
+git commit -m "your message"  # Commit again
+```
+
+#### If Pre-Push Hook Fails
+
+**Issue**: Format, lint, type, or test failures
+
+**Solution**:
+
+```bash
+just qa               # Run all checks locally
+# Fix any issues shown
+git add .
+git commit -m "fix: resolve QA issues"
+git push origin branch-name
+```
+
+### Workflow for AI Agents
+
+**CRITICAL**: AI agents must follow these guidelines:
+
+1. **Never bypass hooks**: Do NOT use `--no-verify` flags
+2. **Let hooks run**: Always allow pre-commit and pre-push hooks to execute
+3. **Fix issues**: If hooks fail, fix the issues before proceeding
+4. **Review auto-fixes**: After hooks run, review any auto-fixes
+5. **Run checks locally**: Use `just qa` before pushing to catch issues early
+
+**Before Committing**:
+
+- Stage files intentionally
+- Let pre-commit hook run (it will auto-fix formatting/linting)
+- Review auto-fixes if files were modified
+- Commit completes with clean code
+
+**Before Pushing**:
+
+- Run `just qa` locally first (optional but recommended)
+- Push normally: `git push origin branch-name`
+- Let pre-push hook run (validates everything)
+- If hook fails, fix issues and push again
+- Never bypass with `--no-verify`
+
+**Before Deploying**:
+
+- Run `npm run pre-deploy-check` for comprehensive validation
+- Verify all checks pass
+- Create/update Pull Request
+- Wait for GitHub Actions to pass
+- Merge to staging/main
+
+### Emergency Situations
+
+In rare emergency situations, hooks can be bypassed:
+
+- **Pre-commit**: `git commit --no-verify -m "message"`
+- **Pre-push**: `git push --no-verify origin branch`
+
+**However**:
+
+- AI agents should NEVER bypass hooks
+- Only human developers should do this in true emergencies
+- Issues must be fixed immediately after bypassing
+
+### Integration with Justfile
+
+The project uses `just` (a command runner) for QA workflows. See `justfile` for all available commands:
+
+- `just qa` - Run all QA checks
+- `just pre-deploy` - Full pre-deployment check
+- `just format` - Format code
+- `just lintfix` - Fix linting
+- `just type-check` - Type checking
+- `just test` - Run tests
+
+Run `just help` or `just --list` to see all commands.
+
+### Cursor Rules for AI Agents
+
+AI agents should refer to these Cursor rules files:
+
+- `.cursor/rules/pre-commit.mdc` - Pre-commit hook guidelines
+- `.cursor/rules/pre-push.mdc` - Pre-push hook guidelines
+- `.cursor/rules/qa-workflow.mdc` - General QA workflow guidelines
+
+These files provide detailed guidance for AI agents on how to work with the QA system.
+
+### Troubleshooting
+
+#### Hook Not Running
+
+If hooks aren't running:
+
+1. **Check Husky installation**: Run `npm install` (triggers `prepare` script)
+2. **Verify hook files exist**: Check `.husky/pre-commit` and `.husky/pre-push`
+3. **Check file permissions**: Hooks should be executable
+4. **Verify Git hooks path**: Run `git config core.hooksPath` (should be `.husky`)
+
+#### Hook Failing Unexpectedly
+
+If hooks fail unexpectedly:
+
+1. **Check dependencies**: Ensure `husky` and `lint-staged` are installed
+2. **Verify configuration**: Check `.lintstagedrc.js` syntax
+3. **Run commands manually**: Test individual commands (`npm run format`, `npm run lint`, etc.)
+4. **Check Node version**: Ensure Node.js version matches project requirements
+
+#### Performance Issues
+
+If hooks are slow:
+
+1. **Pre-commit**: Should be fast (< 10s) - only processes staged files
+2. **Pre-push**: May take 1-3 minutes - runs full QA checks
+3. **If too slow**: Consider running `just qa` locally before pushing
+
+---
+
 ## Development Workflow
 
 1. Start dev server: `npm run dev`
 2. Make changes to components/pages
 3. Test in browser at http://localhost:3000
-4. Check linting: `eslint` (or it will catch errors on build)
-5. Commit changes with clear messages
-6. Push to trigger build validation (TypeScript + ESLint)
+4. Run QA checks: `just qa` (or hooks will catch issues automatically)
+5. Commit changes with clear messages (pre-commit hook runs automatically)
+6. Push to trigger pre-push hook and GitHub Actions validation
 7. If database schema changed, GitHub Actions deploys to production on merge to main

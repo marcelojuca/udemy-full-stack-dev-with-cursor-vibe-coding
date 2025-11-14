@@ -1,0 +1,45 @@
+#!/usr/bin/env sh
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "🚀 Running pre-push QA checks..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+
+# Step 1: Format check
+echo "📋 Step 1/4: Checking code formatting..."
+if ! npm run format:check > /dev/null 2>&1; then
+  echo "❌ Format check failed. Run 'npm run format' to fix."
+  exit 1
+fi
+echo "✅ Code formatting is correct"
+echo ""
+
+# Step 2: Lint check
+echo "📋 Step 2/4: Checking code quality (ESLint)..."
+if ! npm run lint > /dev/null 2>&1; then
+  echo "❌ Lint check failed. Run 'npm run lint:fix' to fix."
+  exit 1
+fi
+echo "✅ Code quality checks passed"
+echo ""
+
+# Step 3: Type check
+echo "📋 Step 3/4: Type checking (TypeScript)..."
+if ! npm run type-check > /dev/null 2>&1; then
+  echo "❌ Type check failed. Fix TypeScript errors."
+  exit 1
+fi
+echo "✅ Type checking passed"
+echo ""
+
+# Step 4: Tests
+echo "📋 Step 4/4: Running tests..."
+if ! npm run test > /dev/null 2>&1; then
+  echo "❌ Tests failed. Fix test failures."
+  exit 1
+fi
+echo "✅ All tests passed"
+echo ""
+
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "✅ All pre-push checks passed! Proceeding with push..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

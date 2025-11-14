@@ -1,0 +1,71 @@
+---
+alwaysApply: true
+---
+
+# Pre-Commit Hook Guidelines
+
+## Overview
+
+The pre-commit hook automatically runs quality checks on staged files before a commit is created. This ensures code quality and consistency.
+
+## What It Does
+
+When you commit code, the pre-commit hook automatically:
+
+1. **Formats staged files** with Prettier (`.js`, `.jsx`, `.ts`, `.tsx`, `.json`, `.md`, `.css`)
+2. **Lints staged files** with ESLint (`.js`, `.jsx`, `.ts`, `.tsx`)
+3. **Auto-fixes** formatting and linting issues when possible
+
+## For AI Agents
+
+**CRITICAL**: Always let the pre-commit hook run. Do NOT bypass it with `--no-verify` or `--no-gpg-sign` flags.
+
+### Best Practices
+
+- **Stage files intentionally**: Only stage files that are part of your changes
+- **Let hooks run**: The hook will auto-fix formatting and linting issues
+- **Review auto-fixes**: After the hook runs, review any auto-fixes before committing
+- **Commit after fixes**: If the hook modifies files, stage the fixes and commit again
+
+### What Happens
+
+1. You stage files: `git add file1.ts file2.tsx`
+2. You commit: `git commit -m "your message"`
+3. Pre-commit hook runs automatically
+4. Files are formatted and linted
+5. If fixes are applied, files are re-staged
+6. Commit proceeds with clean code
+
+### If Hook Fails
+
+If the pre-commit hook fails:
+
+1. **Read the error message** - it will tell you what's wrong
+2. **Fix the issues** manually or run:
+   - `npm run format` - to format all files
+   - `npm run lint:fix` - to fix linting issues
+3. **Re-stage the fixed files**: `git add .`
+4. **Commit again**: `git commit -m "your message"`
+
+### Never Bypass
+
+**DO NOT** use `git commit --no-verify` or `git commit --no-gpg-sign` to bypass the hook. This defeats the purpose of quality assurance and can lead to:
+
+- Inconsistent code formatting
+- Linting errors in the codebase
+- Broken builds in CI/CD
+- Code review delays
+
+## Technical Details
+
+- **Tool**: lint-staged (runs only on staged files for speed)
+- **Execution time**: Typically < 10 seconds
+- **Configuration**: `.lintstagedrc.js`
+- **Hook location**: `.husky/pre-commit`
+
+## Related Commands
+
+- `npm run format` - Format all files
+- `npm run format:check` - Check formatting without fixing
+- `npm run lint:fix` - Fix linting issues
+- `npm run lint` - Check linting without fixing

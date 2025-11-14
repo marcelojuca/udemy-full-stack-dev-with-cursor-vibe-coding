@@ -1,1 +1,612 @@
-var _=Object.defineProperty,te=Object.defineProperties,re=Object.getOwnPropertyDescriptor,ie=Object.getOwnPropertyDescriptors,oe=Object.getOwnPropertyNames,F=Object.getOwnPropertySymbols;var U=Object.prototype.hasOwnProperty,ne=Object.prototype.propertyIsEnumerable;var B=(e,t,r)=>t in e?_(e,t,{enumerable:!0,configurable:!0,writable:!0,value:r}):e[t]=r,E=(e,t)=>{for(var r in t||(t={}))U.call(t,r)&&B(e,r,t[r]);if(F)for(var r of F(t))ne.call(t,r)&&B(e,r,t[r]);return e},z=(e,t)=>te(e,ie(t));var A=(e,t)=>()=>(e&&(t=e(e=0)),t);var L=(e,t)=>{for(var r in t)_(e,r,{get:t[r],enumerable:!0})},ae=(e,t,r,i)=>{if(t&&typeof t=="object"||typeof t=="function")for(let o of oe(t))!U.call(e,o)&&o!==r&&_(e,o,{get:()=>t[o],enumerable:!(i=re(t,o))||i.enumerable});return e};var se=e=>ae(_({},"__esModule",{value:!0}),e);function u(e,t){let r=`${$}`;return $+=1,w[r]={handler:t,name:e},function(){delete w[r]}}function v(e,t){let r=!1;for(let i in w)w[i].name===e&&(w[i].handler.apply(null,t),r=!0);if(r===!1)throw new Error(`No event handler with name \`${e}\``)}var w,$,s,G=A(()=>{w={},$=0;s=typeof window=="undefined"?function(e,...t){figma.ui.postMessage([e,...t])}:function(e,...t){window.parent.postMessage({pluginMessage:[e,...t]},"*")};typeof window=="undefined"?figma.ui.onmessage=function(e){if(!Array.isArray(e))return;let[t,...r]=e;typeof t=="string"&&v(t,r)}:window.onmessage=function(e){if(typeof e.data.pluginMessage=="undefined")return;let t=e.data.pluginMessage;if(!Array.isArray(t))return;let[r,...i]=e.data.pluginMessage;typeof r=="string"&&v(r,i)}});function b(e,t){if(typeof __html__=="undefined")throw new Error("No UI defined");let r=`<div id="create-figma-plugin"></div><script>document.body.classList.add('theme-${figma.editorType}');const __FIGMA_COMMAND__='${typeof figma.command=="undefined"?"":figma.command}';const __SHOW_UI_DATA__=${JSON.stringify(typeof t=="undefined"?{}:t)};${__html__}</script>`;figma.showUI(r,z(E({},e),{themeColors:typeof e.themeColors=="undefined"?!0:e.themeColors}))}var Y=A(()=>{});var W=A(()=>{G();Y()});var j={};L(j,{TIER_LIMITS:()=>p,clearCache:()=>de,fetchStripeProducts:()=>H,formatPrice:()=>k,getAllTiers:()=>me,getCachedProducts:()=>x,getPricingDisplay:()=>Z,getResizeLimit:()=>fe,getTierDescription:()=>V,getTierInfo:()=>S,getTierWithFeatures:()=>ue,isLimitDaily:()=>ge});function le(){if(typeof window=="undefined"||window.location.hostname==="localhost"||window.location.hostname==="127.0.0.1")return"http://localhost:3000";let e=window.location.protocol,t=window.location.hostname;return`${e}//${t}`}async function H(){try{let e=le()+"/api/plugin/products";console.log(`[Plugin Stripe Products] Fetching from website API: ${e}`);let t=await fetch(e,{method:"GET",headers:{"Content-Type":"application/json"}});if(!t.ok)throw new Error(`Website API error: ${t.status} ${t.statusText}`);let r=await t.json();if(console.log("[Plugin Stripe Products] Fetched product info from website API"),!r.tiers||!Array.isArray(r.tiers))return console.error("[Plugin Stripe Products] Invalid response format - no tiers array",r),[];let i=r.tiers;console.log(`[Plugin Stripe Products] Found ${i.length} tiers from website API`);let o=i.map(n=>{var c,l;return console.log("[Plugin Stripe Products] Mapping tier:",n.id,n.displayName),{id:n.id,displayName:n.displayName,monthlyPrice:n.monthlyPrice||0,stripeProductId:n.stripeProductId||null,stripePriceId:n.stripePriceId||null,resizesPerDay:n.resizesPerDay,resizesOneTime:n.resizesOneTime,maxBatchSize:n.maxBatchSize||1,hasApiAccess:(c=n.hasApiAccess)!=null?c:!1,hasWatermark:(l=n.hasWatermark)!=null?l:!1,supportedFormats:n.supportedFormats||["jpg","png"]}});return console.log(`[Plugin Stripe Products] Mapped ${o.length} products successfully`),o}catch(e){return console.error("[Plugin Stripe Products] Error fetching from website API:",e),[]}}async function x(){try{if(typeof figma!="undefined"&&figma.clientStorage){let t=await figma.clientStorage.getAsync(O);if(t)try{let r=JSON.parse(t);if(r.timestamp&&Date.now()-r.timestamp<ce)return console.log("[Stripe Products] Using cached data"),r.products}catch(r){console.error("[Stripe Products] Error parsing cached products:",r)}}}catch(t){console.error("[Stripe Products] Error accessing clientStorage:",t)}console.log("[Stripe Products] Fetching fresh data from API");let e=await H();try{typeof figma!="undefined"&&figma.clientStorage&&await figma.clientStorage.setAsync(O,JSON.stringify({products:e,timestamp:Date.now()}))}catch(t){console.error("[Stripe Products] Error caching products:",t)}return e}async function S(e){var o;console.log(`[Plugin Stripe Products] Getting tier info for: ${e}`);let t=await x();console.log("[Plugin Stripe Products] Available products:",t.map(n=>({id:n.id,displayName:n.displayName})));let r=t.find(n=>n.id===e);if(!r)throw console.warn(`[Plugin Stripe Products] Product not found for tier: ${e}, API may be unavailable or tier not configured`),new Error(`Product not found for tier: ${e}`);let i=p[e];return console.log(`[Plugin Stripe Products] Found product for ${e}:`,{displayName:r.displayName,monthlyPrice:r.monthlyPrice,stripeProductId:r.stripeProductId,stripePriceId:r.stripePriceId}),{tier:e,displayName:r.displayName,limit:(i==null?void 0:i.limit)||r.resizesPerDay||r.resizesOneTime||0,isDaily:(o=i==null?void 0:i.isDaily)!=null?o:!!r.resizesPerDay,monthlyPrice:r.monthlyPrice,stripeProductId:r.stripeProductId,stripePriceId:r.stripePriceId}}async function me(){try{console.log("[Plugin Stripe Products] Fetching all available tiers from API");let e=await x();console.log(`[Plugin Stripe Products] Retrieved ${e.length} products from cache`);let t=["free","basic","pro","enterprise"],r=[];for(let i of t)try{let o=await S(i);r.push(o),console.log(`[Plugin Stripe Products] Successfully loaded tier: ${i}`)}catch(o){console.warn(`[Plugin Stripe Products] Failed to load tier "${i}":`,o instanceof Error?o.message:o)}return console.log(`[Plugin Stripe Products] Successfully fetched ${r.length} tiers`),r}catch(e){return console.error("[Plugin Stripe Products] Error fetching all tiers:",e),[]}}async function fe(e){return(await S(e)).limit}function ge(e){return p[e].isDaily}function k(e){return e===0?"Free":`$${(e/100).toFixed(2)}`}async function Z(e){let t=await S(e);return k(t.monthlyPrice)+(t.monthlyPrice>0?"/month":"")}async function de(){try{typeof figma!="undefined"&&figma.clientStorage&&(await figma.clientStorage.deleteAsync(O),console.log("[Stripe Products] Cache cleared"))}catch(e){console.error("[Stripe Products] Error clearing cache:",e)}}function V(e){let t=p[e];return e==="free"?`${t.limit} one-time resizes`:`${t.limit} resizes per day`}async function ue(e){let t=await S(e),r=V(e),i=await Z(e);return{tier:t,description:r,pricing:i}}var p,O,ce,D=A(()=>{"use strict";p={free:{limit:10,isDaily:!1},basic:{limit:25,isDaily:!0},pro:{limit:100,isDaily:!0},enterprise:{limit:0,isDaily:!1}},O="stripe_products_cache",ce=36e5});var Q={};L(Q,{default:()=>pe});function M(){return new Date().toISOString().split("T")[0]}async function J(){try{if(!figma.payments)return"free";let e=await figma.clientStorage.getAsync(a.CURRENT_PLAN);return e==="basic"||e==="pro"?e:"free"}catch(e){return console.error("Error checking payment status:",e),"free"}}async function y(){let e=await J(),t=M();if(e==="free"){let r=parseInt(await figma.clientStorage.getAsync(a.FREE_USED)||"0");return{plan:"free",remaining:Math.max(0,C-r),limit:C}}if(e==="basic"){let r=await figma.clientStorage.getAsync(a.BASIC_DATE),i=parseInt(await figma.clientStorage.getAsync(a.BASIC_TODAY)||"0");return r!==t?(await figma.clientStorage.setAsync(a.BASIC_TODAY,"0"),await figma.clientStorage.setAsync(a.BASIC_DATE,t),{plan:"basic",remaining:T,limit:T,resetTime:"tomorrow at midnight"}):{plan:"basic",remaining:Math.max(0,T-i),limit:T,resetTime:"tomorrow at midnight"}}if(e==="pro"){let r=await figma.clientStorage.getAsync(a.PRO_DATE),i=parseInt(await figma.clientStorage.getAsync(a.PRO_TODAY)||"0");return r!==t?(await figma.clientStorage.setAsync(a.PRO_TODAY,"0"),await figma.clientStorage.setAsync(a.PRO_DATE,t),{plan:"pro",remaining:N,limit:N,resetTime:"tomorrow at midnight"}):{plan:"pro",remaining:Math.max(0,N-i),limit:N,resetTime:"tomorrow at midnight"}}return{plan:"free",remaining:0,limit:0}}async function X(){let e=await J(),t=M();if(e==="free"){let r=parseInt(await figma.clientStorage.getAsync(a.FREE_USED)||"0");await figma.clientStorage.setAsync(a.FREE_USED,(r+1).toString())}else if(e==="basic"){let r=await figma.clientStorage.getAsync(a.BASIC_DATE),i=parseInt(await figma.clientStorage.getAsync(a.BASIC_TODAY)||"0");r!==t?(await figma.clientStorage.setAsync(a.BASIC_TODAY,"1"),await figma.clientStorage.setAsync(a.BASIC_DATE,t)):await figma.clientStorage.setAsync(a.BASIC_TODAY,(i+1).toString())}else if(e==="pro"){let r=await figma.clientStorage.getAsync(a.PRO_DATE),i=parseInt(await figma.clientStorage.getAsync(a.PRO_TODAY)||"0");r!==t?(await figma.clientStorage.setAsync(a.PRO_TODAY,"1"),await figma.clientStorage.setAsync(a.PRO_DATE,t)):await figma.clientStorage.setAsync(a.PRO_TODAY,(i+1).toString())}}function K(e){if("fills"in e&&Array.isArray(e.fills)&&e.fills.some(r=>r.type==="IMAGE"))return e;if("children"in e&&(e.type==="FRAME"||e.type==="COMPONENT"||e.type==="COMPONENT_SET"||e.type==="GROUP"))for(let t of e.children){let r=K(t);if(r)return r}return null}function q(e,t,r,i){let o="width"in e?e.width:0,n="height"in e?e.height:0;if(o===0||n===0)throw new Error("Invalid node dimensions");let c=K(e),l=t,g=r;if(i){let d=o/n;t/r>d?l=r*d:g=t/d}if("resize"in e&&typeof e.resize=="function")e.resize(l,g);else try{e.resize(l,g)}catch(d){throw new Error("Node cannot be resized. Please select a frame, component, or image.")}if(c&&"resize"in c){let d="width"in c?c.width:o,I="height"in c?c.height:n;if(d>0&&I>0){let R=l/o,h=g/n,m=Math.min(R,h),f=d*m,P=I*m;c.resize(f,P),"x"in c&&"y"in c&&(c.x=(l-f)/2,c.y=(g-P)/2)}}return{width:l,height:g}}function pe(){b({height:600,width:360}),figma.on("selectionchange",async()=>{try{let e=figma.currentPage.selection;if(e.length===0){s("SELECTION_INFO",{hasSelection:!1});return}let t=e[0];if("width"in t&&"height"in t){let r=await y();s("SELECTION_INFO",E({hasSelection:!0,width:t.width,height:t.height,name:t.name},r))}else s("SELECTION_INFO",{hasSelection:!1})}catch(e){console.error("Error in selectionchange handler:",e),s("SELECTION_INFO",{hasSelection:!1})}})}var C,T,N,a,ee=A(()=>{"use strict";W();D();C=p.free.limit,T=p.basic.limit,N=p.pro.limit,a={FREE_USED:"free_used_count",BASIC_TODAY:"basic_used_today",BASIC_DATE:"basic_date",PRO_TODAY:"pro_used_today",PRO_DATE:"pro_date",CURRENT_PLAN:"current_plan"};u("RESIZE_IMAGE",async({width:e,height:t,preserveAspectRatio:r})=>{try{let i=figma.currentPage.selection;if(i.length===0){figma.notify("Please select an image or frame containing an image."),s("RESIZE_ERROR",{message:"No selection found"});return}let o=await y();if(o.remaining<=0){figma.notify(`You've reached your ${o.plan} tier limit. Upgrade your plan to continue.`),s("RESIZE_ERROR",{message:"Usage limit exceeded",tier:o.plan});return}let n=i[0];if(!("width"in n&&"height"in n)){figma.notify("Selected node does not have width/height properties."),s("RESIZE_ERROR",{message:"Node cannot be resized"});return}let c=q(n,e,t,r);await X();let l=await y();figma.notify(`Resized to ${Math.round(c.width)}\xD7${Math.round(c.height)}`),s("RESIZE_SUCCESS",{width:c.width,height:c.height,remaining:l.remaining,plan:l.plan})}catch(i){let o=i instanceof Error?i.message:"Unknown error";figma.notify(`Error: ${o}`),s("RESIZE_ERROR",{message:o})}});u("GET_SELECTION",async()=>{try{let e=figma.currentPage.selection;if(console.log("GET_SELECTION called, selection count:",e.length),e.length===0){console.log("No selection found"),s("SELECTION_INFO",{hasSelection:!1});return}let t=e[0];if(console.log("Selected node type:",t.type),console.log("Node object:",t),console.log("Has width:","width"in t),console.log("Has height:","height"in t),"width"in t&&"height"in t){let r=await y(),i=E({hasSelection:!0,width:t.width,height:t.height,name:t.name},r);console.log("Emitting selection data:",i),s("SELECTION_INFO",i)}else console.warn("Selected node missing width/height:","type"in t?t.type:"unknown"),s("SELECTION_INFO",{hasSelection:!1})}catch(e){console.error("Error in GET_SELECTION:",e),s("SELECTION_INFO",{hasSelection:!1})}});u("OPEN_PAYMENT",async({planId:e})=>{try{await figma.clientStorage.setAsync(a.CURRENT_PLAN,e);let t=M();e==="basic"?(await figma.clientStorage.setAsync(a.BASIC_TODAY,"0"),await figma.clientStorage.setAsync(a.BASIC_DATE,t)):e==="pro"&&(await figma.clientStorage.setAsync(a.PRO_TODAY,"0"),await figma.clientStorage.setAsync(a.PRO_DATE,t)),figma.notify(`Plan updated to ${e==="basic"?"Basic":"Pro"}!`);let r=await y();s("PAYMENT_COMPLETE",r)}catch(t){console.error("Payment error:",t),s("PAYMENT_ERROR",{message:t instanceof Error?t.message:"Payment failed"})}});u("RESIZE_BATCH",async({variants:e})=>{try{let t=figma.currentPage.selection;if(t.length===0){s("RESIZE_ERROR",{message:"No selection found"});return}let r=await y();if(r.remaining<e.length){figma.notify(`You only have ${r.remaining} resize(s) remaining. Need ${e.length}.`),s("RESIZE_ERROR",{message:"Insufficient uses remaining"});return}let i=t[0];if(!("width"in i&&"height"in i&&"resize"in i)){figma.notify("Selected node cannot be resized. Please select a frame, component, or image."),s("RESIZE_ERROR",{message:"Node cannot be resized"});return}let o="x"in i?i.x:0,n="y"in i?i.y:0,c="width"in i?i.width:0,l=20,g=o+c+l,d=n,I=[];for(let h of e){let m;try{try{m=i.duplicate()}catch(f){try{m=i.clone()}catch(P){throw new Error("Node does not support duplication. Please select a frame, component, or group.")}}}catch(f){let P=f instanceof Error?f.message:"Cannot duplicate selected node";figma.notify(P),s("RESIZE_ERROR",{message:"Node cannot be duplicated"});return}"name"in m&&(m.name=h.name);try{let f=q(m,h.width,h.height,!0);"x"in m&&"y"in m&&(m.x=g,m.y=d,g+=f.width+l),I.push({name:h.name,width:f.width,height:f.height}),await X()}catch(f){try{"remove"in m&&typeof m.remove=="function"&&m.remove()}catch(P){}throw f}}let R=await y();figma.notify(`Created ${e.length} variant(s)`),s("BATCH_RESIZE_SUCCESS",{variants:I,remaining:R.remaining})}catch(t){let r=t instanceof Error?t.message:"Unknown error";figma.notify(`Error: ${r}`),s("RESIZE_ERROR",{message:r})}});u("GET_USAGE_INFO",async()=>{try{let e=await y();s("USAGE_INFO",e)}catch(e){console.error("Error getting usage info:",e),s("USAGE_INFO",{plan:"free",remaining:0,limit:C})}});u("GET_ALL_TIERS",async()=>{try{let{getAllTiers:e}=await Promise.resolve().then(()=>(D(),j)),t=await e();console.log(`[Main] Got ${t.length} tiers to display`),t.forEach(r=>{s("TIER_INFO",E({plan:r.tier},r))})}catch(e){console.error("[Main] Error getting all tiers:",e)}})});var ye={"src/main.ts--default":(ee(),se(Q)).default},he="src/main.ts--default";ye[he]();
+var _ = Object.defineProperty,
+  te = Object.defineProperties,
+  re = Object.getOwnPropertyDescriptor,
+  ie = Object.getOwnPropertyDescriptors,
+  oe = Object.getOwnPropertyNames,
+  F = Object.getOwnPropertySymbols;
+var U = Object.prototype.hasOwnProperty,
+  ne = Object.prototype.propertyIsEnumerable;
+var B = (e, t, r) =>
+    t in e ? _(e, t, { enumerable: !0, configurable: !0, writable: !0, value: r }) : (e[t] = r),
+  E = (e, t) => {
+    for (var r in t || (t = {})) U.call(t, r) && B(e, r, t[r]);
+    if (F) for (var r of F(t)) ne.call(t, r) && B(e, r, t[r]);
+    return e;
+  },
+  z = (e, t) => te(e, ie(t));
+var A = (e, t) => () => (e && (t = e((e = 0))), t);
+var L = (e, t) => {
+    for (var r in t) _(e, r, { get: t[r], enumerable: !0 });
+  },
+  ae = (e, t, r, i) => {
+    if ((t && typeof t == 'object') || typeof t == 'function')
+      for (let o of oe(t))
+        !U.call(e, o) &&
+          o !== r &&
+          _(e, o, { get: () => t[o], enumerable: !(i = re(t, o)) || i.enumerable });
+    return e;
+  };
+var se = (e) => ae(_({}, '__esModule', { value: !0 }), e);
+function u(e, t) {
+  let r = `${$}`;
+  return (
+    ($ += 1),
+    (w[r] = { handler: t, name: e }),
+    function () {
+      delete w[r];
+    }
+  );
+}
+function v(e, t) {
+  let r = !1;
+  for (let i in w) w[i].name === e && (w[i].handler.apply(null, t), (r = !0));
+  if (r === !1) throw new Error(`No event handler with name \`${e}\``);
+}
+var w,
+  $,
+  s,
+  G = A(() => {
+    ((w = {}), ($ = 0));
+    s =
+      typeof window == 'undefined'
+        ? function (e, ...t) {
+            figma.ui.postMessage([e, ...t]);
+          }
+        : function (e, ...t) {
+            window.parent.postMessage({ pluginMessage: [e, ...t] }, '*');
+          };
+    typeof window == 'undefined'
+      ? (figma.ui.onmessage = function (e) {
+          if (!Array.isArray(e)) return;
+          let [t, ...r] = e;
+          typeof t == 'string' && v(t, r);
+        })
+      : (window.onmessage = function (e) {
+          if (typeof e.data.pluginMessage == 'undefined') return;
+          let t = e.data.pluginMessage;
+          if (!Array.isArray(t)) return;
+          let [r, ...i] = e.data.pluginMessage;
+          typeof r == 'string' && v(r, i);
+        });
+  });
+function b(e, t) {
+  if (typeof __html__ == 'undefined') throw new Error('No UI defined');
+  let r = `<div id="create-figma-plugin"></div><script>document.body.classList.add('theme-${figma.editorType}');const __FIGMA_COMMAND__='${typeof figma.command == 'undefined' ? '' : figma.command}';const __SHOW_UI_DATA__=${JSON.stringify(typeof t == 'undefined' ? {} : t)};${__html__}</script>`;
+  figma.showUI(
+    r,
+    z(E({}, e), { themeColors: typeof e.themeColors == 'undefined' ? !0 : e.themeColors })
+  );
+}
+var Y = A(() => {});
+var W = A(() => {
+  G();
+  Y();
+});
+var j = {};
+L(j, {
+  TIER_LIMITS: () => p,
+  clearCache: () => de,
+  fetchStripeProducts: () => H,
+  formatPrice: () => k,
+  getAllTiers: () => me,
+  getCachedProducts: () => x,
+  getPricingDisplay: () => Z,
+  getResizeLimit: () => fe,
+  getTierDescription: () => V,
+  getTierInfo: () => S,
+  getTierWithFeatures: () => ue,
+  isLimitDaily: () => ge,
+});
+function le() {
+  if (
+    typeof window == 'undefined' ||
+    window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1'
+  )
+    return 'http://localhost:3000';
+  let e = window.location.protocol,
+    t = window.location.hostname;
+  return `${e}//${t}`;
+}
+async function H() {
+  try {
+    let e = le() + '/api/plugin/products';
+    console.log(`[Plugin Stripe Products] Fetching from website API: ${e}`);
+    let t = await fetch(e, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+    if (!t.ok) throw new Error(`Website API error: ${t.status} ${t.statusText}`);
+    let r = await t.json();
+    if (
+      (console.log('[Plugin Stripe Products] Fetched product info from website API'),
+      !r.tiers || !Array.isArray(r.tiers))
+    )
+      return (
+        console.error('[Plugin Stripe Products] Invalid response format - no tiers array', r),
+        []
+      );
+    let i = r.tiers;
+    console.log(`[Plugin Stripe Products] Found ${i.length} tiers from website API`);
+    let o = i.map((n) => {
+      var c, l;
+      return (
+        console.log('[Plugin Stripe Products] Mapping tier:', n.id, n.displayName),
+        {
+          id: n.id,
+          displayName: n.displayName,
+          monthlyPrice: n.monthlyPrice || 0,
+          stripeProductId: n.stripeProductId || null,
+          stripePriceId: n.stripePriceId || null,
+          resizesPerDay: n.resizesPerDay,
+          resizesOneTime: n.resizesOneTime,
+          maxBatchSize: n.maxBatchSize || 1,
+          hasApiAccess: (c = n.hasApiAccess) != null ? c : !1,
+          hasWatermark: (l = n.hasWatermark) != null ? l : !1,
+          supportedFormats: n.supportedFormats || ['jpg', 'png'],
+        }
+      );
+    });
+    return (console.log(`[Plugin Stripe Products] Mapped ${o.length} products successfully`), o);
+  } catch (e) {
+    return (console.error('[Plugin Stripe Products] Error fetching from website API:', e), []);
+  }
+}
+async function x() {
+  try {
+    if (typeof figma != 'undefined' && figma.clientStorage) {
+      let t = await figma.clientStorage.getAsync(O);
+      if (t)
+        try {
+          let r = JSON.parse(t);
+          if (r.timestamp && Date.now() - r.timestamp < ce)
+            return (console.log('[Stripe Products] Using cached data'), r.products);
+        } catch (r) {
+          console.error('[Stripe Products] Error parsing cached products:', r);
+        }
+    }
+  } catch (t) {
+    console.error('[Stripe Products] Error accessing clientStorage:', t);
+  }
+  console.log('[Stripe Products] Fetching fresh data from API');
+  let e = await H();
+  try {
+    typeof figma != 'undefined' &&
+      figma.clientStorage &&
+      (await figma.clientStorage.setAsync(
+        O,
+        JSON.stringify({ products: e, timestamp: Date.now() })
+      ));
+  } catch (t) {
+    console.error('[Stripe Products] Error caching products:', t);
+  }
+  return e;
+}
+async function S(e) {
+  var o;
+  console.log(`[Plugin Stripe Products] Getting tier info for: ${e}`);
+  let t = await x();
+  console.log(
+    '[Plugin Stripe Products] Available products:',
+    t.map((n) => ({ id: n.id, displayName: n.displayName }))
+  );
+  let r = t.find((n) => n.id === e);
+  if (!r)
+    throw (
+      console.warn(
+        `[Plugin Stripe Products] Product not found for tier: ${e}, API may be unavailable or tier not configured`
+      ),
+      new Error(`Product not found for tier: ${e}`)
+    );
+  let i = p[e];
+  return (
+    console.log(`[Plugin Stripe Products] Found product for ${e}:`, {
+      displayName: r.displayName,
+      monthlyPrice: r.monthlyPrice,
+      stripeProductId: r.stripeProductId,
+      stripePriceId: r.stripePriceId,
+    }),
+    {
+      tier: e,
+      displayName: r.displayName,
+      limit: (i == null ? void 0 : i.limit) || r.resizesPerDay || r.resizesOneTime || 0,
+      isDaily: (o = i == null ? void 0 : i.isDaily) != null ? o : !!r.resizesPerDay,
+      monthlyPrice: r.monthlyPrice,
+      stripeProductId: r.stripeProductId,
+      stripePriceId: r.stripePriceId,
+    }
+  );
+}
+async function me() {
+  try {
+    console.log('[Plugin Stripe Products] Fetching all available tiers from API');
+    let e = await x();
+    console.log(`[Plugin Stripe Products] Retrieved ${e.length} products from cache`);
+    let t = ['free', 'basic', 'pro', 'enterprise'],
+      r = [];
+    for (let i of t)
+      try {
+        let o = await S(i);
+        (r.push(o), console.log(`[Plugin Stripe Products] Successfully loaded tier: ${i}`));
+      } catch (o) {
+        console.warn(
+          `[Plugin Stripe Products] Failed to load tier "${i}":`,
+          o instanceof Error ? o.message : o
+        );
+      }
+    return (console.log(`[Plugin Stripe Products] Successfully fetched ${r.length} tiers`), r);
+  } catch (e) {
+    return (console.error('[Plugin Stripe Products] Error fetching all tiers:', e), []);
+  }
+}
+async function fe(e) {
+  return (await S(e)).limit;
+}
+function ge(e) {
+  return p[e].isDaily;
+}
+function k(e) {
+  return e === 0 ? 'Free' : `$${(e / 100).toFixed(2)}`;
+}
+async function Z(e) {
+  let t = await S(e);
+  return k(t.monthlyPrice) + (t.monthlyPrice > 0 ? '/month' : '');
+}
+async function de() {
+  try {
+    typeof figma != 'undefined' &&
+      figma.clientStorage &&
+      (await figma.clientStorage.deleteAsync(O), console.log('[Stripe Products] Cache cleared'));
+  } catch (e) {
+    console.error('[Stripe Products] Error clearing cache:', e);
+  }
+}
+function V(e) {
+  let t = p[e];
+  return e === 'free' ? `${t.limit} one-time resizes` : `${t.limit} resizes per day`;
+}
+async function ue(e) {
+  let t = await S(e),
+    r = V(e),
+    i = await Z(e);
+  return { tier: t, description: r, pricing: i };
+}
+var p,
+  O,
+  ce,
+  D = A(() => {
+    'use strict';
+    ((p = {
+      free: { limit: 10, isDaily: !1 },
+      basic: { limit: 25, isDaily: !0 },
+      pro: { limit: 100, isDaily: !0 },
+      enterprise: { limit: 0, isDaily: !1 },
+    }),
+      (O = 'stripe_products_cache'),
+      (ce = 36e5));
+  });
+var Q = {};
+L(Q, { default: () => pe });
+function M() {
+  return new Date().toISOString().split('T')[0];
+}
+async function J() {
+  try {
+    if (!figma.payments) return 'free';
+    let e = await figma.clientStorage.getAsync(a.CURRENT_PLAN);
+    return e === 'basic' || e === 'pro' ? e : 'free';
+  } catch (e) {
+    return (console.error('Error checking payment status:', e), 'free');
+  }
+}
+async function y() {
+  let e = await J(),
+    t = M();
+  if (e === 'free') {
+    let r = parseInt((await figma.clientStorage.getAsync(a.FREE_USED)) || '0');
+    return { plan: 'free', remaining: Math.max(0, C - r), limit: C };
+  }
+  if (e === 'basic') {
+    let r = await figma.clientStorage.getAsync(a.BASIC_DATE),
+      i = parseInt((await figma.clientStorage.getAsync(a.BASIC_TODAY)) || '0');
+    return r !== t
+      ? (await figma.clientStorage.setAsync(a.BASIC_TODAY, '0'),
+        await figma.clientStorage.setAsync(a.BASIC_DATE, t),
+        { plan: 'basic', remaining: T, limit: T, resetTime: 'tomorrow at midnight' })
+      : {
+          plan: 'basic',
+          remaining: Math.max(0, T - i),
+          limit: T,
+          resetTime: 'tomorrow at midnight',
+        };
+  }
+  if (e === 'pro') {
+    let r = await figma.clientStorage.getAsync(a.PRO_DATE),
+      i = parseInt((await figma.clientStorage.getAsync(a.PRO_TODAY)) || '0');
+    return r !== t
+      ? (await figma.clientStorage.setAsync(a.PRO_TODAY, '0'),
+        await figma.clientStorage.setAsync(a.PRO_DATE, t),
+        { plan: 'pro', remaining: N, limit: N, resetTime: 'tomorrow at midnight' })
+      : { plan: 'pro', remaining: Math.max(0, N - i), limit: N, resetTime: 'tomorrow at midnight' };
+  }
+  return { plan: 'free', remaining: 0, limit: 0 };
+}
+async function X() {
+  let e = await J(),
+    t = M();
+  if (e === 'free') {
+    let r = parseInt((await figma.clientStorage.getAsync(a.FREE_USED)) || '0');
+    await figma.clientStorage.setAsync(a.FREE_USED, (r + 1).toString());
+  } else if (e === 'basic') {
+    let r = await figma.clientStorage.getAsync(a.BASIC_DATE),
+      i = parseInt((await figma.clientStorage.getAsync(a.BASIC_TODAY)) || '0');
+    r !== t
+      ? (await figma.clientStorage.setAsync(a.BASIC_TODAY, '1'),
+        await figma.clientStorage.setAsync(a.BASIC_DATE, t))
+      : await figma.clientStorage.setAsync(a.BASIC_TODAY, (i + 1).toString());
+  } else if (e === 'pro') {
+    let r = await figma.clientStorage.getAsync(a.PRO_DATE),
+      i = parseInt((await figma.clientStorage.getAsync(a.PRO_TODAY)) || '0');
+    r !== t
+      ? (await figma.clientStorage.setAsync(a.PRO_TODAY, '1'),
+        await figma.clientStorage.setAsync(a.PRO_DATE, t))
+      : await figma.clientStorage.setAsync(a.PRO_TODAY, (i + 1).toString());
+  }
+}
+function K(e) {
+  if ('fills' in e && Array.isArray(e.fills) && e.fills.some((r) => r.type === 'IMAGE')) return e;
+  if (
+    'children' in e &&
+    (e.type === 'FRAME' ||
+      e.type === 'COMPONENT' ||
+      e.type === 'COMPONENT_SET' ||
+      e.type === 'GROUP')
+  )
+    for (let t of e.children) {
+      let r = K(t);
+      if (r) return r;
+    }
+  return null;
+}
+function q(e, t, r, i) {
+  let o = 'width' in e ? e.width : 0,
+    n = 'height' in e ? e.height : 0;
+  if (o === 0 || n === 0) throw new Error('Invalid node dimensions');
+  let c = K(e),
+    l = t,
+    g = r;
+  if (i) {
+    let d = o / n;
+    t / r > d ? (l = r * d) : (g = t / d);
+  }
+  if ('resize' in e && typeof e.resize == 'function') e.resize(l, g);
+  else
+    try {
+      e.resize(l, g);
+    } catch (d) {
+      throw new Error('Node cannot be resized. Please select a frame, component, or image.');
+    }
+  if (c && 'resize' in c) {
+    let d = 'width' in c ? c.width : o,
+      I = 'height' in c ? c.height : n;
+    if (d > 0 && I > 0) {
+      let R = l / o,
+        h = g / n,
+        m = Math.min(R, h),
+        f = d * m,
+        P = I * m;
+      (c.resize(f, P), 'x' in c && 'y' in c && ((c.x = (l - f) / 2), (c.y = (g - P) / 2)));
+    }
+  }
+  return { width: l, height: g };
+}
+function pe() {
+  (b({ height: 600, width: 360 }),
+    figma.on('selectionchange', async () => {
+      try {
+        let e = figma.currentPage.selection;
+        if (e.length === 0) {
+          s('SELECTION_INFO', { hasSelection: !1 });
+          return;
+        }
+        let t = e[0];
+        if ('width' in t && 'height' in t) {
+          let r = await y();
+          s(
+            'SELECTION_INFO',
+            E({ hasSelection: !0, width: t.width, height: t.height, name: t.name }, r)
+          );
+        } else s('SELECTION_INFO', { hasSelection: !1 });
+      } catch (e) {
+        (console.error('Error in selectionchange handler:', e),
+          s('SELECTION_INFO', { hasSelection: !1 }));
+      }
+    }));
+}
+var C,
+  T,
+  N,
+  a,
+  ee = A(() => {
+    'use strict';
+    W();
+    D();
+    ((C = p.free.limit),
+      (T = p.basic.limit),
+      (N = p.pro.limit),
+      (a = {
+        FREE_USED: 'free_used_count',
+        BASIC_TODAY: 'basic_used_today',
+        BASIC_DATE: 'basic_date',
+        PRO_TODAY: 'pro_used_today',
+        PRO_DATE: 'pro_date',
+        CURRENT_PLAN: 'current_plan',
+      }));
+    u('RESIZE_IMAGE', async ({ width: e, height: t, preserveAspectRatio: r }) => {
+      try {
+        let i = figma.currentPage.selection;
+        if (i.length === 0) {
+          (figma.notify('Please select an image or frame containing an image.'),
+            s('RESIZE_ERROR', { message: 'No selection found' }));
+          return;
+        }
+        let o = await y();
+        if (o.remaining <= 0) {
+          (figma.notify(`You've reached your ${o.plan} tier limit. Upgrade your plan to continue.`),
+            s('RESIZE_ERROR', { message: 'Usage limit exceeded', tier: o.plan }));
+          return;
+        }
+        let n = i[0];
+        if (!('width' in n && 'height' in n)) {
+          (figma.notify('Selected node does not have width/height properties.'),
+            s('RESIZE_ERROR', { message: 'Node cannot be resized' }));
+          return;
+        }
+        let c = q(n, e, t, r);
+        await X();
+        let l = await y();
+        (figma.notify(`Resized to ${Math.round(c.width)}\xD7${Math.round(c.height)}`),
+          s('RESIZE_SUCCESS', {
+            width: c.width,
+            height: c.height,
+            remaining: l.remaining,
+            plan: l.plan,
+          }));
+      } catch (i) {
+        let o = i instanceof Error ? i.message : 'Unknown error';
+        (figma.notify(`Error: ${o}`), s('RESIZE_ERROR', { message: o }));
+      }
+    });
+    u('GET_SELECTION', async () => {
+      try {
+        let e = figma.currentPage.selection;
+        if ((console.log('GET_SELECTION called, selection count:', e.length), e.length === 0)) {
+          (console.log('No selection found'), s('SELECTION_INFO', { hasSelection: !1 }));
+          return;
+        }
+        let t = e[0];
+        if (
+          (console.log('Selected node type:', t.type),
+          console.log('Node object:', t),
+          console.log('Has width:', 'width' in t),
+          console.log('Has height:', 'height' in t),
+          'width' in t && 'height' in t)
+        ) {
+          let r = await y(),
+            i = E({ hasSelection: !0, width: t.width, height: t.height, name: t.name }, r);
+          (console.log('Emitting selection data:', i), s('SELECTION_INFO', i));
+        } else
+          (console.warn('Selected node missing width/height:', 'type' in t ? t.type : 'unknown'),
+            s('SELECTION_INFO', { hasSelection: !1 }));
+      } catch (e) {
+        (console.error('Error in GET_SELECTION:', e), s('SELECTION_INFO', { hasSelection: !1 }));
+      }
+    });
+    u('OPEN_PAYMENT', async ({ planId: e }) => {
+      try {
+        await figma.clientStorage.setAsync(a.CURRENT_PLAN, e);
+        let t = M();
+        (e === 'basic'
+          ? (await figma.clientStorage.setAsync(a.BASIC_TODAY, '0'),
+            await figma.clientStorage.setAsync(a.BASIC_DATE, t))
+          : e === 'pro' &&
+            (await figma.clientStorage.setAsync(a.PRO_TODAY, '0'),
+            await figma.clientStorage.setAsync(a.PRO_DATE, t)),
+          figma.notify(`Plan updated to ${e === 'basic' ? 'Basic' : 'Pro'}!`));
+        let r = await y();
+        s('PAYMENT_COMPLETE', r);
+      } catch (t) {
+        (console.error('Payment error:', t),
+          s('PAYMENT_ERROR', { message: t instanceof Error ? t.message : 'Payment failed' }));
+      }
+    });
+    u('RESIZE_BATCH', async ({ variants: e }) => {
+      try {
+        let t = figma.currentPage.selection;
+        if (t.length === 0) {
+          s('RESIZE_ERROR', { message: 'No selection found' });
+          return;
+        }
+        let r = await y();
+        if (r.remaining < e.length) {
+          (figma.notify(`You only have ${r.remaining} resize(s) remaining. Need ${e.length}.`),
+            s('RESIZE_ERROR', { message: 'Insufficient uses remaining' }));
+          return;
+        }
+        let i = t[0];
+        if (!('width' in i && 'height' in i && 'resize' in i)) {
+          (figma.notify(
+            'Selected node cannot be resized. Please select a frame, component, or image.'
+          ),
+            s('RESIZE_ERROR', { message: 'Node cannot be resized' }));
+          return;
+        }
+        let o = 'x' in i ? i.x : 0,
+          n = 'y' in i ? i.y : 0,
+          c = 'width' in i ? i.width : 0,
+          l = 20,
+          g = o + c + l,
+          d = n,
+          I = [];
+        for (let h of e) {
+          let m;
+          try {
+            try {
+              m = i.duplicate();
+            } catch (f) {
+              try {
+                m = i.clone();
+              } catch (P) {
+                throw new Error(
+                  'Node does not support duplication. Please select a frame, component, or group.'
+                );
+              }
+            }
+          } catch (f) {
+            let P = f instanceof Error ? f.message : 'Cannot duplicate selected node';
+            (figma.notify(P), s('RESIZE_ERROR', { message: 'Node cannot be duplicated' }));
+            return;
+          }
+          'name' in m && (m.name = h.name);
+          try {
+            let f = q(m, h.width, h.height, !0);
+            ('x' in m && 'y' in m && ((m.x = g), (m.y = d), (g += f.width + l)),
+              I.push({ name: h.name, width: f.width, height: f.height }),
+              await X());
+          } catch (f) {
+            try {
+              'remove' in m && typeof m.remove == 'function' && m.remove();
+            } catch (P) {}
+            throw f;
+          }
+        }
+        let R = await y();
+        (figma.notify(`Created ${e.length} variant(s)`),
+          s('BATCH_RESIZE_SUCCESS', { variants: I, remaining: R.remaining }));
+      } catch (t) {
+        let r = t instanceof Error ? t.message : 'Unknown error';
+        (figma.notify(`Error: ${r}`), s('RESIZE_ERROR', { message: r }));
+      }
+    });
+    u('GET_USAGE_INFO', async () => {
+      try {
+        let e = await y();
+        s('USAGE_INFO', e);
+      } catch (e) {
+        (console.error('Error getting usage info:', e),
+          s('USAGE_INFO', { plan: 'free', remaining: 0, limit: C }));
+      }
+    });
+    u('GET_ALL_TIERS', async () => {
+      try {
+        let { getAllTiers: e } = await Promise.resolve().then(() => (D(), j)),
+          t = await e();
+        (console.log(`[Main] Got ${t.length} tiers to display`),
+          t.forEach((r) => {
+            s('TIER_INFO', E({ plan: r.tier }, r));
+          }));
+      } catch (e) {
+        console.error('[Main] Error getting all tiers:', e);
+      }
+    });
+  });
+var ye = { 'src/main.ts--default': (ee(), se(Q)).default },
+  he = 'src/main.ts--default';
+ye[he]();

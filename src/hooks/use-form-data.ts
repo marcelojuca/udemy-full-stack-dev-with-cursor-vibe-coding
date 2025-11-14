@@ -6,14 +6,14 @@ const initialFormData = {
   permissions: [],
   keyType: 'development',
   limitUsage: true,
-  monthlyLimit: 5
+  monthlyLimit: 5,
 };
 
 export const useFormData = () => {
   const [formData, setFormData] = useState(initialFormData);
 
   const updateFormData = (updates) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
   const resetFormData = () => {
@@ -27,16 +27,16 @@ export const useFormData = () => {
       permissions: key.permissions || [],
       keyType: key.key_type || 'development',
       limitUsage: key.limit_usage ?? true,
-      monthlyLimit: (typeof key.monthly_limit === 'number' ? key.monthly_limit : 5)
+      monthlyLimit: typeof key.monthly_limit === 'number' ? key.monthly_limit : 5,
     });
   };
 
   const togglePermission = (permission) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       permissions: prev.permissions.includes(permission)
-        ? prev.permissions.filter(p => p !== permission)
-        : [...prev.permissions, permission]
+        ? prev.permissions.filter((p) => p !== permission)
+        : [...prev.permissions, permission],
     }));
   };
 
@@ -45,6 +45,6 @@ export const useFormData = () => {
     updateFormData,
     resetFormData,
     populateFormData,
-    togglePermission
+    togglePermission,
   };
 };

@@ -1,11 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
+import { validateSupabaseEnv } from './env-validation';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+// Use placeholders during build time, but validate at runtime
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -15,25 +13,25 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * @returns {Promise<{valid: boolean, data?: object, error?: string}>}
  */
 export async function validateApiKey(apiKey) {
+  // Validate environment variables at runtime before use
+  validateSupabaseEnv();
+
   try {
     if (!apiKey) {
       return {
         valid: false,
-        error: 'API key is required'
+        error: 'API key is required',
       };
     }
 
     // Query the database to find the API key
-    const { data, error } = await supabase
-      .from('api_keys')
-      .select('*')
-      .eq('key', apiKey);
+    const { data, error } = await supabase.from('api_keys').select('*').eq('key', apiKey);
 
     if (error) {
       console.error('Database error during API key validation:', error);
       return {
         valid: false,
-        error: 'Database error'
+        error: 'Database error',
       };
     }
 
@@ -41,21 +39,20 @@ export async function validateApiKey(apiKey) {
     if (!data || data.length === 0) {
       return {
         valid: false,
-        error: 'Invalid API key'
+        error: 'Invalid API key',
       };
     }
 
     // Return the API key data
     return {
       valid: true,
-      data: data[0]
+      data: data[0],
     };
-
   } catch (error) {
     console.error('Error validating API key:', error);
     return {
       valid: false,
-      error: 'Internal server error'
+      error: 'Internal server error',
     };
   }
 }
@@ -69,11 +66,11 @@ export async function checkAndIncrementUsage(apiKey) {
   try {
     // First validate the API key
     const validation = await validateApiKey(apiKey);
-    
+
     if (!validation.valid) {
       return {
         allowed: false,
-        error: validation.error
+        error: validation.error,
       };
     }
 
@@ -84,7 +81,7 @@ export async function checkAndIncrementUsage(apiKey) {
       return {
         allowed: true,
         usage: 0,
-        limit: 0
+        limit: 0,
       };
     }
 
@@ -109,17 +106,17 @@ export async function checkAndIncrementUsage(apiKey) {
         allowed: false,
         error: `Rate limit exceeded. Usage: ${currentUsage}/${monthlyLimit} requests this month`,
         usage: currentUsage,
-        limit: monthlyLimit
+        limit: monthlyLimit,
       };
     }
-    
+
     // Update the usage count and reset month
     const { error: updateError } = await supabase
       .from('api_keys')
       .update({
         current_usage: newUsage,
         last_reset_month: currentMonth,
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('key', apiKey);
 
@@ -127,21 +124,20 @@ export async function checkAndIncrementUsage(apiKey) {
       console.error('Error updating API key usage:', updateError);
       return {
         allowed: false,
-        error: 'Failed to update usage count'
+        error: 'Failed to update usage count',
       };
     }
 
     return {
       allowed: true,
       usage: newUsage,
-      limit: monthlyLimit
+      limit: monthlyLimit,
     };
-
   } catch (error) {
     console.error('Error checking usage limit:', error);
     return {
       allowed: false,
-      error: 'Internal server error'
+      error: 'Internal server error',
     };
   }
 }
@@ -156,7 +152,7 @@ export async function getUsageInfo(apiKey) {
     const validation = await validateApiKey(apiKey);
     if (!validation.valid) {
       return {
-        error: validation.error
+        error: validation.error,
       };
     }
 
@@ -166,13 +162,12 @@ export async function getUsageInfo(apiKey) {
 
     return {
       usage: currentUsage,
-      limit: monthlyLimit
+      limit: monthlyLimit,
     };
-
   } catch (error) {
     console.error('Error getting usage info:', error);
     return {
-      error: 'Internal server error'
+      error: 'Internal server error',
     };
   }
 }

@@ -1,9 +1,13 @@
 import { useState } from 'react';
 
+interface ApiKey {
+  [key: string]: any;
+}
+
 export const useModalState = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [editingKey, setEditingKey] = useState(null);
-  const [viewingKey, setViewingKey] = useState(null);
+  const [editingKey, setEditingKey] = useState<ApiKey | null>(null);
+  const [viewingKey, setViewingKey] = useState<ApiKey | null>(null);
 
   const openCreateModal = () => {
     setShowCreateForm(true);
@@ -11,13 +15,13 @@ export const useModalState = () => {
     setViewingKey(null);
   };
 
-  const openEditModal = (key) => {
+  const openEditModal = (key: ApiKey) => {
     setEditingKey(key);
     setShowCreateForm(false);
     setViewingKey(null);
   };
 
-  const openViewModal = (key) => {
+  const openViewModal = (key: ApiKey) => {
     setViewingKey(key);
     setShowCreateForm(false);
     setEditingKey(null);
@@ -29,7 +33,7 @@ export const useModalState = () => {
     setViewingKey(null);
   };
 
-  const isModalOpen = showCreateForm || editingKey || viewingKey;
+  const isModalOpen = Boolean(showCreateForm || editingKey || viewingKey);
 
   return {
     showCreateForm,
@@ -39,6 +43,6 @@ export const useModalState = () => {
     openCreateModal,
     openEditModal,
     openViewModal,
-    closeAllModals
+    closeAllModals,
   };
 };

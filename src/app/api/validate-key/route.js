@@ -6,10 +6,7 @@ export async function POST(request) {
     const { apiKey } = await request.json();
 
     if (!apiKey) {
-      return NextResponse.json(
-        { valid: false, error: 'API key is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ valid: false, error: 'API key is required' }, { status: 400 });
     }
 
     // Use the reusable validation function
@@ -17,28 +14,30 @@ export async function POST(request) {
 
     if (!validation.valid) {
       const statusCode = validation.error === 'Invalid API key' ? 401 : 500;
-      return NextResponse.json(
-        { valid: false, error: validation.error },
-        { status: statusCode }
-      );
+      return NextResponse.json({ valid: false, error: validation.error }, { status: statusCode });
     }
 
     // API key is valid, return the key data (excluding the actual key for security)
     const { key, ...keyData } = validation.data;
-    
+
     return NextResponse.json({
       valid: true,
       apiKeyData: {
         ...keyData,
-        key: validation.data.key // Include the key for the protected page
-      }
+        key: validation.data.key, // Include the key for the protected page
+      },
     });
-
   } catch (error) {
     console.error('Validation error:', error);
-    return NextResponse.json(
-      { valid: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+
+    // Check if it's an environment variable error
+    if (error.message && error.message.includes('Missing required environment variable')) {
+      return NextResponse.json(
+        { valid: false, error: 'Server configuration error: ' + error.message },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({ valid: false, error: 'Internal server error' }, { status: 500 });
   }
 }

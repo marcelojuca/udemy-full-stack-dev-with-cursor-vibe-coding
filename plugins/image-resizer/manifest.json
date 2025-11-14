@@ -1,1 +1,14 @@
-{"api":"1.0.0","editorType":["figma"],"id":"1055271383487263589","name":"Image Resizer Pro","main":"build/main.js","ui":"build/ui.js","permissions":["payments"],"networkAccess":{"allowedDomains":["https://*.vercel.app","https://xpto.app"],"devAllowedDomains":["http://localhost:3000","http://localhost:3001"],"reasoning":"Plugin fetches Stripe product data from the website's /api/plugin/products endpoint to display pricing tiers. This requires network access to the website backend, which uses the secure Stripe secret key to fetch products on behalf of the plugin (required because Figma plugins run in a sandboxed iframe with null origin, which Stripe's API rejects)"}}
+{
+  "api": "1.0.0",
+  "editorType": ["figma"],
+  "id": "1055271383487263589",
+  "name": "Image Resizer Pro",
+  "main": "build/main.js",
+  "ui": "build/ui.js",
+  "permissions": ["payments"],
+  "networkAccess": {
+    "allowedDomains": ["https://*.vercel.app", "https://xpto.app"],
+    "devAllowedDomains": ["http://localhost:3000", "http://localhost:3001"],
+    "reasoning": "Plugin fetches Stripe product data from the website's /api/plugin/products endpoint to display pricing tiers. This requires network access to the website backend, which uses the secure Stripe secret key to fetch products on behalf of the plugin (required because Figma plugins run in a sandboxed iframe with null origin, which Stripe's API rejects)"
+  }
+}

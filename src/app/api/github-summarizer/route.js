@@ -3,39 +3,37 @@ import { createClient } from '@supabase/supabase-js';
 import { analyzeReadme } from '../../../lib/chain';
 import { checkAndIncrementUsage } from '../../../lib/rate-limiting';
 import { getBasicRepoInfo } from '../../../lib/get-repo-info';
+import { validateSupabaseEnv } from '@/lib/env-validation';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  throw new Error('Missing Supabase environment variables');
-}
+// Use placeholders during build time, but validate at runtime
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key';
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export async function POST(request) {
+  // Validate environment variables at runtime before use
+  validateSupabaseEnv();
+
   try {
     const { githubUrl } = await request.json();
     const apiKey = request.headers.get('x-api-key');
 
     if (!apiKey) {
-      return NextResponse.json(
-        { valid: false, error: 'API key is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ valid: false, error: 'API key is required' }, { status: 400 });
     }
 
     // Check rate limiting and increment usage
     const rateLimitResult = await checkAndIncrementUsage(apiKey);
-    
+
     if (!rateLimitResult.allowed) {
       const statusCode = rateLimitResult.error === 'Invalid API key' ? 401 : 429;
       return NextResponse.json(
-        { 
-          valid: false, 
+        {
+          valid: false,
           error: rateLimitResult.error,
           usage: rateLimitResult.usage,
-          limit: rateLimitResult.limit
+          limit: rateLimitResult.limit,
         },
         { status: statusCode }
       );
@@ -43,30 +41,24 @@ export async function POST(request) {
 
     // Validate GitHub URL
     if (!githubUrl) {
-      return NextResponse.json(
-        { error: 'GitHub URL is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'GitHub URL is required' }, { status: 400 });
     }
 
     // Validate GitHub URL format
     if (!githubUrl.startsWith('https://github.com/')) {
-      return NextResponse.json(
-        { error: 'Invalid GitHub URL format' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid GitHub URL format' }, { status: 400 });
     }
 
     try {
       // Fetch README content and repository information in parallel
       const [readmeContent, repoInfo] = await Promise.all([
         getReadmeContent(githubUrl),
-        getBasicRepoInfo(githubUrl)
+        getBasicRepoInfo(githubUrl),
       ]);
-      
+
       // Analyze the README using LangChain
       const analysis = await analyzeReadme(readmeContent);
-      
+
       return NextResponse.json({
         success: true,
         analysis,
@@ -75,10 +67,10 @@ export async function POST(request) {
           stars: repoInfo.stars,
           version: repoInfo.version,
           website: repoInfo.website,
-          license: repoInfo.license
+          license: repoInfo.license,
         },
         usage: rateLimitResult.usage,
-        limit: rateLimitResult.limit
+        limit: rateLimitResult.limit,
       });
     } catch (readmeError) {
       console.error('Error processing GitHub repository:', readmeError);
@@ -87,13 +79,9 @@ export async function POST(request) {
         { status: 400 }
       );
     }
-
   } catch (error) {
     console.error('Validation error:', error);
-    return NextResponse.json(
-      { valid: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ valid: false, error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -123,7 +111,6 @@ async function getReadmeContent(githubUrl) {
     }
 
     return await response.text();
-
   } catch (error) {
     console.error('Error fetching README:', error);
     throw new Error('Failed to fetch README content');

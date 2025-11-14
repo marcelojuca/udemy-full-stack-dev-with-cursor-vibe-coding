@@ -59,12 +59,12 @@ export default function Protected() {
       <div className="min-h-screen bg-background flex">
         {/* Mobile Backdrop */}
         {sidebarVisible && (
-          <div 
+          <div
             className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
             onClick={() => toggleSidebar()}
           />
         )}
-        
+
         {/* Sidebar */}
         {sidebarVisible && (
           <div className="fixed md:relative z-50 md:z-auto">
@@ -80,12 +80,29 @@ export default function Protected() {
           <div className="flex-1 p-6">
             <div className="max-w-4xl mx-auto">
               <div className="bg-card rounded-xl shadow-sm border border-border p-8 text-center">
-                <svg className="w-16 h-16 text-muted-foreground mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-16 h-16 text-muted-foreground mx-auto mb-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <h2 className="text-2xl font-bold text-foreground mb-4">No Analysis Found</h2>
-                <p className="text-muted-foreground mb-6">Submit a repository on the Playground to see the analysis here.</p>
-                <button onClick={handleBackToPlayground} className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg text-sm font-medium transition-colors">Go to Playground</button>
+                <p className="text-muted-foreground mb-6">
+                  Submit a repository on the Playground to see the analysis here.
+                </p>
+                <button
+                  onClick={handleBackToPlayground}
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Go to Playground
+                </button>
               </div>
             </div>
           </div>
@@ -101,12 +118,12 @@ export default function Protected() {
     <div className="min-h-screen bg-background flex">
       {/* Mobile Backdrop */}
       {sidebarVisible && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
           onClick={() => toggleSidebar()}
         />
       )}
-      
+
       {/* Sidebar */}
       {sidebarVisible && (
         <div className="fixed md:relative z-50 md:z-auto">
@@ -124,12 +141,24 @@ export default function Protected() {
             {/* Success Banner */}
             <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 mb-6">
               <div className="flex items-center space-x-3">
-                <svg className="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="w-5 h-5 text-primary"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <div>
                   <h3 className="text-sm font-medium text-foreground">Repository Analysis</h3>
-                  <p className="text-sm text-muted-foreground">Below is the analysis for your submitted repository.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Below is the analysis for your submitted repository.
+                  </p>
                 </div>
               </div>
             </div>
@@ -146,25 +175,36 @@ export default function Protected() {
                   <button
                     onClick={() => {
                       const text = JSON.stringify(analysis, null, 2);
-                      navigator.clipboard.writeText(text).then(() => {
-                        window?.showToastNotification?.('Copied analysis to clipboard', 'success');
-                      }).catch(() => {
-                        window?.showToastNotification?.('Failed to copy', 'error');
-                      });
+                      navigator.clipboard
+                        .writeText(text)
+                        .then(() => {
+                          window?.showToastNotification?.(
+                            'Copied analysis to clipboard',
+                            'success'
+                          );
+                        })
+                        .catch(() => {
+                          window?.showToastNotification?.('Failed to copy', 'error');
+                        });
                     }}
                     className="shrink-0 inline-flex items-center gap-2 px-3 py-2 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 text-xs font-medium"
                     aria-label="Copy analysis"
                     title="Copy analysis"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2v-4m-6 10H8a2 2 0 01-2-2v-4a2 2 0 012-2h6a2 2 0 012 2v4a2 2 0 01-2 2z" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2M8 16h8a2 2 0 002-2v-4m-6 10H8a2 2 0 01-2-2v-4a2 2 0 012-2h6a2 2 0 012 2v4a2 2 0 01-2 2z"
+                      />
                     </svg>
                     Copy
                   </button>
                 </div>
                 <div className="p-6">
                   <pre className="w-full text-left text-xs md:text-sm bg-muted text-foreground p-4 rounded-lg overflow-auto whitespace-pre-wrap break-words">
-{JSON.stringify(analysis, null, 2)}
+                    {JSON.stringify(analysis, null, 2)}
                   </pre>
                 </div>
               </div>
@@ -178,4 +218,3 @@ export default function Protected() {
     </div>
   );
 }
-

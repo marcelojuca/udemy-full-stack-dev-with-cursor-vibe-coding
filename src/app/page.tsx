@@ -1,33 +1,33 @@
-'use client'
+'use client';
 
-import { Providers } from './providers'
-import { Header } from '../components/header'
-import { HeroSection } from '../components/hero-section'
-import { FeaturesSection } from '../components/features-section'
-import { ApiDemoSection } from '../components/api-demo-section'
-import { PricingSection } from '../components/pricing-section'
-import { TestimonialsSection } from '../components/testimonials-section'
-import { Footer } from '../components/footer'
-import { useAuth } from '../contexts/auth-context'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { Providers } from './providers';
+import { Header } from '../components/header';
+import { HeroSection } from '../components/hero-section';
+import { FeaturesSection } from '../components/features-section';
+import { ApiDemoSection } from '../components/api-demo-section';
+import { PricingSection } from '../components/pricing-section';
+import { TestimonialsSection } from '../components/testimonials-section';
+import { Footer } from '../components/footer';
+import { useAuth } from '../contexts/auth-context';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 function HomeContent() {
-  const { isAuthenticated, loading } = useAuth()
-  const router = useRouter()
+  const { isAuthenticated, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading && isAuthenticated) {
-      router.push('/dashboards')
+      router.push('/dashboards');
     }
-  }, [isAuthenticated, loading, router])
+  }, [isAuthenticated, loading, router]);
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   // If authenticated, show loading while redirecting
@@ -36,7 +36,7 @@ function HomeContent() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
       </div>
-    )
+    );
   }
 
   return (
@@ -51,7 +51,7 @@ function HomeContent() {
       </main>
       <Footer />
     </div>
-  )
+  );
 }
 
 export default function Home() {
@@ -59,6 +59,5 @@ export default function Home() {
     <Providers>
       <HomeContent />
     </Providers>
-  )
+  );
 }
-

@@ -14,10 +14,10 @@ export const useSidebar = () => {
 
     // Set initial state
     handleResize();
-    
+
     // Listen for resize events
     window.addEventListener('resize', handleResize);
-    
+
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -27,6 +27,6 @@ export const useSidebar = () => {
 
   return {
     sidebarVisible,
-    toggleSidebar
+    toggleSidebar,
   };
 };

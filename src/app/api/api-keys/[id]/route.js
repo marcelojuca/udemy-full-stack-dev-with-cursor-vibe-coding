@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server';
 import { requireAuth } from '../../../../lib/auth-helpers';
-import { supabaseAdmin } from '../../../../lib/supabase';
+import { supabaseAdmin, ensureSupabaseEnv } from '../../../../lib/supabase';
 
 // GET /api/api-keys/[id] - Fetch a specific API key for authenticated user
 export async function GET(request, { params }) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -18,30 +21,24 @@ export async function GET(request, { params }) {
 
     if (dbError) {
       if (dbError.code === 'PGRST116') {
-        return NextResponse.json(
-          { error: 'API key not found' },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: 'API key not found' }, { status: 404 });
       }
       console.error('Error fetching API key:', dbError);
-      return NextResponse.json(
-        { error: 'Failed to fetch API key' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to fetch API key' }, { status: 500 });
     }
 
     return NextResponse.json(data);
   } catch (error) {
     console.error('GET /api/api-keys/[id] error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch API key' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch API key' }, { status: 500 });
   }
 }
 
 // PUT /api/api-keys/[id] - Update a specific API key for authenticated user
 export async function PUT(request, { params }) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -52,7 +49,8 @@ export async function PUT(request, { params }) {
 
     // Enforce usage limiting caps on update
     const requestedLimitUsage = body.limitUsage;
-    const requestedMonthlyLimit = typeof body.monthlyLimit === 'number' ? body.monthlyLimit : undefined;
+    const requestedMonthlyLimit =
+      typeof body.monthlyLimit === 'number' ? body.monthlyLimit : undefined;
     const maxMonthlyLimit = 10;
     const minMonthlyLimit = 1;
     const defaultMonthlyLimit = 5;
@@ -64,10 +62,7 @@ export async function PUT(request, { params }) {
 
     // Validate required fields
     if (!name) {
-      return NextResponse.json(
-        { error: 'Name is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
     }
 
     // Update the API key
@@ -77,7 +72,7 @@ export async function PUT(request, { params }) {
       permissions: permissions || [],
       key_type: keyType || 'development',
       limit_usage: effectiveLimitUsage,
-      monthly_limit: effectiveMonthlyLimit
+      monthly_limit: effectiveMonthlyLimit,
     };
 
     const { data, error: dbError } = await supabaseAdmin
@@ -89,31 +84,25 @@ export async function PUT(request, { params }) {
 
     if (dbError) {
       console.error('Error updating API key:', dbError);
-      return NextResponse.json(
-        { error: 'Failed to update API key' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to update API key' }, { status: 500 });
     }
 
     if (!data || data.length === 0) {
-      return NextResponse.json(
-        { error: 'API key not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'API key not found' }, { status: 404 });
     }
 
     return NextResponse.json(data[0]);
   } catch (error) {
     console.error('PUT /api/api-keys/[id] error:', error);
-    return NextResponse.json(
-      { error: 'Failed to update API key' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to update API key' }, { status: 500 });
   }
 }
 
 // DELETE /api/api-keys/[id] - Delete a specific API key for authenticated user
 export async function DELETE(request, { params }) {
+  // Validate environment variables at runtime before use
+  ensureSupabaseEnv();
+
   try {
     const { userId, error } = await requireAuth(request);
     if (error) return error;
@@ -128,17 +117,11 @@ export async function DELETE(request, { params }) {
 
     if (dbError) {
       console.error('Error deleting API key:', dbError);
-      return NextResponse.json(
-        { error: 'Failed to delete API key' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Failed to delete API key' }, { status: 500 });
     }
 
     if (!data || data.length === 0) {
-      return NextResponse.json(
-        { error: 'API key not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: 'API key not found' }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -147,9 +130,6 @@ export async function DELETE(request, { params }) {
     );
   } catch (error) {
     console.error('DELETE /api/api-keys/[id] error:', error);
-    return NextResponse.json(
-      { error: 'Failed to delete API key' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to delete API key' }, { status: 500 });
   }
 }

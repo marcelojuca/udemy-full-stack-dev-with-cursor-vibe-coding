@@ -1,20 +1,20 @@
-const { createClient } = require('@supabase/supabase-js')
-require('dotenv').config({ path: '.env.local' })
+const { createClient } = require('@supabase/supabase-js');
+require('dotenv').config({ path: '.env.local' });
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  console.error('Missing Supabase environment variables')
-  process.exit(1)
+  console.error('Missing Supabase environment variables');
+  process.exit(1);
 }
 
-const supabase = createClient(supabaseUrl, supabaseServiceKey)
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 async function setupDatabase() {
   try {
-    console.log('Setting up NextAuth.js database schema...')
-    
+    console.log('Setting up NextAuth.js database schema...');
+
     // Create users table
     const { error: usersError } = await supabase.rpc('exec_sql', {
       sql: `
@@ -27,13 +27,13 @@ async function setupDatabase() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
-      `
-    })
-    
+      `,
+    });
+
     if (usersError) {
-      console.log('Users table already exists or error:', usersError.message)
+      console.log('Users table already exists or error:', usersError.message);
     } else {
-      console.log('✅ Users table created')
+      console.log('✅ Users table created');
     }
 
     // Create accounts table
@@ -56,13 +56,13 @@ async function setupDatabase() {
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           UNIQUE(provider, provider_account_id)
         );
-      `
-    })
-    
+      `,
+    });
+
     if (accountsError) {
-      console.log('Accounts table already exists or error:', accountsError.message)
+      console.log('Accounts table already exists or error:', accountsError.message);
     } else {
-      console.log('✅ Accounts table created')
+      console.log('✅ Accounts table created');
     }
 
     // Create sessions table
@@ -76,13 +76,13 @@ async function setupDatabase() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
-      `
-    })
-    
+      `,
+    });
+
     if (sessionsError) {
-      console.log('Sessions table already exists or error:', sessionsError.message)
+      console.log('Sessions table already exists or error:', sessionsError.message);
     } else {
-      console.log('✅ Sessions table created')
+      console.log('✅ Sessions table created');
     }
 
     // Create verification_tokens table
@@ -95,13 +95,16 @@ async function setupDatabase() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           PRIMARY KEY (identifier, token)
         );
-      `
-    })
-    
+      `,
+    });
+
     if (verificationTokensError) {
-      console.log('Verification tokens table already exists or error:', verificationTokensError.message)
+      console.log(
+        'Verification tokens table already exists or error:',
+        verificationTokensError.message
+      );
     } else {
-      console.log('✅ Verification tokens table created')
+      console.log('✅ Verification tokens table created');
     }
 
     // Create api_keys table
@@ -122,13 +125,13 @@ async function setupDatabase() {
           created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
-      `
-    })
-    
+      `,
+    });
+
     if (apiKeysError) {
-      console.log('API keys table already exists or error:', apiKeysError.message)
+      console.log('API keys table already exists or error:', apiKeysError.message);
     } else {
-      console.log('✅ API keys table created')
+      console.log('✅ API keys table created');
     }
 
     // Add usage tracking columns to existing api_keys table if they don't exist
@@ -137,13 +140,13 @@ async function setupDatabase() {
         ALTER TABLE api_keys 
         ADD COLUMN IF NOT EXISTS current_usage INTEGER DEFAULT 0,
         ADD COLUMN IF NOT EXISTS last_reset_month VARCHAR(7);
-      `
-    })
-    
+      `,
+    });
+
     if (addUsageColumnsError) {
-      console.log('Usage tracking columns already exist or error:', addUsageColumnsError.message)
+      console.log('Usage tracking columns already exist or error:', addUsageColumnsError.message);
     } else {
-      console.log('✅ Usage tracking columns added to api_keys table')
+      console.log('✅ Usage tracking columns added to api_keys table');
     }
 
     // Create indexes
@@ -155,21 +158,20 @@ async function setupDatabase() {
         CREATE INDEX IF NOT EXISTS idx_verification_tokens_token ON verification_tokens(token);
         CREATE INDEX IF NOT EXISTS idx_api_keys_user_id ON api_keys(user_id);
         CREATE INDEX IF NOT EXISTS idx_api_keys_key ON api_keys(key);
-      `
-    })
-    
+      `,
+    });
+
     if (indexesError) {
-      console.log('Indexes already exist or error:', indexesError.message)
+      console.log('Indexes already exist or error:', indexesError.message);
     } else {
-      console.log('✅ Indexes created')
+      console.log('✅ Indexes created');
     }
 
-    console.log('🎉 Database setup complete!')
-    
+    console.log('🎉 Database setup complete!');
   } catch (error) {
-    console.error('Error setting up database:', error)
-    process.exit(1)
+    console.error('Error setting up database:', error);
+    process.exit(1);
   }
 }
 
-setupDatabase()
+setupDatabase();
