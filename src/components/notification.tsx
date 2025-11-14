@@ -1,25 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 export default function Notification() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastType, setToastType] = useState('success');
 
-  const showToastNotification = (message: string, type: string = 'success') => {
+  const showToastNotification = useCallback((message: string, type: string = 'success') => {
     setToastMessage(message);
     setToastType(type);
     setShowToast(true);
     setTimeout(() => {
       setShowToast(false);
     }, 3000);
-  };
+  }, []);
 
   // Expose the showToastNotification function globally so other components can use it
   useEffect(() => {
-    window.showToastNotification = showToastNotification;
-  }, []);
+    if (typeof window !== 'undefined') {
+      window.showToastNotification = showToastNotification;
+    }
+    return () => {
+      if (typeof window !== 'undefined' && window.showToastNotification === showToastNotification) {
+        delete window.showToastNotification;
+      }
+    };
+  }, [showToastNotification]);
 
   return (
     <>
