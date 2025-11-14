@@ -441,28 +441,30 @@ This project uses **GitHub Actions** to automatically deploy database schema cha
 This ensures GA failure **blocks** Vercel deployment:
 
 1. Go to **Settings → Branches**
-2. Click **Add rule** (or edit existing `main` branch rule)
-3. Enter branch name pattern: `main`
+2. Click **Add rule** (or edit existing `main`/`staging` branch rule)
+3. Enter branch name pattern: `main` or `staging`
 4. Enable these options:
    - ✅ **Require a pull request before merging**
      - Require approvals: 1 (or your preference)
      - Dismiss stale pull request approvals
    - ✅ **Require status checks to pass before merging**
-     - Search for: `validate-and-deploy-db` (the GA job name)
-     - Select it from the dropdown
+     - Search for: `Validate Database Schema` (the validation job name)
+     - Also require: `Quality Assurance Checks`
+     - Select them from the dropdown
    - ✅ **Require branches to be up to date before merging**
 5. Click **Create** or **Save changes**
 
 **Result**:
 
-- ✅ GA must pass before merge button appears
-- ✅ If GA fails, merge is **BLOCKED**
-- ✅ Vercel only deploys after GA succeeds
+- ✅ QA checks must pass before merge button appears
+- ✅ DB validation must pass before merge button appears
+- ✅ If any check fails, merge is **BLOCKED**
+- ✅ Vercel only deploys after merge succeeds
 - ✅ Database schema guaranteed to be ready
 
-#### Workflow in Action (With Safety)
+#### Workflow in Action (Sequential Validation)
 
-**Safe Deployment Flow with Branch Protection:**
+**Safe Deployment Flow with Sequential Validation:**
 
 ```
 1. Developer creates feature branch
@@ -472,37 +474,37 @@ This ensures GA failure **blocks** Vercel deployment:
 
 2. Creates Pull Request
    └─ Code review happens
-   └─ GA runs validation on feature branch
+   └─ Sequential validation runs:
+       ├─ Step 1: QA Checks (Format, Lint, Types, Tests) → ✅ Success
+       └─ Step 2: DB Validation (Env vars, Schema files) → ✅ Success
 
-3. Developer tries to merge to main
+3. Developer tries to merge to staging/main
    ├─ Branch protection rule triggers
-   └─ GA job status checked: validate-and-deploy-db
-       ├─ If GA FAILED ❌
-       │  └─ Merge button is DISABLED ✅
-       └─ If GA PASSED ✅
-          └─ Merge button is ENABLED ✅
+   └─ Required checks status checked:
+       ├─ If QA FAILED ❌ → Merge button DISABLED ✅
+       ├─ If DB Validation FAILED ❌ → Merge button DISABLED ✅
+       └─ If BOTH PASSED ✅ → Merge button ENABLED ✅
 
-4. If GA passed, merge to main
-   └─ GA runs again on main branch
-   └─ Database schema created/verified ✅
-   └─ Workflow completes successfully
+4. If checks passed, PR approved and merged
+   └─ Merge triggers push event to target branch
+   └─ Sequential deployment runs:
+       ├─ Step 1: DB Deployment (Actual database update) → ✅ Success
+       └─ Step 2: Code Deployment (Vercel) → ✅ Success
 
-5. Vercel deployment starts (parallel)
-   ├─ Database schema already created ✅
-   └─ App deployed to production ✅
-
-6. If GA failed (database issue)
-   ├─ Cannot merge to main (blocked) ✅
+5. If any validation failed
+   ├─ Cannot merge (blocked) ✅
    ├─ Vercel does NOT deploy ✅
-   └─ Production stays safe
+   └─ Production/staging stays safe ✅
 ```
 
 **Safety Guarantees:**
 
-- ❌ Cannot have broken database in production
-- ✅ Must have GA passing before merge allowed
-- ✅ Database schema guaranteed ready before app deploys
-- ✅ Vercel deployment only after GA succeeds
+- ❌ Cannot have broken database in production/staging
+- ✅ Must have QA checks passing before merge allowed
+- ✅ Must have DB validation passing before merge allowed
+- ✅ Database schema validated before merge, deployed after merge
+- ✅ Vercel deployment only after DB deployment succeeds
+- ✅ Sequential flow: QA → DB Validation → Approval → DB Deploy → Code Deploy
 
 #### Idempotent Operations
 
@@ -526,22 +528,38 @@ node setup-production-db.js
 
 #### Troubleshooting GitHub Actions Failures
 
-**If GA job fails and blocks your merge:**
+**If validation checks fail and block your merge:**
 
 1. **Check the error logs**
-   - Go to your PR → Click "Actions" tab
-   - Click the failed `validate-and-deploy-db` job
-   - Read the error output
+   - Go to your PR → Click "Checks" tab
+   - Check which job failed:
+     - `Quality Assurance Checks` → Fix code quality issues
+     - `Validate Database Schema` → Fix database validation issues
+   - Read the error output in the failed job
 
 2. **Common issues**
-   - ❌ Supabase connection failed
-     - Verify `PROD_SUPABASE_*` secrets in GitHub
-     - Test: `ENV_FILE=.env.production.local node validate-env.js`
 
+   **QA Checks Failures:**
+   - ❌ Formatting errors → Run `npm run format`
+   - ❌ Linting errors → Run `npm run lint:fix`
+   - ❌ Type errors → Fix TypeScript issues
+   - ❌ Test failures → Fix failing tests
+
+   **DB Validation Failures:**
+   - ❌ Missing environment variables
+     - Verify secrets exist in GitHub (e.g., `STAGING_SUPABASE_*` for staging PRs)
+     - Test locally: `ENV_FILE=.env.staging.local node validate-env.js`
+   - ❌ Missing schema files
+     - Ensure `setup-production-db.js` exists
+     - Ensure SQL syntax is valid
+   - ❌ Supabase connection failed
+     - Verify Supabase secrets in GitHub
+     - Check network connectivity
+
+   **DB Deployment Failures (after merge):**
    - ❌ Table already exists error
      - This is OK! Idempotent operations handle this
      - But if it's blocking, check database schema manually
-
    - ❌ Timeout connecting to Supabase
      - Check network connectivity
      - Verify Supabase project is active
@@ -550,13 +568,13 @@ node setup-production-db.js
 3. **Fix and retry**
    - Fix the issue in code or GitHub Secrets
    - Commit and push again
-   - GA runs automatically
-   - Once GA passes, merge is enabled
+   - Validation runs automatically on PR
+   - Once all checks pass, merge is enabled
 
 4. **Get help**
    - Check CLAUDE.md sections: Environment Setup, Database Setup
    - Review GitHub Actions logs for detailed errors
-   - Run validation locally: `ENV_FILE=.env.production.local node validate-env.js`
+   - Run validation locally: `ENV_FILE=.env.staging.local node validate-env.js`
 
 ### Best Practices for Schema Changes
 
