@@ -1,10 +1,13 @@
 name: Database Schema Validation & Deployment
 
-# Validates and deploys database schema to all environments
+# Validates database schema on PRs, deploys on merge (push)
 # Required for: main, staging, develop branches
-# Blocks deployment if validation fails on main
+# Blocks deployment if validation fails
 
 on:
+  pull_request:
+    branches: [main, staging, develop]
+    types: [opened, synchronize, reopened]
   push:
     branches:
       - main
@@ -26,16 +29,27 @@ jobs:
       environment: ${{ steps.env.outputs.environment }}
       env-file: ${{ steps.env.outputs.env-file }}
       is-production: ${{ steps.env.outputs.is-production }}
+      target-branch: ${{ steps.env.outputs.target-branch }}
 
     steps:
       - name: Determine environment from branch
         id: env
         run: |
-          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+          # For PRs, use the base branch (target branch)
+          # For pushes, use the current branch
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            TARGET_BRANCH="${{ github.base_ref }}"
+          else
+            TARGET_BRANCH="${{ github.ref_name }}"
+          fi
+
+          echo "target-branch=$TARGET_BRANCH" >> $GITHUB_OUTPUT
+
+          if [[ "$TARGET_BRANCH" == "main" ]]; then
             echo "environment=production" >> $GITHUB_OUTPUT
             echo "env-file=.env.production.local" >> $GITHUB_OUTPUT
             echo "is-production=true" >> $GITHUB_OUTPUT
-          elif [[ "${{ github.ref }}" == "refs/heads/staging" ]]; then
+          elif [[ "$TARGET_BRANCH" == "staging" ]]; then
             echo "environment=staging" >> $GITHUB_OUTPUT
             echo "env-file=.env.staging.local" >> $GITHUB_OUTPUT
             echo "is-production=false" >> $GITHUB_OUTPUT
@@ -45,9 +59,137 @@ jobs:
             echo "is-production=false" >> $GITHUB_OUTPUT
           fi
 
-  validate-and-deploy-db:
+  validate-db:
+    # Runs on PRs only - validates without deploying
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    name: Validate and Deploy Database Schema
+    name: Validate Database Schema
+    needs: determine-environment
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+        continue-on-error: false
+
+      - name: Set environment secrets for validation
+        id: set-secrets
+        run: |
+          if [[ "${{ needs.determine-environment.outputs.environment }}" == "production" ]]; then
+            echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.PROD_SUPABASE_URL }}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.PROD_SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+            echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.PROD_SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_ENV
+            echo "NEXTAUTH_SECRET=${{ secrets.PROD_NEXTAUTH_SECRET }}" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=${{ secrets.PROD_NEXTAUTH_URL }}" >> $GITHUB_ENV
+            echo "GOOGLE_CLIENT_ID=${{ secrets.PROD_GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.PROD_GOOGLE_CLIENT_SECRET }}" >> $GITHUB_ENV
+            echo "OPENAI_API_KEY=${{ secrets.PROD_OPENAI_API_KEY }}" >> $GITHUB_ENV
+          elif [[ "${{ needs.determine-environment.outputs.environment }}" == "staging" ]]; then
+            echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.STAGING_SUPABASE_URL }}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.STAGING_SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+            echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.STAGING_SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_ENV
+            echo "NEXTAUTH_SECRET=${{ secrets.STAGING_NEXTAUTH_SECRET }}" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=${{ secrets.STAGING_NEXTAUTH_URL }}" >> $GITHUB_ENV
+            echo "GOOGLE_CLIENT_ID=${{ secrets.STAGING_GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.STAGING_GOOGLE_CLIENT_SECRET }}" >> $GITHUB_ENV
+            echo "OPENAI_API_KEY=${{ secrets.STAGING_OPENAI_API_KEY }}" >> $GITHUB_ENV
+          else
+            echo "NEXT_PUBLIC_SUPABASE_URL=${{ secrets.DEV_SUPABASE_URL }}" >> $GITHUB_ENV
+            echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.DEV_SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+            echo "SUPABASE_SERVICE_ROLE_KEY=${{ secrets.DEV_SUPABASE_SERVICE_ROLE_KEY }}" >> $GITHUB_ENV
+            echo "NEXTAUTH_SECRET=${{ secrets.DEV_NEXTAUTH_SECRET }}" >> $GITHUB_ENV
+            echo "NEXTAUTH_URL=${{ secrets.DEV_NEXTAUTH_URL }}" >> $GITHUB_ENV
+            echo "GOOGLE_CLIENT_ID=${{ secrets.DEV_GOOGLE_CLIENT_ID }}" >> $GITHUB_ENV
+            echo "GOOGLE_CLIENT_SECRET=${{ secrets.DEV_GOOGLE_CLIENT_SECRET }}" >> $GITHUB_ENV
+            echo "OPENAI_API_KEY=${{ secrets.DEV_OPENAI_API_KEY }}" >> $GITHUB_ENV
+          fi
+
+      - name: Validate environment variables
+        id: validate-env
+        run: |
+          echo "🔍 Validating ${{ needs.determine-environment.outputs.environment }} environment variables..."
+          node validate-env.js
+
+      - name: Check database schema files exist
+        id: check-schema-files
+        run: |
+          echo "📋 Checking database schema files..."
+          if [ ! -f "setup-production-db.js" ]; then
+            echo "❌ setup-production-db.js not found"
+            exit 1
+          fi
+          if [ ! -f "setup-production-db.sql" ]; then
+            echo "⚠️  setup-production-db.sql not found (will be generated)"
+          fi
+          echo "✅ Database schema files present"
+
+      - name: Validate SQL syntax (basic check)
+        id: validate-sql
+        run: |
+          echo "🔍 Validating SQL syntax..."
+          # Basic check: ensure SQL file can be read and contains expected keywords
+          if [ -f "setup-production-db.sql" ]; then
+            if grep -q "CREATE TABLE" setup-production-db.sql; then
+              echo "✅ SQL file contains CREATE TABLE statements"
+            else
+              echo "⚠️  SQL file may be incomplete"
+            fi
+          else
+            echo "ℹ️  SQL file will be generated during deployment"
+          fi
+
+      - name: Create validation summary
+        if: always()
+        run: |
+          echo "## Database Schema Validation 🗄️" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Environment**: \`${{ needs.determine-environment.outputs.environment }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Target Branch**: \`${{ needs.determine-environment.outputs.target-branch }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**PR**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Validation Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Environment Variables | ${{ steps.validate-env.outcome == 'success' && '✅' || '❌' }} ${{ steps.validate-env.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Schema Files | ${{ steps.check-schema-files.outcome == 'success' && '✅' || '❌' }} ${{ steps.check-schema-files.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| SQL Syntax | ${{ steps.validate-sql.outcome == 'success' && '✅' || '❌' }} ${{ steps.validate-sql.outcome }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ job.status }}" == "success" ]]; then
+            echo "✨ **Validation passed!** Ready for merge and deployment." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Validation failed.** Fix the errors above before merging." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Report validation failure
+        if: failure()
+        run: |
+          ENVIRONMENT="${{ needs.determine-environment.outputs.environment }}"
+          UPPER_ENV=$(echo $ENVIRONMENT | tr '[:lower:]' '[:upper:]')
+
+          echo "❌ $UPPER_ENV DATABASE VALIDATION FAILED" >&2
+          echo "" >&2
+          echo "What to do:" >&2
+          echo "1. Review the error logs above" >&2
+          echo "2. Verify all environment variables in GitHub Secrets" >&2
+          echo "3. Ensure setup-production-db.js exists" >&2
+          echo "4. Fix the issues and push again" >&2
+          echo "" >&2
+          echo "📖 For help, see: CLAUDE.md → Deployment & CI/CD section" >&2
+          exit 1
+
+  deploy-db:
+    # Runs on push only - happens AFTER PR merge
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    name: Deploy Database Schema
     needs: determine-environment
 
     steps:
