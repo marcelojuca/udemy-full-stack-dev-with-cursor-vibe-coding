@@ -1,18 +1,17 @@
 name: Database Schema Validation & Deployment
 
 # Validates database schema on PRs, deploys on merge (push)
-# Required for: main, staging, develop branches
+# Required for: main, staging branches only
 # Blocks deployment if validation fails
 
 on:
   pull_request:
-    branches: [main, staging, develop]
+    branches: [main, staging]
     types: [opened, synchronize, reopened]
   push:
     branches:
       - main
       - staging
-      - develop
 
 concurrency:
   group: db-deployment-${{ github.ref }}
