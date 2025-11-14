@@ -393,20 +393,38 @@ Expected output:
 
 This project uses **GitHub Actions** to automatically deploy database schema changes to production with **branch protection** to prevent broken deployments.
 
-#### Workflow: `validate-and-deploy-db.yml`
+#### Workflows: `validate-db.yml` and `deploy-db.yml`
 
-**Location**: `.github/workflows/validate-and-deploy-db.yml`
+**Locations**:
 
-**Trigger**: Automatically runs on every push to `main` branch
+- `.github/workflows/validate-db.yml` - Validates on PRs
+- `.github/workflows/deploy-db.yml` - Deploys on push
 
-**What it does**:
+**Triggers**:
+
+- Validation: Runs on PRs targeting `main` or `staging`
+- Deployment: Automatically runs on every push to `main` or `staging` branch
+
+**What they do**:
+
+**Validation Workflow (PR)**:
 
 1. Checks out the code
 2. Sets up Node.js environment
 3. Installs dependencies
-4. **Validates** all production environment variables
-5. Executes `setup-production-db.js` with production credentials
-6. Creates/verifies all database tables and indexes in production
+4. **Validates** environment variables
+5. Checks database schema files exist
+6. Validates SQL syntax
+7. **Blocks merge** if validation fails
+
+**Deployment Workflow (Push)**:
+
+1. Checks out the code
+2. Sets up Node.js environment
+3. Installs dependencies
+4. **Validates** all production/staging environment variables
+5. Executes `setup-production-db.js` with production/staging credentials
+6. Creates/verifies all database tables and indexes
 7. **Fails explicitly** if any schema issues occur (blocks Vercel deployment)
 
 **Safety Features**:

@@ -391,14 +391,29 @@ OPENAI_API_KEY=sk-your-openai-api-key
 
 The project includes automated CI/CD via GitHub Actions:
 
-**Workflow**: `validate-and-deploy-db.yml`
+**Workflows**:
 
-**Triggers on**: Every push to `main` branch
+- `validate-db.yml` - Validates database schema on PRs (before merge)
+- `deploy-db.yml` - Deploys database schema after merge (on push)
 
-**What it does**:
+**Triggers**:
 
-1. Validates production environment variables
-2. Executes database schema setup on production Supabase
+- Validation: Runs on PRs targeting `main` or `staging`
+- Deployment: Runs on push to `main` or `staging` branches
+
+**What they do**:
+
+**Validation (PR)**:
+
+1. Validates environment variables
+2. Checks database schema files exist
+3. Validates SQL syntax
+4. Blocks merge if validation fails
+
+**Deployment (Push)**:
+
+1. Validates production/staging environment variables
+2. Executes database schema setup on Supabase
 3. Blocks Vercel deployment if database setup fails
 4. Ensures database is ready before app deployment
 
@@ -417,7 +432,7 @@ The project includes automated CI/CD via GitHub Actions:
 2. Configure branch protection on `main`:
    - Go to Settings → Branches
    - Add rule for `main`
-   - Require status check: `validate-and-deploy-db`
+   - Require status check: `Validate Database Schema` (from validate-db.yml workflow)
    - Enable "Require pull request before merging"
 
 ### Production Deployment Checklist
