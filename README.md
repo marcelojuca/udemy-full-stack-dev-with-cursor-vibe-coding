@@ -297,14 +297,18 @@ git push -u origin feature/xyz
 
 ```bash
 # Create PR: feature/xyz → staging
+# Sequential validation runs automatically:
+# 1. QA Checks (Format, Lint, Types, Tests) → ✅ Success
+# 2. DB Validation (Environment vars, Schema files) → ✅ Success
 # After approval, merge to staging
 git checkout staging
 git merge feature/xyz
 git push origin staging
 ```
 
-- ✅ Vercel auto-deploys to dandi.lat
-- ✅ QA tests on staging
+- ✅ Sequential deployment runs automatically:
+  1. DB Deployment (Database schema updated)
+  2. Code Deployment (Vercel auto-deploys to dandi.lat)
 
 **3. Production Promotion**
 
@@ -315,8 +319,9 @@ git merge staging
 git push origin main
 ```
 
-- ✅ Vercel auto-deploys to xpto.space
-- ✅ GitHub Actions updates database schema
+- ✅ Sequential deployment runs automatically:
+  1. DB Deployment (Database schema updated)
+  2. Code Deployment (Vercel auto-deploys to xpto.space)
 - ✅ Production is live
 
 ### Vercel Configuration
