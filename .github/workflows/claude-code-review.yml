@@ -15,27 +15,28 @@ jobs:
   check-changes:
     runs-on: ubuntu-latest
     outputs:
-      has-non-workflow-changes: ${{ steps.filter.outputs.has-non-workflow-changes }}
+      has-workflow-changes: ${{ steps.filter.outputs.has-workflow-changes }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Check for non-workflow file changes
+      - name: Check for workflow file changes
         id: filter
         run: |
           changed_files=$(git diff --name-only origin/${{ github.base_ref }}...HEAD)
-          non_workflow_files=$(echo "$changed_files" | grep -v "^\.github/workflows/" || true)
-          if [ -n "$non_workflow_files" ]; then
-            echo "has-non-workflow-changes=true" >> $GITHUB_OUTPUT
+          workflow_files=$(echo "$changed_files" | grep "^\.github/workflows/" || true)
+          if [ -n "$workflow_files" ]; then
+            echo "has-workflow-changes=true" >> $GITHUB_OUTPUT
           else
-            echo "has-non-workflow-changes=false" >> $GITHUB_OUTPUT
+            echo "has-workflow-changes=false" >> $GITHUB_OUTPUT
           fi
 
   claude-review:
-    # Skip review if only workflow files are changed (avoids validation errors)
+    # Skip review if workflow files are changed (avoids GitHub token validation errors)
+    # GitHub requires workflow files to match the base branch for OIDC token exchange
     needs: check-changes
-    if: needs.check-changes.outputs.has-non-workflow-changes == 'true'
+    if: needs.check-changes.outputs.has-workflow-changes == 'false'
     runs-on: ubuntu-latest
     permissions:
       contents: read
